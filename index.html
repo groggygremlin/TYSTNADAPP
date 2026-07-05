@@ -79,15 +79,15 @@
         <div class="hp-controls">
           <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
           <div class="hp-readout">
-            <span id="hp-current">12</span><span class="hp-max">/<span id="hp-maxnum">12</span></span>
+            <span id="hp-current">12</span><button class="hp-max" id="hp-max-btn" aria-label="Edit max HP">/<span id="hp-maxnum">12</span></button>
           </div>
           <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
         </div>
       </div>
-      <div class="def-block">
+      <button class="def-block" id="def-block" aria-label="Roll Defense">
         <span class="vital-label">Defense</span>
         <span class="def-die" id="sheet-def">d8</span>
-      </div>
+      </button>
     </div>
 
     <div class="skill-list" id="skill-list"></div>
@@ -95,7 +95,7 @@
     <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
   </section>
 
-  <!-- ============ DIFFICULTY OVERLAY ============ -->
+  <!-- ============ DIFFICULTY OVERLAY (skills) ============ -->
   <div id="overlay-difficulty" class="overlay hidden">
     <p class="overlay-skill" id="diff-skill-name">Athletics <span id="diff-skill-die">d6</span></p>
     <div class="diff-buttons">
@@ -104,6 +104,29 @@
       <button class="diff-btn" data-target="6">Hard<span>6+</span></button>
     </div>
     <button id="diff-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ THREAT OVERLAY (Defense) ============ -->
+  <div id="overlay-defense" class="overlay hidden">
+    <p class="overlay-skill">Defense <span id="def-die-label">d6</span></p>
+    <div class="diff-buttons" id="threat-buttons">
+      <button class="diff-btn" data-target="4">Weak<span>4+</span></button>
+      <button class="diff-btn" data-target="5">Standard<span>5+</span></button>
+      <button class="diff-btn" data-target="6">Strong<span>6+</span></button>
+    </div>
+    <button id="def-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ MAX HP OVERLAY ============ -->
+  <div id="overlay-maxhp" class="overlay hidden">
+    <p class="overlay-skill">Max HP</p>
+    <div class="stepper stepper-large">
+      <button class="step-btn" id="maxhp-minus" aria-label="Lower max HP">&minus;</button>
+      <span class="step-value" id="maxhp-value">10</span>
+      <button class="step-btn" id="maxhp-plus" aria-label="Raise max HP">+</button>
+    </div>
+    <p class="field-hint overlay-hint">Raising max HP does not heal. Current HP stays where it is.</p>
+    <button id="maxhp-done" class="primary-btn slim">Done</button>
   </div>
 
   <!-- ============ RESULT OVERLAY ============ -->

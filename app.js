@@ -1,5 +1,5 @@
 /* ============================================================
-   TYSTNAD Companion - MVP
+   TYSTNAD Companion - v4
    Canon: Players Booklet v2.5
    ============================================================ */
 
@@ -22,6 +22,7 @@ const CLASSES = {
 };
 
 const DIFFICULTY_NAMES = { 4: "Easy 4+", 5: "Normal 5+", 6: "Hard 6+" };
+const THREAT_NAMES = { 4: "Weak 4+", 5: "Standard 5+", 6: "Strong 6+" };
 
 const STORAGE_KEY = "tystnad-character";
 
@@ -88,7 +89,6 @@ const createState = {
 };
 
 function initCreateScreen() {
-  // Default all skills to d6
   SKILLS.forEach((s) => { createState.skills[s] = "d6"; });
   createState.cls = null;
   createState.defense = "d8";
@@ -231,6 +231,25 @@ function adjustHP(delta) {
   save();
 }
 
+// ---------- Max HP editing ----------
+
+function openMaxHP() {
+  $("maxhp-value").textContent = character.hpMax;
+  show($("overlay-maxhp"));
+}
+
+function adjustMaxHP(delta) {
+  const next = Math.min(Math.max(character.hpMax + delta, 1), 99);
+  character.hpMax = next;
+  // Lowering max clamps current. Raising max does not heal.
+  if (character.hpCur > character.hpMax) {
+    character.hpCur = character.hpMax;
+  }
+  $("maxhp-value").textContent = character.hpMax;
+  renderHP();
+  save();
+}
+
 // ---------- Rolling ----------
 
 function openDifficulty(skill) {
@@ -240,19 +259,23 @@ function openDifficulty(skill) {
   show($("overlay-difficulty"));
 }
 
-function roll(target) {
+function openDefense() {
+  $("def-die-label").textContent = character.defense;
+  show($("overlay-defense"));
+}
+
+/* Shared roll runner.
+   showShortfall: on failure, also display FAILED BY (target minus roll).
+   Used for Defense, where the shortfall is the base damage taken
+   before the monster's damage bonus. The player adjusts HP himself. */
+function performRoll(die, target, context, showShortfall) {
   if (rollLocked) return;
   rollLocked = true;
 
-  const skill = pendingSkill;
-  const die = character.skills[skill];
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
 
-  hide($("overlay-difficulty"));
-
-  $("result-context").textContent =
-    skill + " " + die + " vs " + DIFFICULTY_NAMES[target];
+  $("result-context").textContent = context;
 
   const numEl = $("result-number");
   const verdictEl = $("result-verdict");
@@ -260,7 +283,6 @@ function roll(target) {
   numEl.classList.add("rolling");
   show($("overlay-result"));
 
-  // Brief flicker of random faces, then the true result lands.
   let ticks = 0;
   const flicker = setInterval(() => {
     numEl.textContent = Math.floor(Math.random() * sides) + 1;
@@ -271,12 +293,29 @@ function roll(target) {
       numEl.textContent = result;
       if (result >= target) {
         verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
+      } else if (showShortfall) {
+        verdictEl.innerHTML =
+          '<div class="verdict-fail"><span class="verdict-skull">' + SKULL_SVG + "</span>" +
+          '<span class="fail-by">Failed by ' + (target - result) + "</span></div>";
       } else {
         verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
       }
       rollLocked = false;
     }
   }, 60);
+}
+
+function rollSkill(target) {
+  const skill = pendingSkill;
+  const die = character.skills[skill];
+  hide($("overlay-difficulty"));
+  performRoll(die, target, skill + " " + die + " vs " + DIFFICULTY_NAMES[target], false);
+}
+
+function rollDefense(target) {
+  const die = character.defense;
+  hide($("overlay-defense"));
+  performRoll(die, target, "Defense " + die + " vs " + THREAT_NAMES[target], true);
 }
 
 // ---------- Wiring ----------
@@ -309,6 +348,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Sheet
   $("hp-minus").addEventListener("click", () => adjustHP(-1));
   $("hp-plus").addEventListener("click", () => adjustHP(1));
+  $("hp-max-btn").addEventListener("click", openMaxHP);
+  $("def-block").addEventListener("click", openDefense);
 
   $("btn-new").addEventListener("click", () => show($("overlay-confirm")));
   $("confirm-no").addEventListener("click", () => hide($("overlay-confirm")));
@@ -321,14 +362,25 @@ document.addEventListener("DOMContentLoaded", () => {
     show($("screen-create"));
   });
 
-  // Difficulty overlay
-  document.querySelectorAll(".diff-btn").forEach((btn) => {
-    btn.addEventListener("click", () => roll(parseInt(btn.dataset.target, 10)));
+  // Max HP overlay
+  $("maxhp-minus").addEventListener("click", () => adjustMaxHP(-1));
+  $("maxhp-plus").addEventListener("click", () => adjustMaxHP(1));
+  $("maxhp-done").addEventListener("click", () => hide($("overlay-maxhp")));
+
+  // Skill difficulty overlay
+  document.querySelectorAll("#overlay-difficulty .diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => rollSkill(parseInt(btn.dataset.target, 10)));
   });
   $("diff-cancel").addEventListener("click", () => {
     pendingSkill = null;
     hide($("overlay-difficulty"));
   });
+
+  // Defense threat overlay
+  document.querySelectorAll("#overlay-defense .diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => rollDefense(parseInt(btn.dataset.target, 10)));
+  });
+  $("def-cancel").addEventListener("click", () => hide($("overlay-defense")));
 
   // Result overlay dismisses on tap, but not mid-flicker
   $("overlay-result").addEventListener("click", () => {

@@ -139,6 +139,12 @@ input:focus { border-color: var(--blood); }
 
 .stepper { display: flex; align-items: center; gap: 4px; }
 
+.stepper-large { gap: 10px; }
+
+.stepper-large .step-btn { width: 60px; height: 60px; font-size: 1.5rem; }
+
+.stepper-large .step-value { min-width: 80px; font-size: 2rem; }
+
 .step-btn {
   background: var(--panel-hi);
   border: 1px solid var(--line);
@@ -176,6 +182,8 @@ input:focus { border-color: var(--blood); }
   cursor: pointer;
   margin-top: 6px;
 }
+
+.primary-btn.slim { padding: 14px 40px; margin-top: 0; }
 
 .primary-btn:disabled { background: var(--panel-hi); color: var(--ash); }
 
@@ -246,7 +254,16 @@ input:focus { border-color: var(--blood); }
   gap: 8px;
 }
 
-.def-block { align-items: center; justify-content: center; min-width: 96px; }
+.def-block {
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  color: var(--bone);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.def-block:active { background: var(--panel-hi); border-color: var(--blood); }
 
 .vital-label {
   font-size: 0.62rem;
@@ -278,9 +295,24 @@ input:focus { border-color: var(--blood); }
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
 }
 
-.hp-readout .hp-max { font-size: 1.1rem; font-weight: 600; color: var(--ash); }
+button.hp-max {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ash);
+  cursor: pointer;
+  padding: 6px 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+button.hp-max:active { color: var(--blood-bright); }
 
 #hp-current.low { color: var(--blood-bright); }
 
@@ -298,8 +330,8 @@ input:focus { border-color: var(--blood); }
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--bone);
-  padding: 16px 16px;
-  font-size: 1rem;
+  padding: 11px 12px;
+  font-size: 0.9rem;
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -310,8 +342,8 @@ input:focus { border-color: var(--blood); }
 .skill-row .skill-name { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.82rem; }
 
 .skill-row .skill-die {
-  padding: 11px 12px;
-  font-size: 0.9rem;
+  font-weight: 900;
+  font-size: 1.05rem;
   color: var(--ash);
   font-variant-numeric: tabular-nums;
 }
@@ -343,6 +375,8 @@ input:focus { border-color: var(--blood); }
 }
 
 .overlay-skill span { color: var(--blood-bright); margin-left: 8px; }
+
+.overlay-hint { max-width: 260px; text-align: center; }
 
 .diff-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
 
@@ -394,7 +428,7 @@ input:focus { border-color: var(--blood); }
 }
 
 .result-verdict {
-  min-height: 96px;
+  min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -408,7 +442,23 @@ input:focus { border-color: var(--blood); }
   color: var(--success);
 }
 
+.verdict-fail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
 .verdict-skull svg { width: 88px; height: 88px; display: block; }
+
+.fail-by {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  margin-right: -0.28em;
+  text-transform: uppercase;
+  color: var(--blood-bright);
+}
 
 .result-dismiss {
   font-size: 0.68rem;
