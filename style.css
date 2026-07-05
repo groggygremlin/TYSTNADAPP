@@ -352,6 +352,45 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .foot-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.06em; }
 
+/* ============ DEATH ROLL ============ */
+
+.death-btn {
+  background: var(--blood);
+  border: 1px solid var(--blood-bright);
+  border-radius: 8px;
+  color: #f2ede6;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  padding: 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.death-btn:active { background: var(--blood-bright); }
+
+.danger-btn.big { padding: 18px 64px; font-size: 1rem; letter-spacing: 0.3em; }
+
+#overlay-result.death-flood { background: rgba(38, 6, 8, 0.97); }
+
+.verdict-death {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  color: var(--blood-bright);
+}
+
+.survive-note {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  margin-right: -0.28em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
 /* ============ OVERLAYS ============ */
 
 .overlay {

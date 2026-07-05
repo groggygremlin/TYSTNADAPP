@@ -90,6 +90,8 @@
       </button>
     </div>
 
+    <button id="btn-death" class="death-btn hidden">Death Roll</button>
+
     <div class="skill-list" id="skill-list"></div>
 
     <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
@@ -108,7 +110,12 @@
 
   <!-- ============ THREAT OVERLAY (Defense) ============ -->
   <div id="overlay-defense" class="overlay hidden">
-    <p class="overlay-skill">Defense <span id="def-die-label">d6</span></p>
+    <p class="overlay-skill">Defense</p>
+    <div class="stepper" id="def-edit-stepper">
+      <button class="step-btn" data-dir="-1" aria-label="Lower Defense die">&minus;</button>
+      <span class="step-value" id="def-edit-value">d6</span>
+      <button class="step-btn" data-dir="1" aria-label="Raise Defense die">+</button>
+    </div>
     <div class="diff-buttons" id="threat-buttons">
       <button class="diff-btn" data-target="4">Weak<span>4+</span></button>
       <button class="diff-btn" data-target="5">Standard<span>5+</span></button>
@@ -127,6 +134,14 @@
     </div>
     <p class="field-hint overlay-hint">Raising max HP does not heal. Current HP stays where it is.</p>
     <button id="maxhp-done" class="primary-btn slim">Done</button>
+  </div>
+
+  <!-- ============ DEATH ROLL OVERLAY ============ -->
+  <div id="overlay-death" class="overlay hidden">
+    <p class="overlay-skill">Death Roll <span id="death-die-label">d20</span></p>
+    <p class="field-hint overlay-hint">Meet or beat 5 to survive.</p>
+    <button id="death-roll-btn" class="danger-btn big">Roll</button>
+    <button id="death-cancel" class="ghost-btn">Cancel</button>
   </div>
 
   <!-- ============ RESULT OVERLAY ============ -->

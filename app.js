@@ -1,5 +1,5 @@
 /* ============================================================
-   TYSTNAD Companion - v4
+   TYSTNAD Companion - v5
    Canon: Players Booklet v2.5
    ============================================================ */
 
@@ -200,6 +200,13 @@ function renderHP() {
   cur.textContent = character.hpCur;
   $("hp-maxnum").textContent = character.hpMax;
   cur.classList.toggle("low", character.hpCur <= Math.floor(character.hpMax / 3));
+  // The Death Roll waits at 0 HP and below.
+  const deathBtn = $("btn-death");
+  if (character.hpCur <= 0) {
+    show(deathBtn);
+  } else {
+    hide(deathBtn);
+  }
 }
 
 function renderSkillList() {
@@ -226,7 +233,8 @@ function renderSkillList() {
 }
 
 function adjustHP(delta) {
-  character.hpCur = Math.min(Math.max(character.hpCur + delta, 0), character.hpMax);
+  // HP runs negative. The Death Roll die shrinks with the depth (canon PB v2.5).
+  character.hpCur = Math.min(Math.max(character.hpCur + delta, -99), character.hpMax);
   renderHP();
   save();
 }
@@ -260,28 +268,58 @@ function openDifficulty(skill) {
 }
 
 function openDefense() {
-  $("def-die-label").textContent = character.defense;
+  $("def-edit-value").textContent = character.defense;
   show($("overlay-defense"));
 }
 
-/* Shared roll runner.
-   showShortfall: on failure, also display FAILED BY (target minus roll).
-   Used for Defense, where the shortfall is the base damage taken
-   before the monster's damage bonus. The player adjusts HP himself. */
-function performRoll(die, target, context, showShortfall) {
+// ---------- Death Roll ----------
+
+/* Death Roll die by HP depth (canon PB v2.5):
+   0 HP: d20. -1: d12. -2: d10. -3: d8. -4 or below: d6. */
+function deathDie(hp) {
+  if (hp >= 0) return "d20";
+  if (hp === -1) return "d12";
+  if (hp === -2) return "d10";
+  if (hp === -3) return "d8";
+  return "d6";
+}
+
+function openDeath() {
+  $("death-die-label").textContent = deathDie(character.hpCur);
+  show($("overlay-death"));
+}
+
+function rollDeath() {
+  const die = deathDie(character.hpCur);
+  hide($("overlay-death"));
+  performRoll(die, 5, "Death Roll " + die + " vs 5+", { death: true });
+}
+
+/* Shared roll runner. opts:
+   shortfall: on failure, also display FAILED BY (target minus roll).
+     Used for Defense, where the shortfall is the base damage taken
+     before the monster's damage bonus. The player adjusts HP himself.
+   death: Death Roll mode. Success shows SURVIVES and rolls 1d6
+     unconscious rounds. Failure shows DEATH and floods the overlay.
+     The app changes nothing on death. Rerolls (Nine Lives, Not Yet)
+     and the final ruling belong to the table. */
+function performRoll(die, target, context, opts) {
   if (rollLocked) return;
   rollLocked = true;
+  opts = opts || {};
 
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
 
   $("result-context").textContent = context;
 
+  const overlay = $("overlay-result");
   const numEl = $("result-number");
   const verdictEl = $("result-verdict");
   verdictEl.innerHTML = "";
+  overlay.classList.remove("death-flood");
   numEl.classList.add("rolling");
-  show($("overlay-result"));
+  show(overlay);
 
   let ticks = 0;
   const flicker = setInterval(() => {
@@ -292,8 +330,21 @@ function performRoll(die, target, context, showShortfall) {
       numEl.classList.remove("rolling");
       numEl.textContent = result;
       if (result >= target) {
-        verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
-      } else if (showShortfall) {
+        if (opts.death) {
+          const rounds = Math.floor(Math.random() * 6) + 1;
+          verdictEl.innerHTML =
+            '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
+            '<span class="survive-note">Unconscious ' + rounds +
+            (rounds === 1 ? " round" : " rounds") + "</span></div>";
+        } else {
+          verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
+        }
+      } else if (opts.death) {
+        overlay.classList.add("death-flood");
+        verdictEl.innerHTML =
+          '<div class="verdict-fail"><span class="verdict-skull">' + SKULL_SVG + "</span>" +
+          '<span class="verdict-death">DEATH</span></div>';
+      } else if (opts.shortfall) {
         verdictEl.innerHTML =
           '<div class="verdict-fail"><span class="verdict-skull">' + SKULL_SVG + "</span>" +
           '<span class="fail-by">Failed by ' + (target - result) + "</span></div>";
@@ -309,13 +360,13 @@ function rollSkill(target) {
   const skill = pendingSkill;
   const die = character.skills[skill];
   hide($("overlay-difficulty"));
-  performRoll(die, target, skill + " " + die + " vs " + DIFFICULTY_NAMES[target], false);
+  performRoll(die, target, skill + " " + die + " vs " + DIFFICULTY_NAMES[target], {});
 }
 
 function rollDefense(target) {
   const die = character.defense;
   hide($("overlay-defense"));
-  performRoll(die, target, "Defense " + die + " vs " + THREAT_NAMES[target], true);
+  performRoll(die, target, "Defense " + die + " vs " + THREAT_NAMES[target], { shortfall: true });
 }
 
 // ---------- Wiring ----------
@@ -382,10 +433,28 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("def-cancel").addEventListener("click", () => hide($("overlay-defense")));
 
+  // Defense die editing (persistent, capped at d12 per global rule)
+  $("def-edit-stepper").addEventListener("click", (e) => {
+    const btn = e.target.closest(".step-btn");
+    if (!btn) return;
+    const dir = parseInt(btn.dataset.dir, 10);
+    const next = stepDie(character.defense, dir);
+    character.defense = next === "d20" ? "d12" : next;
+    $("def-edit-value").textContent = character.defense;
+    $("sheet-def").textContent = character.defense;
+    save();
+  });
+
+  // Death Roll
+  $("btn-death").addEventListener("click", openDeath);
+  $("death-roll-btn").addEventListener("click", rollDeath);
+  $("death-cancel").addEventListener("click", () => hide($("overlay-death")));
+
   // Result overlay dismisses on tap, but not mid-flicker
   $("overlay-result").addEventListener("click", () => {
     if (rollLocked) return;
     hide($("overlay-result"));
+    $("overlay-result").classList.remove("death-flood");
   });
 
   // Boot
