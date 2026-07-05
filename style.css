@@ -288,7 +288,7 @@ input:focus { border-color: var(--blood); }
 
 /* ============ SKILL LIST ============ */
 
-.skill-list { display: flex; flex-direction: column; gap: 8px; }
+.skill-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 .skill-row {
   display: flex;
@@ -307,11 +307,11 @@ input:focus { border-color: var(--blood); }
 
 .skill-row:active { background: var(--panel-hi); border-color: var(--blood); }
 
-.skill-row .skill-name { font-weight: 700; letter-spacing: 0.04em; }
+.skill-row .skill-name { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.82rem; }
 
 .skill-row .skill-die {
-  font-weight: 900;
-  font-size: 1.05rem;
+  padding: 16px 12px;
+  font-size: 0.9rem;
   color: var(--ash);
   font-variant-numeric: tabular-nums;
 }
