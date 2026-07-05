@@ -1,0 +1,431 @@
+/* ============================================================
+   TYSTNAD Companion
+   Palette: blood on ash. Black, red, gray.
+   ============================================================ */
+
+:root {
+  --ink: #0c0a0b;        /* background, near-black */
+  --panel: #171416;      /* raised surfaces */
+  --panel-hi: #201c1e;   /* pressed / active surfaces */
+  --line: #2a2528;       /* hairlines */
+  --bone: #cfc9c0;       /* primary text */
+  --ash: #7d766f;        /* secondary text */
+  --blood: #a11e24;      /* accent */
+  --blood-bright: #d92b32; /* results, warnings */
+  --success: #cfc9c0;    /* success stays bone: clinical, no celebration */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--ink);
+  color: var(--bone);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hidden { display: none !important; }
+
+.screen {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: max(env(safe-area-inset-top), 20px) 18px calc(env(safe-area-inset-bottom) + 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ============ BRAND ============ */
+
+.brand { text-align: center; padding-top: 10px; }
+
+.brand h1 {
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 0.42em;
+  margin-right: -0.42em; /* optical centering of tracked type */
+  color: var(--bone);
+}
+
+.brand-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  text-transform: uppercase;
+  color: var(--blood-bright);
+  margin-top: 4px;
+}
+
+.create-intro p {
+  color: var(--ash);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ============ FIELDS ============ */
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+
+.field-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.field-hint { font-size: 0.75rem; color: var(--ash); line-height: 1.4; }
+
+input[type="text"], input[type="number"] {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  font-size: 1.05rem;
+  padding: 14px;
+  width: 100%;
+  outline: none;
+}
+
+input:focus { border-color: var(--blood); }
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ============ CLASS PICKER ============ */
+
+.class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.class-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 16px 8px;
+  cursor: pointer;
+}
+
+.class-btn.selected {
+  border-color: var(--blood-bright);
+  background: var(--panel-hi);
+  color: var(--blood-bright);
+}
+
+/* ============ SKILL EDITORS (creation) ============ */
+
+.skill-editor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.skill-editor-name { font-size: 0.92rem; font-weight: 600; }
+
+.stepper { display: flex; align-items: center; gap: 4px; }
+
+.step-btn {
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  font-size: 1.15rem;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.step-btn:active { background: var(--blood); }
+
+.step-value {
+  min-width: 52px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============ PRIMARY / GHOST / DANGER BUTTONS ============ */
+
+.primary-btn {
+  background: var(--blood);
+  border: none;
+  border-radius: 6px;
+  color: #f2ede6;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 18px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.primary-btn:disabled { background: var(--panel-hi); color: var(--ash); }
+
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ash);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.danger-btn {
+  background: var(--blood);
+  border: none;
+  border-radius: 6px;
+  color: #f2ede6;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 22px;
+  cursor: pointer;
+}
+
+/* ============ SHEET ============ */
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+
+.sheet-head h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  word-break: break-word;
+}
+
+.sheet-class {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--blood-bright);
+  margin-top: 3px;
+}
+
+/* ============ VITALS ============ */
+
+.vitals { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: stretch; }
+
+.hp-block, .def-block {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.def-block { align-items: center; justify-content: center; min-width: 96px; }
+
+.vital-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.hp-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+.hp-btn {
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--bone);
+  font-size: 1.5rem;
+  width: 54px;
+  height: 54px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.hp-btn:active { background: var(--blood); }
+
+.hp-readout {
+  font-size: 2.2rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.hp-readout .hp-max { font-size: 1.1rem; font-weight: 600; color: var(--ash); }
+
+#hp-current.low { color: var(--blood-bright); }
+
+.def-die { font-size: 1.7rem; font-weight: 900; }
+
+/* ============ SKILL LIST ============ */
+
+.skill-list { display: flex; flex-direction: column; gap: 8px; }
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--bone);
+  padding: 16px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.skill-row:active { background: var(--panel-hi); border-color: var(--blood); }
+
+.skill-row .skill-name { font-weight: 700; letter-spacing: 0.04em; }
+
+.skill-row .skill-die {
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: var(--ash);
+  font-variant-numeric: tabular-nums;
+}
+
+.skill-row .skill-die.core { color: var(--blood-bright); }
+
+.foot-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.06em; }
+
+/* ============ OVERLAYS ============ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 10, 11, 0.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 24px;
+  z-index: 10;
+}
+
+.overlay-skill {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.overlay-skill span { color: var(--blood-bright); margin-left: 8px; }
+
+.diff-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
+
+.diff-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--bone);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.diff-btn span { color: var(--blood-bright); font-variant-numeric: tabular-nums; }
+
+.diff-btn:active { background: var(--panel-hi); border-color: var(--blood); }
+
+/* ============ RESULT ============ */
+
+#overlay-result { gap: 10px; }
+
+.result-context {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.result-number {
+  font-size: clamp(6rem, 34vw, 11rem);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-number.rolling { animation: flicker 0.07s steps(1) infinite; }
+
+@keyframes flicker { 50% { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .result-number.rolling { animation: none; }
+}
+
+.result-verdict {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verdict-success {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  color: var(--success);
+}
+
+.verdict-skull svg { width: 88px; height: 88px; display: block; }
+
+.result-dismiss {
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-top: 18px;
+}
+
+/* ============ CONFIRM ============ */
+
+.confirm-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 300px;
+  color: var(--bone);
+}
+
+.confirm-buttons { display: flex; gap: 14px; }

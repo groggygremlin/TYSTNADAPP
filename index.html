@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0c0a0b">
+  <meta name="description" content="TYSTNAD player companion. Your Explorer, your dice.">
+  <title>TYSTNAD Companion</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+  <!-- ============ CREATION SCREEN ============ -->
+  <section id="screen-create" class="screen hidden">
+    <header class="brand">
+      <h1>TYSTNAD</h1>
+      <p class="brand-sub">Companion</p>
+    </header>
+
+    <div class="create-intro">
+      <p>Haven has sanctioned you. Record who you are before you cross the border.</p>
+    </div>
+
+    <label class="field">
+      <span class="field-label">Name</span>
+      <input id="in-name" type="text" maxlength="24" autocomplete="off" placeholder="Your Explorer">
+    </label>
+
+    <div class="field">
+      <span class="field-label">Class</span>
+      <div class="class-grid" id="class-grid">
+        <button class="class-btn" data-class="Warrior">Warrior</button>
+        <button class="class-btn" data-class="Rogue">Rogue</button>
+        <button class="class-btn" data-class="Scholar">Scholar</button>
+        <button class="class-btn" data-class="Sorcerer">Sorcerer</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label">Skills</span>
+      <p class="field-hint" id="skill-hint">Choose a class to set starting dice. Adjust freely for a leveled Explorer.</p>
+      <div id="skill-editors"></div>
+    </div>
+
+    <div class="row-2">
+      <label class="field">
+        <span class="field-label">Max HP</span>
+        <input id="in-hp" type="number" inputmode="numeric" min="1" max="99" placeholder="12">
+      </label>
+      <div class="field">
+        <span class="field-label">Defense Die</span>
+        <div class="stepper" id="def-stepper">
+          <button class="step-btn" data-dir="-1" aria-label="Lower Defense die">&minus;</button>
+          <span class="step-value" id="def-value">d8</span>
+          <button class="step-btn" data-dir="1" aria-label="Raise Defense die">+</button>
+        </div>
+        <p class="field-hint">Base die plus armor.</p>
+      </div>
+    </div>
+
+    <button id="btn-create" class="primary-btn" disabled>Begin the Expedition</button>
+  </section>
+
+  <!-- ============ SHEET SCREEN ============ -->
+  <section id="screen-sheet" class="screen hidden">
+    <header class="sheet-head">
+      <div>
+        <h2 id="sheet-name">Explorer</h2>
+        <p class="sheet-class" id="sheet-class">Warrior</p>
+      </div>
+      <button id="btn-new" class="ghost-btn">New</button>
+    </header>
+
+    <div class="vitals">
+      <div class="hp-block">
+        <span class="vital-label">HP</span>
+        <div class="hp-controls">
+          <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
+          <div class="hp-readout">
+            <span id="hp-current">12</span><span class="hp-max">/<span id="hp-maxnum">12</span></span>
+          </div>
+          <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
+        </div>
+      </div>
+      <div class="def-block">
+        <span class="vital-label">Defense</span>
+        <span class="def-die" id="sheet-def">d8</span>
+      </div>
+    </div>
+
+    <div class="skill-list" id="skill-list"></div>
+
+    <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
+  </section>
+
+  <!-- ============ DIFFICULTY OVERLAY ============ -->
+  <div id="overlay-difficulty" class="overlay hidden">
+    <p class="overlay-skill" id="diff-skill-name">Athletics <span id="diff-skill-die">d6</span></p>
+    <div class="diff-buttons">
+      <button class="diff-btn" data-target="4">Easy<span>4+</span></button>
+      <button class="diff-btn" data-target="5">Normal<span>5+</span></button>
+      <button class="diff-btn" data-target="6">Hard<span>6+</span></button>
+    </div>
+    <button id="diff-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ RESULT OVERLAY ============ -->
+  <div id="overlay-result" class="overlay hidden">
+    <p class="result-context" id="result-context">Athletics d6 vs Normal 5+</p>
+    <div class="result-number" id="result-number">?</div>
+    <div class="result-verdict" id="result-verdict"></div>
+    <p class="result-dismiss">Tap to continue</p>
+  </div>
+
+  <!-- ============ CONFIRM OVERLAY ============ -->
+  <div id="overlay-confirm" class="overlay hidden">
+    <p class="confirm-text">Abandon this Explorer and create a new one? He will not return.</p>
+    <div class="confirm-buttons">
+      <button id="confirm-yes" class="danger-btn">Abandon</button>
+      <button id="confirm-no" class="ghost-btn">Keep Him</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
