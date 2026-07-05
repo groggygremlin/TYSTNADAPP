@@ -1,5 +1,5 @@
 /* ============================================================
-   TYSTNAD Companion - v5
+   TYSTNAD Companion - v6
    Canon: Players Booklet v2.5
    ============================================================ */
 
@@ -23,6 +23,19 @@ const CLASSES = {
 
 const DIFFICULTY_NAMES = { 4: "Easy 4+", 5: "Normal 5+", 6: "Hard 6+" };
 const THREAT_NAMES = { 4: "Weak 4+", 5: "Standard 5+", 6: "Strong 6+" };
+
+/* Initiative contribution by loadout (canon PB v2.5).
+   Medium armor and standard weapons contribute 0. */
+const INIT_ARMOR = { none: 2, light: 1, medium: 0, heavy: -1 };
+const INIT_WEAPON = { light: 1, standard: 0, heavy: -1 };
+
+/* Spell tiers (canon PB v2.5): cost in HP, Sorcery target to cast.
+   The cost is paid on success, failure, and death alike. */
+const CAST_TIERS = {
+  1: { cost: 1, target: 4 },
+  2: { cost: 2, target: 5 },
+  3: { cost: 3, target: 6 }
+};
 
 const STORAGE_KEY = "tystnad-character";
 
@@ -56,11 +69,25 @@ function load() {
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (!data || typeof data !== "object" || !data.skills) return null;
-    return data;
+    return migrate(data);
   } catch (e) {
     console.error("Load failed:", e);
     return null;
   }
+}
+
+/* Characters saved before v6 lack loadout, items, and coins.
+   Default loadout is medium armor and a standard weapon: contribution 0. */
+function migrate(c) {
+  if (!c.loadout || !INIT_ARMOR.hasOwnProperty(c.loadout.armor)) {
+    c.loadout = { armor: "medium", weapon: "standard" };
+  }
+  if (!INIT_WEAPON.hasOwnProperty(c.loadout.weapon)) {
+    c.loadout.weapon = "standard";
+  }
+  if (!Array.isArray(c.items)) c.items = [];
+  if (typeof c.coins !== "number" || isNaN(c.coins)) c.coins = 0;
+  return c;
 }
 
 // ---------- Helpers ----------
@@ -96,7 +123,7 @@ function initCreateScreen() {
   $("in-hp").value = "";
   renderSkillEditors();
   renderDefense();
-  document.querySelectorAll(".class-btn").forEach((b) => b.classList.remove("selected"));
+  document.querySelectorAll("#class-grid .class-btn").forEach((b) => b.classList.remove("selected"));
   validateCreate();
 }
 
@@ -177,7 +204,10 @@ function createCharacter() {
     skills: Object.assign({}, createState.skills),
     hpMax: hpMax,
     hpCur: hpMax,
-    defense: createState.defense
+    defense: createState.defense,
+    loadout: { armor: "medium", weapon: "standard" },
+    items: [],
+    coins: 0
   };
   save();
   renderSheet();
@@ -193,6 +223,19 @@ function renderSheet() {
   $("sheet-def").textContent = character.defense;
   renderHP();
   renderSkillList();
+  renderInit();
+  renderInventory();
+  $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
+  // Cast Spell belongs to Sorcerers alone.
+  const castBtn = $("btn-cast");
+  const row = $("row-actions");
+  if (character.cls === "Sorcerer") {
+    show(castBtn);
+    row.classList.remove("single");
+  } else {
+    hide(castBtn);
+    row.classList.add("single");
+  }
 }
 
 function renderHP() {
@@ -256,6 +299,174 @@ function adjustMaxHP(delta) {
   $("maxhp-value").textContent = character.hpMax;
   renderHP();
   save();
+}
+
+// ---------- Initiative contribution ----------
+
+function initContribution() {
+  return INIT_ARMOR[character.loadout.armor] + INIT_WEAPON[character.loadout.weapon];
+}
+
+function fmtSigned(n) {
+  return (n >= 0 ? "+" : "") + n;
+}
+
+function renderInit() {
+  $("sheet-init").textContent = fmtSigned(initContribution());
+}
+
+function renderLoadoutButtons() {
+  document.querySelectorAll("#armor-grid .class-btn").forEach((b) => {
+    b.classList.toggle("selected", b.dataset.armor === character.loadout.armor);
+  });
+  document.querySelectorAll("#weapon-grid .class-btn").forEach((b) => {
+    b.classList.toggle("selected", b.dataset.weapon === character.loadout.weapon);
+  });
+  $("init-preview").textContent = fmtSigned(initContribution());
+}
+
+function openLoadout() {
+  renderLoadoutButtons();
+  show($("overlay-loadout"));
+}
+
+// ---------- Inventory and Load Points ----------
+
+/* Load thresholds (canon PB v2.5):
+   0-23 Unburdened. 24-27 Heavy: no Full Actions, Sorcerers cannot cast.
+   28-30 Overloaded: 1 Main Action only, no Full Actions, Sorcerers cannot cast.
+   Coins: every 100 coins, or part thereof, counts as 1 LP. */
+
+function coinLP() {
+  return character.coins > 0 ? Math.ceil(character.coins / 100) : 0;
+}
+
+function totalLP() {
+  let sum = coinLP();
+  character.items.forEach((it) => { sum += it.lp; });
+  return sum;
+}
+
+function lpState(total) {
+  if (total >= 28) return "overloaded";
+  if (total >= 24) return "heavy";
+  return "unburdened";
+}
+
+function renderInventory() {
+  const list = $("inv-list");
+  list.innerHTML = "";
+  character.items.forEach((it, i) => {
+    const row = document.createElement("div");
+    row.className = "inv-item";
+
+    const name = document.createElement("span");
+    name.className = "inv-item-name";
+    name.textContent = it.name;
+
+    const lp = document.createElement("span");
+    lp.className = "inv-item-lp";
+    lp.textContent = it.lp + " LP";
+
+    const del = document.createElement("button");
+    del.className = "inv-del";
+    del.textContent = "\u00d7";
+    del.setAttribute("aria-label", "Remove " + it.name);
+    del.addEventListener("click", () => {
+      character.items.splice(i, 1);
+      renderInventory();
+      save();
+    });
+
+    row.appendChild(name);
+    row.appendChild(lp);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+
+  const total = totalLP();
+  const state = lpState(total);
+
+  $("inv-lp").textContent = total;
+  document.querySelector(".inv-total").classList.toggle("overmax", total > 30);
+
+  const badge = $("inv-badge");
+  badge.textContent = state.toUpperCase();
+  badge.classList.toggle("heavy", state === "heavy");
+  badge.classList.toggle("overloaded", state === "overloaded");
+
+  const cLP = coinLP();
+  $("coin-lp").textContent = cLP > 0 ? "+" + cLP + " LP" : "";
+
+  const hint = $("inv-hint");
+  if (state === "heavy") {
+    hint.textContent = "Heavy: no Full Actions. Sorcerers cannot cast.";
+    show(hint);
+  } else if (state === "overloaded") {
+    hint.textContent = "Overloaded: 1 Main Action only. Sorcerers cannot cast.";
+    show(hint);
+  } else {
+    hide(hint);
+  }
+}
+
+function addItem() {
+  const name = $("inv-name").value.trim();
+  const lp = parseInt($("inv-lp-in").value, 10);
+  if (!name || isNaN(lp) || lp < 0) return;
+  character.items.push({ name: name, lp: Math.min(lp, 30) });
+  $("inv-name").value = "";
+  $("inv-lp-in").value = "";
+  renderInventory();
+  save();
+}
+
+function setCoins(raw) {
+  const n = parseInt(raw, 10);
+  character.coins = isNaN(n) || n < 0 ? 0 : Math.min(n, 999999);
+  renderInventory();
+  save();
+}
+
+// ---------- Cast Spell ----------
+
+function openCast() {
+  $("cast-die-label").textContent = character.skills["Sorcery"];
+  const warn = $("cast-warning");
+  const state = lpState(totalLP());
+  if (state === "heavy") {
+    warn.textContent = "You are Heavy. Casting is not allowed while Heavy.";
+    show(warn);
+  } else if (state === "overloaded") {
+    warn.textContent = "You are Overloaded. Casting is not allowed while Overloaded.";
+    show(warn);
+  } else {
+    hide(warn);
+  }
+  show($("overlay-cast"));
+}
+
+/* Casting (canon PB v2.5): pay the HP cost, then roll Sorcery against
+   the tier target. The cost is paid on success and failure alike.
+   If paying the cost drops you to 0 HP or below, skip the Sorcery roll
+   and make a Death Roll immediately. Survive, and the spell takes
+   effect as you fall unconscious. Die, and it fizzles. */
+function castTier(tier) {
+  const t = CAST_TIERS[tier];
+  hide($("overlay-cast"));
+
+  character.hpCur = Math.max(character.hpCur - t.cost, -99);
+  renderHP();
+  save();
+
+  if (character.hpCur <= 0) {
+    const die = deathDie(character.hpCur);
+    performRoll(die, 5, "Tier " + tier + " \u00b7 Death Roll " + die + " vs 5+",
+      { death: true, casting: true });
+  } else {
+    const die = character.skills["Sorcery"];
+    performRoll(die, t.target, "Tier " + tier + " \u00b7 Sorcery " + die + " vs " + t.target + "+", {});
+  }
 }
 
 // ---------- Rolling ----------
@@ -332,10 +543,15 @@ function performRoll(die, target, context, opts) {
       if (result >= target) {
         if (opts.death) {
           const rounds = Math.floor(Math.random() * 6) + 1;
+          let notes = "";
+          if (opts.casting) {
+            notes += '<span class="survive-note">The spell takes effect</span>';
+          }
+          notes += '<span class="survive-note">Unconscious ' + rounds +
+            (rounds === 1 ? " round" : " rounds") + "</span>";
           verdictEl.innerHTML =
             '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
-            '<span class="survive-note">Unconscious ' + rounds +
-            (rounds === 1 ? " round" : " rounds") + "</span></div>";
+            notes + "</div>";
         } else {
           verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
         }
@@ -377,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("class-grid").addEventListener("click", (e) => {
     const btn = e.target.closest(".class-btn");
     if (!btn) return;
-    document.querySelectorAll(".class-btn").forEach((b) => b.classList.remove("selected"));
+    document.querySelectorAll("#class-grid .class-btn").forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
     applyClassDefaults(btn.dataset.class);
   });
@@ -449,6 +665,37 @@ document.addEventListener("DOMContentLoaded", () => {
   $("btn-death").addEventListener("click", openDeath);
   $("death-roll-btn").addEventListener("click", rollDeath);
   $("death-cancel").addEventListener("click", () => hide($("overlay-death")));
+
+  // Initiative loadout
+  $("init-block").addEventListener("click", openLoadout);
+  $("armor-grid").addEventListener("click", (e) => {
+    const btn = e.target.closest(".class-btn");
+    if (!btn) return;
+    character.loadout.armor = btn.dataset.armor;
+    renderLoadoutButtons();
+    renderInit();
+    save();
+  });
+  $("weapon-grid").addEventListener("click", (e) => {
+    const btn = e.target.closest(".class-btn");
+    if (!btn) return;
+    character.loadout.weapon = btn.dataset.weapon;
+    renderLoadoutButtons();
+    renderInit();
+    save();
+  });
+  $("loadout-done").addEventListener("click", () => hide($("overlay-loadout")));
+
+  // Inventory
+  $("inv-add-btn").addEventListener("click", addItem);
+  $("inv-coins-in").addEventListener("input", (e) => setCoins(e.target.value));
+
+  // Cast Spell
+  $("btn-cast").addEventListener("click", openCast);
+  document.querySelectorAll("#overlay-cast .diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => castTier(parseInt(btn.dataset.tier, 10)));
+  });
+  $("cast-cancel").addEventListener("click", () => hide($("overlay-cast")));
 
   // Result overlay dismisses on tap, but not mid-flicker
   $("overlay-result").addEventListener("click", () => {

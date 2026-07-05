@@ -90,9 +90,37 @@
       </button>
     </div>
 
+    <div class="row-actions" id="row-actions">
+      <button class="def-block" id="init-block" aria-label="Edit loadout">
+        <span class="vital-label">Initiative</span>
+        <span class="def-die" id="sheet-init">+0</span>
+      </button>
+      <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
+    </div>
+
     <button id="btn-death" class="death-btn hidden">Death Roll</button>
 
     <div class="skill-list" id="skill-list"></div>
+
+    <div class="inv-section">
+      <div class="inv-head">
+        <span class="field-label">Inventory</span>
+        <span class="inv-total"><span id="inv-lp">0</span>/30 LP</span>
+        <span class="inv-badge" id="inv-badge">Unburdened</span>
+      </div>
+      <div id="inv-list"></div>
+      <div class="inv-add">
+        <input id="inv-name" type="text" maxlength="24" autocomplete="off" placeholder="Item">
+        <input id="inv-lp-in" type="number" inputmode="numeric" min="0" max="30" placeholder="LP">
+        <button id="inv-add-btn" aria-label="Add item">+</button>
+      </div>
+      <div class="inv-coins">
+        <span class="inv-coins-label">Coins</span>
+        <input id="inv-coins-in" type="number" inputmode="numeric" min="0" placeholder="0">
+        <span class="inv-coins-lp" id="coin-lp"></span>
+      </div>
+      <p class="inv-hint hidden" id="inv-hint"></p>
+    </div>
 
     <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
   </section>
@@ -134,6 +162,42 @@
     </div>
     <p class="field-hint overlay-hint">Raising max HP does not heal. Current HP stays where it is.</p>
     <button id="maxhp-done" class="primary-btn slim">Done</button>
+  </div>
+
+  <!-- ============ LOADOUT OVERLAY (Initiative) ============ -->
+  <div id="overlay-loadout" class="overlay hidden">
+    <p class="overlay-skill">Initiative <span id="init-preview">+0</span></p>
+    <div class="loadout-group">
+      <span class="field-label">Armor</span>
+      <div class="class-grid" id="armor-grid">
+        <button class="class-btn" data-armor="none">None</button>
+        <button class="class-btn" data-armor="light">Light</button>
+        <button class="class-btn" data-armor="medium">Medium</button>
+        <button class="class-btn" data-armor="heavy">Heavy</button>
+      </div>
+    </div>
+    <div class="loadout-group">
+      <span class="field-label">Weapon</span>
+      <div class="weapon-grid" id="weapon-grid">
+        <button class="class-btn" data-weapon="light">Light</button>
+        <button class="class-btn" data-weapon="standard">Standard</button>
+        <button class="class-btn" data-weapon="heavy">Heavy</button>
+      </div>
+    </div>
+    <p class="field-hint overlay-hint">Your contribution to the Party Bonus. The GM rolls Initiative.</p>
+    <button id="loadout-done" class="primary-btn slim">Done</button>
+  </div>
+
+  <!-- ============ CAST SPELL OVERLAY ============ -->
+  <div id="overlay-cast" class="overlay hidden">
+    <p class="overlay-skill">Cast Spell <span id="cast-die-label">d8</span></p>
+    <div class="diff-buttons">
+      <button class="diff-btn" data-tier="1">Tier 1<span>1 HP &middot; 4+</span></button>
+      <button class="diff-btn" data-tier="2">Tier 2<span>2 HP &middot; 5+</span></button>
+      <button class="diff-btn" data-tier="3">Tier 3<span>3 HP &middot; 6+</span></button>
+    </div>
+    <p class="cast-warning hidden" id="cast-warning"></p>
+    <button id="cast-cancel" class="ghost-btn">Cancel</button>
   </div>
 
   <!-- ============ DEATH ROLL OVERLAY ============ -->

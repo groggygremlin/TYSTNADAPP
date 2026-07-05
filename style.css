@@ -352,6 +352,154 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .foot-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.06em; }
 
+/* ============ ACTIONS ROW (Initiative + Cast Spell) ============ */
+
+.row-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.row-actions.single { grid-template-columns: 1fr; }
+
+#init-block { min-width: 0; }
+
+.cast-btn {
+  background: var(--panel);
+  border: 1px solid var(--blood);
+  border-radius: 8px;
+  color: var(--blood-bright);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.cast-btn:active { background: var(--panel-hi); border-color: var(--blood-bright); }
+
+/* ============ INVENTORY ============ */
+
+.inv-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inv-head { display: flex; align-items: center; gap: 10px; }
+
+.inv-total {
+  margin-left: auto;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.inv-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--ash);
+}
+
+.inv-badge.heavy { color: var(--bone); border-color: var(--bone); }
+
+.inv-badge.overloaded { color: var(--blood-bright); border-color: var(--blood); }
+
+.inv-total.overmax { color: var(--blood-bright); }
+
+.inv-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 2px;
+}
+
+.inv-item-name { font-size: 0.9rem; flex: 1; word-break: break-word; }
+
+.inv-item-lp {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ash);
+  font-variant-numeric: tabular-nums;
+}
+
+.inv-del {
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ash);
+  font-size: 1rem;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.inv-del:active { background: var(--blood); color: #f2ede6; }
+
+.inv-add { display: flex; gap: 8px; }
+
+.inv-add input[type="text"] { flex: 1; padding: 10px 12px; font-size: 1rem; }
+
+.inv-add input[type="number"] { width: 70px; padding: 10px 8px; font-size: 1rem; text-align: center; }
+
+#inv-add-btn {
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  font-size: 1.2rem;
+  width: 46px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#inv-add-btn:active { background: var(--blood); }
+
+.inv-coins { display: flex; align-items: center; gap: 10px; }
+
+.inv-coins-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.inv-coins input { width: 110px; padding: 10px 12px; font-size: 1rem; text-align: center; }
+
+.inv-coins-lp { font-size: 0.8rem; color: var(--ash); font-variant-numeric: tabular-nums; }
+
+.inv-hint { font-size: 0.75rem; color: var(--blood-bright); line-height: 1.4; }
+
+/* ============ LOADOUT OVERLAY ============ */
+
+.loadout-group { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; }
+
+.weapon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+#init-preview { font-variant-numeric: tabular-nums; }
+
+/* ============ CAST WARNING ============ */
+
+.cast-warning {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--blood-bright);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
 /* ============ DEATH ROLL ============ */
 
 .death-btn {
