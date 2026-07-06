@@ -12,12 +12,40 @@
 </head>
 <body>
 
+  <!-- ============ INTRO SCREEN ============ -->
+  <section id="screen-intro" class="screen hidden">
+    <div class="intro-logo-wrap">
+      <img src="logo.png" alt="TYSTNAD" class="intro-logo">
+      <p class="brand-sub">Companion</p>
+    </div>
+
+    <div class="intro-buttons">
+      <button id="btn-continue" class="primary-btn hidden">
+        Continue
+        <span class="continue-sub" id="continue-sub"></span>
+      </button>
+      <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
+      <button id="btn-import-toggle" class="ghost-btn">Import</button>
+    </div>
+
+    <div id="intro-import-section" class="hidden">
+      <div class="import-row">
+        <button id="btn-import" class="ghost-btn">Import a saved Explorer</button>
+        <span class="import-or">or paste exported text</span>
+        <textarea id="import-paste-in" class="import-paste-area" placeholder="Paste character data here"></textarea>
+        <button id="import-paste-btn" class="ghost-btn">Import from paste</button>
+        <p class="import-error hidden" id="import-error">Could not read that data.</p>
+      </div>
+    </div>
+    <input type="file" id="import-file" accept="application/json,text/plain,.json,.txt" class="hidden">
+  </section>
+
   <!-- ============ CREATION SCREEN ============ -->
   <section id="screen-create" class="screen hidden">
-    <header class="brand">
-      <h1>TYSTNAD</h1>
+    <div class="create-logo-wrap">
+      <img src="logo.png" alt="TYSTNAD" class="create-logo">
       <p class="brand-sub">Companion</p>
-    </header>
+    </div>
 
     <div class="create-intro">
       <p>Haven has sanctioned you. Record who you are before you cross the border.</p>
@@ -61,16 +89,6 @@
     </div>
 
     <button id="btn-create" class="primary-btn" disabled>Begin the Expedition</button>
-
-    <div class="import-row">
-      <span class="import-or">or</span>
-      <button id="btn-import" class="ghost-btn">Import a saved Explorer</button>
-      <span class="import-or">or paste exported text</span>
-      <textarea id="import-paste-in" class="import-paste-area" placeholder="Paste character data here"></textarea>
-      <button id="import-paste-btn" class="ghost-btn">Import from paste</button>
-      <p class="import-error hidden" id="import-error">Could not read that data.</p>
-    </div>
-    <input type="file" id="import-file" accept="application/json,text/plain,.json,.txt" class="hidden">
   </section>
 
   <!-- ============ SHEET SCREEN ============ -->
@@ -80,40 +98,41 @@
         <h2 id="sheet-name">Explorer</h2>
         <p class="sheet-class" id="sheet-class">Warrior</p>
       </div>
-      <div class="head-btns">
-        <button id="btn-export" class="ghost-btn">Export</button>
-        <button id="btn-new" class="ghost-btn">New</button>
-      </div>
+      <button id="btn-export" class="ghost-btn">Backup</button>
     </header>
 
-    <div class="vitals">
-      <div class="hp-block">
-        <span class="vital-label">HP</span>
-        <div class="hp-controls">
-          <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
-          <div class="hp-readout">
-            <span id="hp-current">12</span><button class="hp-max" id="hp-max-btn" aria-label="Edit max HP">/<span id="hp-maxnum">12</span></button>
-          </div>
-          <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
+    <div class="hp-block">
+      <span class="vital-label">HP</span>
+      <div class="hp-controls">
+        <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
+        <div class="hp-readout">
+          <span id="hp-current">12</span><button class="hp-max" id="hp-max-btn" aria-label="Edit max HP">/<span id="hp-maxnum">12</span></button>
         </div>
+        <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
       </div>
+    </div>
+
+    <div class="def-init-row">
       <button class="def-block" id="def-block" aria-label="Roll Defense">
         <span class="vital-label">Defense</span>
         <span class="def-die" id="sheet-def">d8</span>
+        <span class="chip-hint">Tap to roll</span>
       </button>
-    </div>
-
-    <div class="row-actions" id="row-actions">
       <button class="def-block" id="init-block" aria-label="Edit loadout">
         <span class="vital-label">Initiative</span>
         <span class="def-die" id="sheet-init">+0</span>
+        <span class="chip-hint">Tap to edit</span>
       </button>
-      <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
     </div>
+
+    <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
 
     <button id="btn-death" class="death-btn hidden">Death Roll</button>
 
-    <div class="skill-list" id="skill-list"></div>
+    <div class="skills-section">
+      <p class="field-label">Skills</p>
+      <div class="skill-list" id="skill-list"></div>
+    </div>
 
     <div class="inv-section">
       <div class="inv-head">
@@ -241,7 +260,7 @@
 
   <!-- ============ CONFIRM OVERLAY ============ -->
   <div id="overlay-confirm" class="overlay hidden">
-    <p class="confirm-text">Abandon this Explorer and create a new one? He will not return.</p>
+    <p class="confirm-text">Abandon this Explorer? He will not return.</p>
     <div class="confirm-buttons">
       <button id="confirm-yes" class="danger-btn">Abandon</button>
       <button id="confirm-no" class="ghost-btn">Keep Him</button>

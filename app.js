@@ -1,11 +1,11 @@
 /* ============================================================
-   TYSTNAD Companion - v13
+   TYSTNAD Companion - v14
    Canon: Players Booklet v2.5
    ============================================================ */
 
 "use strict";
 
-const VERSION = "v13";
+const VERSION = "v14";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -54,6 +54,7 @@ const SKULL_SVG = `
 let character = null;   // { name, cls, skills: {name: die}, hpMax, hpCur, defense }
 let pendingSkill = null;
 let rollLocked = false;
+let pendingConfirmAction = null;
 
 // ---------- Persistence ----------
 
@@ -229,16 +230,21 @@ function renderSheet() {
   renderInit();
   renderInventory();
   $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
-  // Cast Spell belongs to Sorcerers alone.
-  const castBtn = $("btn-cast");
-  const row = $("row-actions");
   if (character.cls === "Sorcerer") {
-    show(castBtn);
-    row.classList.remove("single");
+    show($("btn-cast"));
   } else {
-    hide(castBtn);
-    row.classList.add("single");
+    hide($("btn-cast"));
   }
+}
+
+function renderIntro() {
+  if (character) {
+    $("continue-sub").textContent = character.name + " · " + character.cls;
+    show($("btn-continue"));
+  } else {
+    hide($("btn-continue"));
+  }
+  hide($("intro-import-section"));
 }
 
 function renderHP() {
@@ -478,7 +484,7 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function loadFromJSON(jsonString) {
+function parseCharacterJSON(jsonString) {
   const data = JSON.parse(jsonString);
   if (
     !data || typeof data !== "object" ||
@@ -489,9 +495,14 @@ function loadFromJSON(jsonString) {
     typeof data.hpCur !== "number" ||
     typeof data.defense !== "string"
   ) throw new Error("invalid");
-  character = migrate(data);
+  return migrate(data);
+}
+
+function applyImport(data) {
+  character = data;
   save();
   renderSheet();
+  hide($("screen-intro"));
   hide($("screen-create"));
   show($("screen-sheet"));
 }
@@ -499,14 +510,24 @@ function loadFromJSON(jsonString) {
 function importCharacter(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
-    try { loadFromJSON(e.target.result); } catch (_) { show($("import-error")); }
+    try {
+      const data = parseCharacterJSON(e.target.result);
+      requireAbandon(() => applyImport(data));
+    } catch (_) {
+      show($("import-error"));
+    }
   };
   reader.onerror = () => show($("import-error"));
   reader.readAsText(file);
 }
 
 function importFromPaste() {
-  try { loadFromJSON($("import-paste-in").value); } catch (_) { show($("import-error")); }
+  try {
+    const data = parseCharacterJSON($("import-paste-in").value);
+    requireAbandon(() => applyImport(data));
+  } catch (_) {
+    show($("import-error"));
+  }
 }
 
 // ---------- Cast Spell ----------
@@ -666,6 +687,14 @@ function rollDefense(target) {
   performRoll(die, target, "Defense " + die + " vs " + THREAT_NAMES[target], { shortfall: true });
 }
 
+// ---------- Navigation helpers ----------
+
+function requireAbandon(action) {
+  if (!character) { action(); return; }
+  pendingConfirmAction = action;
+  show($("overlay-confirm"));
+}
+
 // ---------- Wiring ----------
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -727,15 +756,35 @@ document.addEventListener("DOMContentLoaded", () => {
   $("hp-max-btn").addEventListener("click", openMaxHP);
   $("def-block").addEventListener("click", openDefense);
 
-  $("btn-new").addEventListener("click", () => show($("overlay-confirm")));
-  $("confirm-no").addEventListener("click", () => hide($("overlay-confirm")));
+  $("btn-continue").addEventListener("click", () => {
+    renderSheet();
+    hide($("screen-intro"));
+    show($("screen-sheet"));
+  });
+  $("btn-new-explorer").addEventListener("click", () => {
+    requireAbandon(() => {
+      character = null;
+      localStorage.removeItem(STORAGE_KEY);
+      initCreateScreen();
+      hide($("screen-intro"));
+      show($("screen-create"));
+    });
+  });
+  $("btn-import-toggle").addEventListener("click", () => {
+    const sec = $("intro-import-section");
+    if (sec.classList.contains("hidden")) { show(sec); } else { hide(sec); }
+  });
+  $("confirm-no").addEventListener("click", () => {
+    pendingConfirmAction = null;
+    hide($("overlay-confirm"));
+  });
   $("confirm-yes").addEventListener("click", () => {
     hide($("overlay-confirm"));
-    character = null;
-    localStorage.removeItem(STORAGE_KEY);
-    initCreateScreen();
-    hide($("screen-sheet"));
-    show($("screen-create"));
+    if (pendingConfirmAction) {
+      const fn = pendingConfirmAction;
+      pendingConfirmAction = null;
+      fn();
+    }
   });
 
   // Max HP overlay
@@ -813,15 +862,10 @@ document.addEventListener("DOMContentLoaded", () => {
     $("overlay-result").classList.remove("death-flood");
   });
 
-  // Boot
+  // Boot: always show intro; mid-session returns never reload the page
   character = load();
-  if (character) {
-    renderSheet();
-    show($("screen-sheet"));
-  } else {
-    initCreateScreen();
-    show($("screen-create"));
-  }
+  renderIntro();
+  show($("screen-intro"));
 
   // PWA service worker
   if ("serviceWorker" in navigator) {

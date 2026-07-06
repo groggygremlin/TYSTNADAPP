@@ -41,17 +41,53 @@ body {
   gap: 22px;
 }
 
-/* ============ BRAND ============ */
+/* ============ INTRO ============ */
 
-.brand { text-align: center; padding-top: 10px; }
-
-.brand h1 {
-  font-size: 2.4rem;
-  font-weight: 900;
-  letter-spacing: 0.42em;
-  margin-right: -0.42em; /* optical centering of tracked type */
-  color: var(--bone);
+.intro-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
 }
+
+.intro-logo {
+  max-width: 70%;
+  height: auto;
+  display: block;
+}
+
+.intro-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.continue-sub {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+/* ============ CREATION LOGO ============ */
+
+.create-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.create-logo {
+  max-width: 50%;
+  height: auto;
+  display: block;
+}
+
+/* ============ BRAND SUBLINE (shared) ============ */
 
 .brand-sub {
   font-size: 0.7rem;
@@ -213,6 +249,31 @@ input:focus { border-color: var(--blood); }
   cursor: pointer;
 }
 
+/* ============ VITALS RESTRUCTURE ============ */
+
+.def-init-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.chip-hint {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-top: 2px;
+}
+
+/* ============ SKILLS SECTION ============ */
+
+.skills-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ============ SHEET ============ */
 
 .sheet-head {
@@ -243,8 +304,6 @@ input:focus { border-color: var(--blood); }
 }
 
 /* ============ VITALS ============ */
-
-.vitals { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: stretch; }
 
 .hp-block, .def-block {
   background: var(--panel);
@@ -356,13 +415,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .version-note { text-align: center; font-size: 0.6rem; color: var(--line); letter-spacing: 0.18em; text-transform: uppercase; }
 
-/* ============ ACTIONS ROW (Initiative + Cast Spell) ============ */
-
-.row-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-.row-actions.single { grid-template-columns: 1fr; }
-
-#init-block { min-width: 0; }
+/* ============ CAST SPELL (full-width standalone) ============ */
 
 .cast-btn {
   background: var(--panel);
@@ -373,8 +426,9 @@ button.hp-max:active { color: var(--blood-bright); }
   font-weight: 900;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 12px;
+  padding: 14px;
   cursor: pointer;
+  width: 100%;
 }
 
 .cast-btn:active { background: var(--panel-hi); border-color: var(--blood-bright); }
@@ -678,7 +732,6 @@ button.hp-max:active { color: var(--blood-bright); }
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  margin-top: -6px;
 }
 
 .import-or {
