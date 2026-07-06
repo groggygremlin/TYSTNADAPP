@@ -1,11 +1,11 @@
 /* ============================================================
-   TYSTNAD Companion - v14
+   TYSTNAD Companion - v15
    Canon: Players Booklet v2.5
    ============================================================ */
 
 "use strict";
 
-const VERSION = "v14";
+const VERSION = "v15";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -238,6 +238,7 @@ function renderSheet() {
 }
 
 function renderIntro() {
+  $("intro-version-note").textContent = VERSION;
   if (character) {
     $("continue-sub").textContent = character.name + " · " + character.cls;
     show($("btn-continue"));
@@ -760,6 +761,11 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSheet();
     hide($("screen-intro"));
     show($("screen-sheet"));
+  });
+  $("btn-back").addEventListener("click", () => {
+    renderIntro();
+    hide($("screen-sheet"));
+    show($("screen-intro"));
   });
   $("btn-new-explorer").addEventListener("click", () => {
     requireAbandon(() => {

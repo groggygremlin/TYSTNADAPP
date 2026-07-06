@@ -14,18 +14,20 @@
 
   <!-- ============ INTRO SCREEN ============ -->
   <section id="screen-intro" class="screen hidden">
-    <div class="intro-logo-wrap">
-      <img src="logo.png" alt="TYSTNAD" class="intro-logo">
-      <p class="brand-sub">Companion</p>
-    </div>
+    <div class="intro-layout">
+      <div class="intro-logo-wrap">
+        <img src="logo.png" alt="TYSTNAD" class="intro-logo">
+        <p class="brand-sub">Companion</p>
+      </div>
 
-    <div class="intro-buttons">
-      <button id="btn-continue" class="primary-btn hidden">
-        Continue
-        <span class="continue-sub" id="continue-sub"></span>
-      </button>
-      <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
-      <button id="btn-import-toggle" class="ghost-btn">Import</button>
+      <div class="intro-buttons">
+        <button id="btn-continue" class="primary-btn hidden">
+          Continue
+          <span class="continue-sub" id="continue-sub"></span>
+        </button>
+        <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
+        <button id="btn-import-toggle" class="ghost-btn">Import</button>
+      </div>
     </div>
 
     <div id="intro-import-section" class="hidden">
@@ -38,6 +40,7 @@
       </div>
     </div>
     <input type="file" id="import-file" accept="application/json,text/plain,.json,.txt" class="hidden">
+    <p class="version-note" id="intro-version-note"></p>
   </section>
 
   <!-- ============ CREATION SCREEN ============ -->
@@ -94,9 +97,12 @@
   <!-- ============ SHEET SCREEN ============ -->
   <section id="screen-sheet" class="screen hidden">
     <header class="sheet-head">
-      <div>
-        <h2 id="sheet-name">Explorer</h2>
-        <p class="sheet-class" id="sheet-class">Warrior</p>
+      <div class="sheet-head-left">
+        <button id="btn-back" class="back-btn" aria-label="Back to intro">&#8249;</button>
+        <div>
+          <h2 id="sheet-name">Explorer</h2>
+          <p class="sheet-class" id="sheet-class">Warrior</p>
+        </div>
       </div>
       <button id="btn-export" class="ghost-btn">Backup</button>
     </header>
@@ -134,6 +140,8 @@
       <div class="skill-list" id="skill-list"></div>
     </div>
 
+    <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
+
     <div class="inv-section">
       <div class="inv-head">
         <span class="field-label">Inventory</span>
@@ -154,7 +162,6 @@
       <p class="inv-hint hidden" id="inv-hint"></p>
     </div>
 
-    <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
     <p class="version-note" id="version-note"></p>
   </section>
 

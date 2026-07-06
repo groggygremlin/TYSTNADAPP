@@ -57,6 +57,13 @@ body {
   display: block;
 }
 
+.intro-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
 .intro-buttons {
   display: flex;
   flex-direction: column;
@@ -96,7 +103,6 @@ body {
   margin-right: -0.5em;
   text-transform: uppercase;
   color: var(--blood-bright);
-  margin-top: 4px;
 }
 
 .create-intro p {
@@ -130,6 +136,10 @@ input[type="text"], input[type="number"] {
   width: 100%;
   outline: none;
 }
+
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
 input:focus { border-color: var(--blood); }
 
@@ -284,7 +294,25 @@ input:focus { border-color: var(--blood); }
   padding-bottom: 14px;
 }
 
-.head-btns { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; }
+.sheet-head-left { display: flex; align-items: center; gap: 2px; min-width: 0; }
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--ash);
+  font-size: 1.8rem;
+  line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px 8px 4px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.back-btn:active { color: var(--bone); }
 
 .sheet-head h2 {
   font-size: 1.5rem;
@@ -315,6 +343,8 @@ input:focus { border-color: var(--blood); }
   gap: 8px;
 }
 
+.hp-block { padding: 10px 14px; gap: 6px; }
+
 .def-block {
   align-items: center;
   justify-content: center;
@@ -341,9 +371,9 @@ input:focus { border-color: var(--blood); }
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--bone);
-  font-size: 1.5rem;
-  width: 54px;
-  height: 54px;
+  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   flex-shrink: 0;
   line-height: 1;
@@ -352,7 +382,7 @@ input:focus { border-color: var(--blood); }
 .hp-btn:active { background: var(--blood); }
 
 .hp-readout {
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   text-align: center;
