@@ -1,11 +1,9 @@
 /* ============================================================
-   TYSTNAD Companion - v15
+   TYSTNAD Companion - v16
    Canon: Players Booklet v2.5
    ============================================================ */
 
-"use strict";
-
-const VERSION = "v15";
+const VERSION = "v16";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -31,6 +29,11 @@ const THREAT_NAMES = { 4: "Weak 4+", 5: "Standard 5+", 6: "Strong 6+" };
 const INIT_ARMOR = { none: 2, light: 1, medium: 0, heavy: -1 };
 const INIT_WEAPON = { light: 1, standard: 0, heavy: -1 };
 
+/* Weapon damage dice (canon PB v2.5, equipment chapter):
+   Light 1d6, Standard 1d8, Heavy 1d10.
+   Unarmed maps to the light bucket; separate ruling awaited. */
+const WEAPON_DAMAGE = { light: "d6", standard: "d8", heavy: "d10" };
+
 /* Spell tiers (canon PB v2.5): cost in HP, Sorcery target to cast.
    The cost is paid on success, failure, and death alike. */
 const CAST_TIERS = {
@@ -51,10 +54,11 @@ const SKULL_SVG = `
 
 // ---------- State ----------
 
-let character = null;   // { name, cls, skills: {name: die}, hpMax, hpCur, defense }
+let character = null;   // { name, cls, skills: {name: die}, hpMax, hpCur, defense, loadout, items, coins }
 let pendingSkill = null;
 let rollLocked = false;
 let pendingConfirmAction = null;
+let attackMomentum = 0;
 
 // ---------- Persistence ----------
 
@@ -110,6 +114,10 @@ function stepDie(die, dir) {
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
 
+function damageDieForWeapon() {
+  return WEAPON_DAMAGE[character.loadout.weapon] || "d8";
+}
+
 // ---------- Creation screen ----------
 
 const createState = {
@@ -146,7 +154,7 @@ function renderSkillEditors() {
 
     const minus = document.createElement("button");
     minus.className = "step-btn";
-    minus.textContent = "\u2212";
+    minus.textContent = "−";
     minus.setAttribute("aria-label", "Lower " + skill);
     minus.addEventListener("click", () => {
       createState.skills[skill] = stepDie(createState.skills[skill], -1);
@@ -218,24 +226,34 @@ function createCharacter() {
   show($("screen-sheet"));
 }
 
-// ---------- Sheet screen ----------
+// ---------- Explorer screen ----------
 
 function renderSheet() {
   $("version-note").textContent = VERSION;
   $("sheet-name").textContent = character.name;
   $("sheet-class").textContent = character.cls;
-  $("sheet-def").textContent = character.defense;
   renderHP();
   renderSkillList();
-  renderInit();
   renderInventory();
   $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
+}
+
+// ---------- Combat screen ----------
+
+function renderCombat() {
+  $("version-note-combat").textContent = VERSION;
+  $("combat-char-name").textContent = character.name;
+  $("sheet-def").textContent = character.defense;
+  renderHP();
+  renderInit();
   if (character.cls === "Sorcerer") {
     show($("btn-cast"));
   } else {
     hide($("btn-cast"));
   }
 }
+
+// ---------- Intro screen ----------
 
 function renderIntro() {
   $("intro-version-note").textContent = VERSION;
@@ -248,41 +266,35 @@ function renderIntro() {
   hide($("intro-import-section"));
 }
 
+// ---------- HP ----------
+
 function renderHP() {
+  const isLow = character.hpCur <= Math.floor(character.hpMax / 3);
+  const isDead = character.hpCur <= 0;
+
+  // Combat page full HP block
   const cur = $("hp-current");
-  cur.textContent = character.hpCur;
-  $("hp-maxnum").textContent = character.hpMax;
-  cur.classList.toggle("low", character.hpCur <= Math.floor(character.hpMax / 3));
-  // The Death Roll waits at 0 HP and below.
-  const deathBtn = $("btn-death");
-  if (character.hpCur <= 0) {
-    show(deathBtn);
-  } else {
-    hide(deathBtn);
+  if (cur) {
+    cur.textContent = character.hpCur;
+    cur.classList.toggle("low", isLow);
   }
-}
+  const maxnum = $("hp-maxnum");
+  if (maxnum) maxnum.textContent = character.hpMax;
 
-function renderSkillList() {
-  const list = $("skill-list");
-  list.innerHTML = "";
-  const core = CLASSES[character.cls] ? CLASSES[character.cls].core : null;
-  SKILLS.forEach((skill) => {
-    const btn = document.createElement("button");
-    btn.className = "skill-row";
+  // Explorer page compact HP strip
+  const explCur = $("hp-expl-current");
+  if (explCur) {
+    explCur.textContent = character.hpCur;
+    explCur.classList.toggle("low", isLow);
+  }
+  const explMax = $("hp-expl-maxnum");
+  if (explMax) explMax.textContent = character.hpMax;
 
-    const name = document.createElement("span");
-    name.className = "skill-name";
-    name.textContent = skill;
-
-    const die = document.createElement("span");
-    die.className = "skill-die" + (skill === core ? " core" : "");
-    die.textContent = character.skills[skill];
-
-    btn.appendChild(name);
-    btn.appendChild(die);
-    btn.addEventListener("click", () => openDifficulty(skill));
-    list.appendChild(btn);
-  });
+  // Death Roll buttons on both pages
+  const deathExpl = $("btn-death");
+  if (deathExpl) { isDead ? show(deathExpl) : hide(deathExpl); }
+  const deathCombat = $("btn-death-combat");
+  if (deathCombat) { isDead ? show(deathCombat) : hide(deathCombat); }
 }
 
 function adjustHP(delta) {
@@ -309,6 +321,31 @@ function adjustMaxHP(delta) {
   $("maxhp-value").textContent = character.hpMax;
   renderHP();
   save();
+}
+
+// ---------- Skill list ----------
+
+function renderSkillList() {
+  const list = $("skill-list");
+  list.innerHTML = "";
+  SKILLS.forEach((skill) => {
+    const btn = document.createElement("button");
+    btn.className = "skill-row";
+    btn.setAttribute("aria-label", "Roll " + skill);
+
+    const name = document.createElement("span");
+    name.className = "skill-name";
+    name.textContent = skill;
+
+    const die = document.createElement("span");
+    die.className = "skill-die";
+    die.textContent = character.skills[skill];
+
+    btn.appendChild(name);
+    btn.appendChild(die);
+    btn.addEventListener("click", () => openDifficulty(skill));
+    list.appendChild(btn);
+  });
 }
 
 // ---------- Initiative contribution ----------
@@ -380,7 +417,7 @@ function renderInventory() {
 
     const del = document.createElement("button");
     del.className = "inv-del";
-    del.textContent = "\u00d7";
+    del.textContent = "×";
     del.setAttribute("aria-label", "Remove " + it.name);
     del.addEventListener("click", () => {
       character.items.splice(i, 1);
@@ -531,6 +568,89 @@ function importFromPaste() {
   }
 }
 
+// ---------- Attack ----------
+
+function openAttack() {
+  attackMomentum = 0;
+  $("attack-combat-die").textContent = character.skills["Combat"];
+  $("attack-damage-die").textContent = damageDieForWeapon();
+  document.querySelectorAll(".momentum-btn").forEach((b) => {
+    b.classList.toggle("selected", parseInt(b.dataset.momentum, 10) === 0);
+  });
+  show($("overlay-attack"));
+}
+
+/* Exploding damage (canon PB v2.5): on a max roll, roll the damage die again.
+   Continue until the result is less than the maximum. Sum all rolls.
+   Cap at 20 iterations. */
+function rollExplosion(die) {
+  const sides = dieSides(die);
+  const chain = [];
+  let cap = 0;
+  let roll;
+  do {
+    roll = Math.floor(Math.random() * sides) + 1;
+    chain.push(roll);
+    cap++;
+  } while (roll === sides && cap < 20);
+  return chain;
+}
+
+function rollAttack(target) {
+  const momentum = attackMomentum;
+  hide($("overlay-attack"));
+  const combatDie = character.skills["Combat"];
+  const damageDie = damageDieForWeapon();
+  performRollAttack(combatDie, damageDie, target, momentum);
+}
+
+function performRollAttack(combatDie, damageDie, target, momentum) {
+  if (rollLocked) return;
+  rollLocked = true;
+
+  const sides = dieSides(combatDie);
+  const result = Math.floor(Math.random() * sides) + 1;
+
+  $("result-context").textContent = "Attack " + combatDie + " vs " + DIFFICULTY_NAMES[target];
+
+  const overlay = $("overlay-result");
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  verdictEl.innerHTML = "";
+  overlay.classList.remove("death-flood");
+  numEl.classList.add("rolling");
+  show(overlay);
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      numEl.textContent = result;
+      if (result >= target) {
+        const chain = rollExplosion(damageDie);
+        const base = chain.reduce((a, b) => a + b, 0);
+        const total = base + momentum;
+        let html = '<div class="attack-result">';
+        html += '<span class="damage-total">' + total + "</span>";
+        if (chain.length > 1) {
+          html += '<span class="damage-chain">' + chain.join(" + ") + "</span>";
+        }
+        if (momentum > 0) {
+          html += '<span class="damage-momentum">+' + momentum + " Momentum</span>";
+        }
+        html += "</div>";
+        verdictEl.innerHTML = html;
+      } else {
+        verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
+      }
+      rollLocked = false;
+    }
+  }, 60);
+}
+
 // ---------- Cast Spell ----------
 
 function openCast() {
@@ -564,11 +684,11 @@ function castTier(tier) {
 
   if (character.hpCur <= 0) {
     const die = deathDie(character.hpCur);
-    performRoll(die, 5, "Tier " + tier + " \u00b7 Death Roll " + die + " vs 5+",
+    performRoll(die, 5, "Tier " + tier + " · Death Roll " + die + " vs 5+",
       { death: true, casting: true });
   } else {
     const die = character.skills["Sorcery"];
-    performRoll(die, t.target, "Tier " + tier + " \u00b7 Sorcery " + die + " vs " + t.target + "+", {});
+    performRoll(die, t.target, "Tier " + tier + " · Sorcery " + die + " vs " + t.target + "+", {});
   }
 }
 
@@ -751,12 +871,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("export-close").addEventListener("click", () => hide($("overlay-export")));
 
-  // Sheet
+  // Explorer HP (compact strip)
+  $("hp-expl-minus").addEventListener("click", () => adjustHP(-1));
+  $("hp-expl-plus").addEventListener("click", () => adjustHP(1));
+  $("hp-expl-max-btn").addEventListener("click", openMaxHP);
+
+  // Combat HP (full block)
   $("hp-minus").addEventListener("click", () => adjustHP(-1));
   $("hp-plus").addEventListener("click", () => adjustHP(1));
   $("hp-max-btn").addEventListener("click", openMaxHP);
   $("def-block").addEventListener("click", openDefense);
 
+  // Intro navigation
   $("btn-continue").addEventListener("click", () => {
     renderSheet();
     hide($("screen-intro"));
@@ -780,6 +906,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const sec = $("intro-import-section");
     if (sec.classList.contains("hidden")) { show(sec); } else { hide(sec); }
   });
+
+  // Explorer <-> Combat navigation
+  $("btn-to-combat").addEventListener("click", () => {
+    renderCombat();
+    hide($("screen-sheet"));
+    show($("screen-combat"));
+  });
+  $("btn-back-combat").addEventListener("click", () => {
+    hide($("screen-combat"));
+    show($("screen-sheet"));
+  });
+
+  // Confirm overlay
   $("confirm-no").addEventListener("click", () => {
     pendingConfirmAction = null;
     hide($("overlay-confirm"));
@@ -825,8 +964,9 @@ document.addEventListener("DOMContentLoaded", () => {
     save();
   });
 
-  // Death Roll
+  // Death Roll (both pages share the same overlay)
   $("btn-death").addEventListener("click", openDeath);
+  $("btn-death-combat").addEventListener("click", openDeath);
   $("death-roll-btn").addEventListener("click", rollDeath);
   $("death-cancel").addEventListener("click", () => hide($("overlay-death")));
 
@@ -853,6 +993,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inventory
   $("inv-add-btn").addEventListener("click", addItem);
   $("inv-coins-in").addEventListener("input", (e) => setCoins(e.target.value));
+
+  // Attack overlay
+  $("btn-attack").addEventListener("click", openAttack);
+  document.querySelectorAll(".momentum-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      attackMomentum = parseInt(btn.dataset.momentum, 10);
+      document.querySelectorAll(".momentum-btn").forEach((b) => {
+        b.classList.toggle("selected", b === btn);
+      });
+    });
+  });
+  document.querySelectorAll("#attack-diff-buttons .diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => rollAttack(parseInt(btn.dataset.target, 10)));
+  });
+  $("attack-cancel").addEventListener("click", () => hide($("overlay-attack")));
 
   // Cast Spell
   $("btn-cast").addEventListener("click", openCast);

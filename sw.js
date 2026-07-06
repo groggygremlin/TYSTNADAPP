@@ -1,7 +1,7 @@
 /* TYSTNAD Companion service worker.
    Cache-first: the app works in the basement, the cabin, the dead zone. */
 
-const CACHE = "tystnad-v15";
+const CACHE = "tystnad-v16";
 
 const ASSETS = [
   "./",

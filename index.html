@@ -94,7 +94,7 @@
     <button id="btn-create" class="primary-btn" disabled>Begin the Expedition</button>
   </section>
 
-  <!-- ============ SHEET SCREEN ============ -->
+  <!-- ============ EXPLORER SCREEN ============ -->
   <section id="screen-sheet" class="screen hidden">
     <header class="sheet-head">
       <div class="sheet-head-left">
@@ -107,31 +107,18 @@
       <button id="btn-export" class="ghost-btn">Backup</button>
     </header>
 
-    <div class="hp-block">
+    <div class="hp-compact-strip">
       <span class="vital-label">HP</span>
       <div class="hp-controls">
-        <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
-        <div class="hp-readout">
-          <span id="hp-current">12</span><button class="hp-max" id="hp-max-btn" aria-label="Edit max HP">/<span id="hp-maxnum">12</span></button>
+        <button id="hp-expl-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
+        <div class="hp-readout hp-readout-compact">
+          <span id="hp-expl-current">12</span><button class="hp-max" id="hp-expl-max-btn" aria-label="Edit max HP">/<span id="hp-expl-maxnum">12</span></button>
         </div>
-        <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
+        <button id="hp-expl-plus" class="hp-btn" aria-label="Recover HP">+</button>
       </div>
     </div>
 
-    <div class="def-init-row">
-      <button class="def-block" id="def-block" aria-label="Roll Defense">
-        <span class="vital-label">Defense</span>
-        <span class="def-die" id="sheet-def">d8</span>
-        <span class="chip-hint">Tap to roll</span>
-      </button>
-      <button class="def-block" id="init-block" aria-label="Edit loadout">
-        <span class="vital-label">Initiative</span>
-        <span class="def-die" id="sheet-init">+0</span>
-        <span class="chip-hint">Tap to edit</span>
-      </button>
-    </div>
-
-    <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
+    <button id="btn-to-combat" class="combat-nav-btn">Combat</button>
 
     <button id="btn-death" class="death-btn hidden">Death Roll</button>
 
@@ -163,6 +150,51 @@
     </div>
 
     <p class="version-note" id="version-note"></p>
+  </section>
+
+  <!-- ============ COMBAT SCREEN ============ -->
+  <section id="screen-combat" class="screen hidden">
+    <header class="sheet-head">
+      <div class="sheet-head-left">
+        <button id="btn-back-combat" class="back-btn" aria-label="Back to Explorer">&#8249;</button>
+        <div>
+          <h2 class="combat-page-title">Combat</h2>
+          <p class="combat-name-sub" id="combat-char-name"></p>
+        </div>
+      </div>
+    </header>
+
+    <div class="hp-block">
+      <span class="vital-label">HP</span>
+      <div class="hp-controls">
+        <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
+        <div class="hp-readout">
+          <span id="hp-current">12</span><button class="hp-max" id="hp-max-btn" aria-label="Edit max HP">/<span id="hp-maxnum">12</span></button>
+        </div>
+        <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
+      </div>
+    </div>
+
+    <button id="btn-attack" class="primary-btn">Attack</button>
+
+    <div class="def-init-row">
+      <button class="def-block" id="def-block" aria-label="Roll Defense">
+        <span class="vital-label">Defense</span>
+        <span class="def-die" id="sheet-def">d8</span>
+        <span class="chip-hint">Tap to roll</span>
+      </button>
+      <button class="def-block" id="init-block" aria-label="Edit loadout">
+        <span class="vital-label">Initiative</span>
+        <span class="def-die" id="sheet-init">+0</span>
+        <span class="chip-hint">Tap to edit</span>
+      </button>
+    </div>
+
+    <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
+
+    <button id="btn-death-combat" class="death-btn hidden">Death Roll</button>
+
+    <p class="version-note" id="version-note-combat"></p>
   </section>
 
   <!-- ============ DIFFICULTY OVERLAY (skills) ============ -->
@@ -226,6 +258,25 @@
     </div>
     <p class="field-hint overlay-hint">Your contribution to the Party Bonus. The GM rolls Initiative.</p>
     <button id="loadout-done" class="primary-btn slim">Done</button>
+  </div>
+
+  <!-- ============ ATTACK OVERLAY ============ -->
+  <div id="overlay-attack" class="overlay hidden">
+    <p class="overlay-skill">Attack <span id="attack-combat-die">d8</span> / <span id="attack-damage-die">d8</span></p>
+    <div class="momentum-row">
+      <span class="field-label">Momentum</span>
+      <div class="momentum-grid">
+        <button class="momentum-btn class-btn selected" data-momentum="0">None</button>
+        <button class="momentum-btn class-btn" data-momentum="1">+1</button>
+        <button class="momentum-btn class-btn" data-momentum="2">+2</button>
+      </div>
+    </div>
+    <div class="diff-buttons" id="attack-diff-buttons">
+      <button class="diff-btn" data-target="4">Easy<span>4+</span></button>
+      <button class="diff-btn" data-target="5">Normal<span>5+</span></button>
+      <button class="diff-btn" data-target="6">Hard<span>6+</span></button>
+    </div>
+    <button id="attack-cancel" class="ghost-btn">Cancel</button>
   </div>
 
   <!-- ============ CAST SPELL OVERLAY ============ -->
