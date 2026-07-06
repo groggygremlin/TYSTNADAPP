@@ -354,6 +354,8 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .foot-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.06em; }
 
+.version-note { text-align: center; font-size: 0.6rem; color: var(--line); letter-spacing: 0.18em; text-transform: uppercase; }
+
 /* ============ ACTIONS ROW (Initiative + Cast Spell) ============ */
 
 .row-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

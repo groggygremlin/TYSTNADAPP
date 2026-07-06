@@ -1,9 +1,11 @@
 /* ============================================================
-   TYSTNAD Companion - v6
+   TYSTNAD Companion - v10
    Canon: Players Booklet v2.5
    ============================================================ */
 
 "use strict";
+
+const VERSION = "v10";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -218,6 +220,7 @@ function createCharacter() {
 // ---------- Sheet screen ----------
 
 function renderSheet() {
+  $("version-note").textContent = VERSION;
   $("sheet-name").textContent = character.name;
   $("sheet-class").textContent = character.cls;
   $("sheet-def").textContent = character.defense;
@@ -439,22 +442,31 @@ function exportCharacter() {
     .replace(/^_+|_+$/g, "") || "explorer";
   const filename = safe + ".json";
 
-  // File share: iOS Safari and Android Chrome when the target app accepts files.
+  // Decide tier synchronously before any async call consumes the user activation.
+  let tier = "download";
+  let shareFile = null;
   if (typeof navigator.canShare === "function") {
-    const file = new File([blob], filename, { type: "application/json" });
-    if (navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: character.name })
-        .catch(() => triggerDownload(blob, filename));
-      return;
+    shareFile = new File([blob], filename, { type: "application/json" });
+    if (navigator.canShare({ files: [shareFile] })) tier = "file";
+  }
+  if (tier === "download" && navigator.share) tier = "text";
+
+  alert("[DIAG] export tier: " + tier);
+
+  if (tier === "file") {
+    navigator.share({ files: [shareFile], title: character.name })
+      .catch((err) => alert("[DIAG] file share error: " + err));
+  } else if (tier === "text") {
+    navigator.share({ title: filename, text: json })
+      .catch((err) => alert("[DIAG] text share error: " + err));
+  } else {
+    try {
+      triggerDownload(blob, filename);
+      alert("[DIAG] download triggered");
+    } catch (err) {
+      alert("[DIAG] download error: " + err);
     }
   }
-  // Text share: Android Chrome share sheet (Drive, Files, email, etc.).
-  if (navigator.share) {
-    navigator.share({ title: filename, text: json })
-      .catch(() => triggerDownload(blob, filename));
-    return;
-  }
-  triggerDownload(blob, filename);
 }
 
 function triggerDownload(blob, filename) {
@@ -466,7 +478,6 @@ function triggerDownload(blob, filename) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  // Revoke after a tick so the download manager can claim the URL first.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
