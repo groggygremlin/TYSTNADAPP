@@ -223,6 +223,8 @@ input:focus { border-color: var(--blood); }
   padding-bottom: 14px;
 }
 
+.head-btns { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; }
+
 .sheet-head h2 {
   font-size: 1.5rem;
   font-weight: 900;
@@ -666,3 +668,28 @@ button.hp-max:active { color: var(--blood-bright); }
 }
 
 .confirm-buttons { display: flex; gap: 14px; }
+
+/* ============ IMPORT ============ */
+
+.import-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: -6px;
+}
+
+.import-or {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.import-error {
+  font-size: 0.78rem;
+  color: var(--blood-bright);
+  text-align: center;
+  letter-spacing: 0.06em;
+}

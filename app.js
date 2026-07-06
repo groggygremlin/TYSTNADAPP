@@ -428,6 +428,59 @@ function setCoins(raw) {
   save();
 }
 
+// ---------- Export / Import ----------
+
+function exportCharacter() {
+  const json = JSON.stringify(character, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const safe = character.name
+    .replace(/[^a-z0-9]/gi, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "") || "explorer";
+  const filename = safe + ".json";
+
+  if (typeof navigator.canShare === "function") {
+    const file = new File([blob], filename, { type: "application/json" });
+    if (navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: character.name }).catch(() => {});
+      return;
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCharacter(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (
+        !data || typeof data !== "object" ||
+        typeof data.name !== "string" || !data.name ||
+        typeof data.cls !== "string" || !CLASSES[data.cls] ||
+        typeof data.skills !== "object" || !data.skills ||
+        !(data.hpMax > 0) ||
+        typeof data.hpCur !== "number" ||
+        typeof data.defense !== "string"
+      ) throw new Error("invalid");
+      character = migrate(data);
+      save();
+      renderSheet();
+      hide($("screen-create"));
+      show($("screen-sheet"));
+    } catch (_) {
+      show($("import-error"));
+    }
+  };
+  reader.onerror = () => show($("import-error"));
+  reader.readAsText(file);
+}
+
 // ---------- Cast Spell ----------
 
 function openCast() {
@@ -611,6 +664,20 @@ document.addEventListener("DOMContentLoaded", () => {
   $("in-name").addEventListener("input", validateCreate);
   $("in-hp").addEventListener("input", validateCreate);
   $("btn-create").addEventListener("click", createCharacter);
+
+  // Export
+  $("btn-export").addEventListener("click", exportCharacter);
+
+  // Import
+  $("btn-import").addEventListener("click", () => {
+    hide($("import-error"));
+    $("import-file").click();
+  });
+  $("import-file").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) importCharacter(file);
+    e.target.value = "";
+  });
 
   // Sheet
   $("hp-minus").addEventListener("click", () => adjustHP(-1));

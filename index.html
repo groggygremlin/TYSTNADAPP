@@ -61,6 +61,13 @@
     </div>
 
     <button id="btn-create" class="primary-btn" disabled>Begin the Expedition</button>
+
+    <div class="import-row">
+      <span class="import-or">or</span>
+      <button id="btn-import" class="ghost-btn">Import a saved Explorer</button>
+      <p class="import-error hidden" id="import-error">Could not read that file.</p>
+    </div>
+    <input type="file" id="import-file" accept="application/json,.json" class="hidden">
   </section>
 
   <!-- ============ SHEET SCREEN ============ -->
@@ -70,7 +77,10 @@
         <h2 id="sheet-name">Explorer</h2>
         <p class="sheet-class" id="sheet-class">Warrior</p>
       </div>
-      <button id="btn-new" class="ghost-btn">New</button>
+      <div class="head-btns">
+        <button id="btn-export" class="ghost-btn">Export</button>
+        <button id="btn-new" class="ghost-btn">New</button>
+      </div>
     </header>
 
     <div class="vitals">
