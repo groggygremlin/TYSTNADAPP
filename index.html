@@ -65,9 +65,12 @@
     <div class="import-row">
       <span class="import-or">or</span>
       <button id="btn-import" class="ghost-btn">Import a saved Explorer</button>
-      <p class="import-error hidden" id="import-error">Could not read that file.</p>
+      <span class="import-or">or paste exported text</span>
+      <textarea id="import-paste-in" class="import-paste-area" placeholder="Paste character data here"></textarea>
+      <button id="import-paste-btn" class="ghost-btn">Import from paste</button>
+      <p class="import-error hidden" id="import-error">Could not read that data.</p>
     </div>
-    <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+    <input type="file" id="import-file" accept="application/json,text/plain,.json,.txt" class="hidden">
   </section>
 
   <!-- ============ SHEET SCREEN ============ -->
@@ -225,6 +228,15 @@
     <div class="result-number" id="result-number">?</div>
     <div class="result-verdict" id="result-verdict"></div>
     <p class="result-dismiss">Tap to continue</p>
+  </div>
+
+  <!-- ============ EXPORT OVERLAY ============ -->
+  <div id="overlay-export" class="overlay hidden">
+    <p class="overlay-skill">Export Character</p>
+    <pre id="export-json" class="export-json"></pre>
+    <button id="export-copy-btn" class="primary-btn slim">Copy</button>
+    <p class="export-copied hidden" id="export-copied">Copied</p>
+    <button id="export-close" class="ghost-btn">Close</button>
   </div>
 
   <!-- ============ CONFIRM OVERLAY ============ -->

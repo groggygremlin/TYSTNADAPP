@@ -1,11 +1,11 @@
 /* ============================================================
-   TYSTNAD Companion - v12
+   TYSTNAD Companion - v13
    Canon: Players Booklet v2.5
    ============================================================ */
 
 "use strict";
 
-const VERSION = "v12";
+const VERSION = "v13";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -435,31 +435,35 @@ function setCoins(raw) {
 
 function exportCharacter() {
   const json = JSON.stringify(character, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
   const safe = character.name
     .replace(/[^a-z0-9]/gi, "_")
     .replace(/_+/g, "_")
     .replace(/^_+|_+$/g, "") || "explorer";
-  const filename = safe + ".json";
 
-  // Decide tier synchronously before any async call consumes the user activation.
-  let tier = "download";
-  let shareFile = null;
-  if (typeof navigator.canShare === "function") {
-    shareFile = new File([blob], filename, { type: "application/json" });
-    if (navigator.canShare({ files: [shareFile] })) tier = "file";
+  if (!navigator.share) {
+    triggerDownload(new Blob([json], { type: "application/json" }), safe + ".json");
+    return;
   }
-  if (tier === "download" && navigator.share) tier = "text";
 
-  if (tier === "file") {
-    navigator.share({ files: [shareFile], title: character.name })
-      .catch((err) => console.error("share:", err));
-  } else if (tier === "text") {
-    navigator.share({ title: filename, text: json })
-      .catch((err) => console.error("share:", err));
-  } else {
-    triggerDownload(blob, filename);
+  // .tystnad.txt uses text/plain -- Android's share allowlist rejects application/json files.
+  const file = new File([json], safe + ".tystnad.txt", { type: "text/plain" });
+  if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: character.name })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        $("version-note").textContent = VERSION + " · " + err.name;
+        openExportOverlay(json);
+      });
+    return;
   }
+
+  openExportOverlay(json);
+}
+
+function openExportOverlay(json) {
+  $("export-json").textContent = json;
+  hide($("export-copied"));
+  show($("overlay-export"));
 }
 
 function triggerDownload(blob, filename) {
@@ -474,31 +478,35 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function loadFromJSON(jsonString) {
+  const data = JSON.parse(jsonString);
+  if (
+    !data || typeof data !== "object" ||
+    typeof data.name !== "string" || !data.name ||
+    typeof data.cls !== "string" || !CLASSES[data.cls] ||
+    typeof data.skills !== "object" || !data.skills ||
+    !(data.hpMax > 0) ||
+    typeof data.hpCur !== "number" ||
+    typeof data.defense !== "string"
+  ) throw new Error("invalid");
+  character = migrate(data);
+  save();
+  renderSheet();
+  hide($("screen-create"));
+  show($("screen-sheet"));
+}
+
 function importCharacter(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (
-        !data || typeof data !== "object" ||
-        typeof data.name !== "string" || !data.name ||
-        typeof data.cls !== "string" || !CLASSES[data.cls] ||
-        typeof data.skills !== "object" || !data.skills ||
-        !(data.hpMax > 0) ||
-        typeof data.hpCur !== "number" ||
-        typeof data.defense !== "string"
-      ) throw new Error("invalid");
-      character = migrate(data);
-      save();
-      renderSheet();
-      hide($("screen-create"));
-      show($("screen-sheet"));
-    } catch (_) {
-      show($("import-error"));
-    }
+    try { loadFromJSON(e.target.result); } catch (_) { show($("import-error")); }
   };
   reader.onerror = () => show($("import-error"));
   reader.readAsText(file);
+}
+
+function importFromPaste() {
+  try { loadFromJSON($("import-paste-in").value); } catch (_) { show($("import-error")); }
 }
 
 // ---------- Cast Spell ----------
@@ -688,7 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Export
   $("btn-export").addEventListener("click", exportCharacter);
 
-  // Import
+  // Import: file picker
   $("btn-import").addEventListener("click", () => {
     hide($("import-error"));
     $("import-file").click();
@@ -698,6 +706,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (file) importCharacter(file);
     e.target.value = "";
   });
+
+  // Import: paste
+  $("import-paste-btn").addEventListener("click", () => {
+    hide($("import-error"));
+    importFromPaste();
+  });
+
+  // Export overlay
+  $("export-copy-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText($("export-json").textContent)
+      .then(() => show($("export-copied")))
+      .catch(() => show($("export-copied")));
+  });
+  $("export-close").addEventListener("click", () => hide($("overlay-export")));
 
   // Sheet
   $("hp-minus").addEventListener("click", () => adjustHP(-1));
