@@ -1,0 +1,14 @@
+# Paid product text. NEVER commit. Publishing this = publishing the booklets.
+canon/
+
+# Local test tooling only
+node_modules/
+package.json
+package-lock.json
+smoke.js
+
+# Mac noise
+.DS_Store
+
+# Personal Claude Code settings
+.claude/settings.local.json
