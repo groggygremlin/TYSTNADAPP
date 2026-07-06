@@ -439,21 +439,35 @@ function exportCharacter() {
     .replace(/^_+|_+$/g, "") || "explorer";
   const filename = safe + ".json";
 
+  // File share: iOS Safari and Android Chrome when the target app accepts files.
   if (typeof navigator.canShare === "function") {
     const file = new File([blob], filename, { type: "application/json" });
     if (navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: character.name }).catch(() => {});
+      navigator.share({ files: [file], title: character.name })
+        .catch(() => triggerDownload(blob, filename));
       return;
     }
   }
+  // Text share: Android Chrome share sheet (Drive, Files, email, etc.).
+  if (navigator.share) {
+    navigator.share({ title: filename, text: json })
+      .catch(() => triggerDownload(blob, filename));
+    return;
+  }
+  triggerDownload(blob, filename);
+}
+
+function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.style.display = "none";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  // Revoke after a tick so the download manager can claim the URL first.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function importCharacter(file) {
