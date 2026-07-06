@@ -1,11 +1,11 @@
 /* ============================================================
-   TYSTNAD Companion - v10
+   TYSTNAD Companion - v11
    Canon: Players Booklet v2.5
    ============================================================ */
 
 "use strict";
 
-const VERSION = "v10";
+const VERSION = "v11";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -451,21 +451,14 @@ function exportCharacter() {
   }
   if (tier === "download" && navigator.share) tier = "text";
 
-  alert("[DIAG] export tier: " + tier);
-
   if (tier === "file") {
     navigator.share({ files: [shareFile], title: character.name })
-      .catch((err) => alert("[DIAG] file share error: " + err));
+      .catch((err) => console.error("share:", err));
   } else if (tier === "text") {
     navigator.share({ title: filename, text: json })
-      .catch((err) => alert("[DIAG] text share error: " + err));
+      .catch((err) => console.error("share:", err));
   } else {
-    try {
-      triggerDownload(blob, filename);
-      alert("[DIAG] download triggered");
-    } catch (err) {
-      alert("[DIAG] download error: " + err);
-    }
+    triggerDownload(blob, filename);
   }
 }
 
