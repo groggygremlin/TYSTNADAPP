@@ -1,11 +1,11 @@
 /* ============================================================
-   TYSTNAD Companion - v11
+   TYSTNAD Companion - v12
    Canon: Players Booklet v2.5
    ============================================================ */
 
 "use strict";
 
-const VERSION = "v11";
+const VERSION = "v12";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
