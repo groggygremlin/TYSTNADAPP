@@ -452,6 +452,8 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .version-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none; }
 #version-note { position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 0; right: 0; }
+#intro-version-note { color: rgba(207, 201, 192, 0.6); }
+#btn-new-explorer, #btn-import-toggle { border-color: var(--bone); color: var(--bone); }
 
 /* ============ CAST SPELL (full-width standalone) ============ */
 
