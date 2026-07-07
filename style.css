@@ -43,6 +43,11 @@ body {
 
 /* ============ INTRO ============ */
 
+#screen-intro {
+  min-height: 100dvh;
+  justify-content: center;
+}
+
 .intro-logo-wrap {
   display: flex;
   flex-direction: column;
@@ -441,7 +446,8 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .foot-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.06em; }
 
-.version-note { position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none; }
+.version-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none; }
+#version-note { position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 0; right: 0; }
 
 /* ============ CAST SPELL (full-width standalone) ============ */
 
@@ -1038,6 +1044,22 @@ button.hp-max:active { color: var(--blood-bright); }
 .tab-btn.active { background: var(--panel-hi); color: var(--blood-bright); }
 
 .tab-btn:active { color: var(--bone); }
+
+/* ============ SHELL DIVIDER (v20) ============ */
+
+.shell-divider { border-top: 1px solid var(--ash); }
+
+/* ============ SUPPLY CARD (v20) ============ */
+
+.supply-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 /* ============ SUPPLY METER (v19) ============ */
 

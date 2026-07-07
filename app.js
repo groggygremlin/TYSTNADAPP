@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v19";
+const VERSION = "v20";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -246,9 +246,22 @@ function createCharacter() {
 
 // ---------- Shell ----------
 
+function fitName() {
+  const el = $("sheet-name");
+  el.style.fontSize = "";
+  const container = el.parentElement;
+  if (!container) return;
+  const floor = 14;
+  let size = 24;
+  while (el.scrollWidth > container.clientWidth && size > floor) {
+    size -= 0.5;
+    el.style.fontSize = size + "px";
+  }
+}
+
 function renderSheet() {
-  $("version-note").textContent = VERSION;
   $("sheet-name").textContent = character.name;
+  fitName();
   $("sheet-class").textContent = character.cls;
   renderHP();
   renderSkillList();
@@ -349,6 +362,7 @@ function renderSkillList() {
 
     const die = document.createElement("span");
     die.className = "skill-die";
+    if (skill === CLASSES[character.cls].core) die.classList.add("core");
     die.textContent = character.skills[skill];
 
     btn.appendChild(name);
@@ -386,7 +400,6 @@ function confirmClearTicks() {
 // ---------- Expedition section ----------
 
 function renderExpedition() {
-  $("supply-count").textContent = character.supply;
   document.querySelectorAll(".role-chip").forEach((btn) => {
     btn.classList.toggle("active", character.roles.indexOf(btn.dataset.role) !== -1);
   });
@@ -440,6 +453,7 @@ function lpState(total) {
 }
 
 function renderInventory() {
+  $("supply-count").textContent = character.supply;
   const list = $("inv-list");
   list.innerHTML = "";
   character.items.forEach((it, i) => {
@@ -533,6 +547,7 @@ function exportCharacter() {
     navigator.share({ files: [file], title: character.name })
       .catch((err) => {
         if (err.name === "AbortError") return;
+        show($("version-note"));
         $("version-note").textContent = VERSION + " · " + err.name;
         openExportOverlay(json);
       });
@@ -780,7 +795,7 @@ function performRollForage(die) {
   if (result >= 4) tickSkill("Athletics");
 
   const gained = result >= 6 ? 2 : result >= 4 ? 1 : 0;
-  if (gained > 0) { character.supply += gained; save(); renderExpedition(); }
+  if (gained > 0) { character.supply += gained; save(); renderInventory(); }
 
   $("result-context").textContent = "Forage " + die + (forageRough ? " (Rough)" : "");
 
@@ -1215,12 +1230,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Supply steppers
   $("supply-minus").addEventListener("click", () => {
-    if (character.supply > 0) { character.supply--; save(); renderExpedition(); }
+    if (character.supply > 0) { character.supply--; save(); renderInventory(); }
   });
   $("supply-plus").addEventListener("click", () => {
     character.supply++;
     save();
-    renderExpedition();
+    renderInventory();
   });
 
   // Effort buttons

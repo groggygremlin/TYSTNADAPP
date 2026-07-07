@@ -28,6 +28,7 @@
         <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
         <button id="btn-import-toggle" class="ghost-btn">Import</button>
       </div>
+      <p class="version-note" id="intro-version-note"></p>
     </div>
 
     <div id="intro-import-section" class="hidden">
@@ -40,7 +41,6 @@
       </div>
     </div>
     <input type="file" id="import-file" accept="application/json,text/plain,.json,.txt" class="hidden">
-    <p class="version-note" id="intro-version-note"></p>
   </section>
 
   <!-- ============ CREATION SCREEN ============ -->
@@ -121,6 +121,8 @@
 
     <button id="btn-death" class="death-btn hidden">Death Roll</button>
 
+    <div class="shell-divider"></div>
+
     <!-- SHEET TAB -->
     <div id="tab-sheet" class="tab-panel">
       <div class="skills-section">
@@ -134,15 +136,6 @@
     <!-- EXPEDITION TAB -->
     <div id="tab-expedition" class="tab-panel hidden">
       <div class="expedition-section">
-        <div class="supply-strip">
-          <span class="field-label">Supply</span>
-          <div class="hp-controls">
-            <button id="supply-minus" class="hp-btn" aria-label="Use supply">−</button>
-            <span id="supply-count" class="supply-count">0</span>
-            <button id="supply-plus" class="hp-btn" aria-label="Add supply">+</button>
-          </div>
-        </div>
-        <p class="supply-hint">1 LP each if carried.</p>
         <div class="role-chips" id="role-chips">
           <button class="role-chip" data-role="Pathfinder">Pathfinder</button>
           <button class="role-chip" data-role="Scout">Scout</button>
@@ -177,6 +170,17 @@
 
     <!-- GEAR TAB -->
     <div id="tab-gear" class="tab-panel hidden">
+      <div class="supply-card">
+        <div class="supply-strip">
+          <span class="field-label">Supply</span>
+          <div class="hp-controls">
+            <button id="supply-minus" class="hp-btn" aria-label="Use supply">−</button>
+            <span id="supply-count" class="supply-count">0</span>
+            <button id="supply-plus" class="hp-btn" aria-label="Add supply">+</button>
+          </div>
+        </div>
+        <p class="supply-hint">1 LP each if carried.</p>
+      </div>
       <div class="inv-section">
         <div class="inv-head">
           <span class="field-label">Inventory</span>
@@ -198,7 +202,7 @@
       </div>
     </div>
 
-    <p class="version-note" id="version-note"></p>
+    <p class="version-note hidden" id="version-note"></p>
 
     <nav class="tab-bar">
       <button class="tab-btn active" data-tab="sheet">Sheet</button>
