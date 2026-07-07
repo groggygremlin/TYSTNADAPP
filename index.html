@@ -165,7 +165,6 @@
           <span class="chip-hint">Tap to edit</span>
         </button>
       </div>
-      <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
     </div>
 
     <!-- GEAR TAB -->
@@ -202,13 +201,27 @@
       </div>
     </div>
 
+    <!-- SORCERY TAB -->
+    <div id="tab-sorcery" class="tab-panel hidden">
+      <div class="sorcery-level-row">
+        <span class="field-label">Level</span>
+        <div class="stepper">
+          <button class="step-btn" id="level-minus" aria-label="Lower level">&minus;</button>
+          <span class="step-value" id="level-value">1</span>
+          <button class="step-btn" id="level-plus" aria-label="Raise level">+</button>
+        </div>
+      </div>
+      <div id="spell-list-sorcery"></div>
+    </div>
+
     <p class="version-note hidden" id="version-note"></p>
 
     <nav class="tab-bar">
-      <button class="tab-btn active" data-tab="sheet">Sheet</button>
+      <button class="tab-btn active" data-tab="sheet">Skills</button>
       <button class="tab-btn" data-tab="expedition">Expedition</button>
       <button class="tab-btn" data-tab="combat">Combat</button>
       <button class="tab-btn" data-tab="gear">Gear</button>
+      <button class="tab-btn sorcery-tab hidden" data-tab="sorcery">Sorcery</button>
     </nav>
 
   </section>
@@ -295,16 +308,14 @@
     <button id="attack-cancel" class="ghost-btn">Cancel</button>
   </div>
 
-  <!-- ============ CAST SPELL OVERLAY ============ -->
-  <div id="overlay-cast" class="overlay hidden">
-    <p class="overlay-skill">Cast Spell <span id="cast-die-label">d8</span></p>
-    <div class="diff-buttons">
-      <button class="diff-btn" data-tier="1">Tier 1<span>1 HP &middot; 4+</span></button>
-      <button class="diff-btn" data-tier="2">Tier 2<span>2 HP &middot; 5+</span></button>
-      <button class="diff-btn" data-tier="3">Tier 3<span>3 HP &middot; 6+</span></button>
-    </div>
-    <p class="cast-warning hidden" id="cast-warning"></p>
-    <button id="cast-cancel" class="ghost-btn">Cancel</button>
+  <!-- ============ SPELL DETAIL OVERLAY ============ -->
+  <div id="overlay-spell" class="overlay hidden">
+    <p class="overlay-skill" id="spell-name-display">Soul Spark <span id="spell-tier-badge">Tier 1</span></p>
+    <p id="spell-cost-display" class="spell-cost-line"></p>
+    <p id="spell-desc-display" class="spell-desc"></p>
+    <p class="cast-warning hidden" id="spell-cast-warning"></p>
+    <button id="spell-cast-btn" class="primary-btn slim">Cast</button>
+    <button id="spell-cancel-btn" class="ghost-btn">Cancel</button>
   </div>
 
   <!-- ============ DEATH ROLL OVERLAY ============ -->

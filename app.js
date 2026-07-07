@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v26";
+const VERSION = "v27";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -46,6 +46,39 @@ const CAST_TIERS = {
 
 const EXPEDITION_ROLES = ["Pathfinder", "Scout", "Quartermaster"];
 
+const SPELLS = [
+  { id: "soul-spark",         tier: 1, name: "Soul Spark",         desc: "A creature you can see within 30 feet takes 1d6 damage. At Sorcerer level 3 and beyond, this increases to 1d8." },
+  { id: "calm-heart",         tier: 1, name: "Calm Heart",         desc: "A creature you touch is immediately freed from fear or panic." },
+  { id: "detect-corruption",  tier: 1, name: "Detect Corruption",  desc: "You sense undead, curses, or active spell effects within 60 feet for one minute." },
+  { id: "frost-grip",         tier: 1, name: "Frost Grip",         desc: "A creature you can see within 30 feet cannot move on his next turn." },
+  { id: "iron-skin",          tier: 1, name: "Iron Skin",          desc: "Until the start of your next turn, increase your Defense die by one step, maximum d12." },
+  { id: "repelling-blast",    tier: 1, name: "Repelling Blast",    desc: "A creature you can see within 30 feet takes 2 damage and is pushed 10 feet away from you." },
+  { id: "sanctify-food",      tier: 1, name: "Sanctify Food",      desc: "Spoiled food or tainted water you touch becomes safe to consume." },
+  { id: "shielding-word",     tier: 1, name: "Shielding Word",     desc: "A creature you can see within 30 feet increases his Defense die by one step until the end of his next turn." },
+  { id: "silence-step",       tier: 1, name: "Silence Step",       desc: "You make no sound while moving for one minute." },
+  { id: "witchlight",         tier: 1, name: "Witchlight",         desc: "An object you touch sheds bright light in a 20-foot radius for one hour." },
+  { id: "arcane-shell",       tier: 2, name: "Arcane Shell",       desc: "Until the start of your next turn, the first attack that hits you deals no damage." },
+  { id: "blessed-strike",     tier: 2, name: "Blessed Strike",     desc: "A creature you touch treats his next attack as one difficulty tier easier." },
+  { id: "consecrated-ground", tier: 2, name: "Consecrated Ground", desc: "Undead within a 20-foot radius centered on a point you can see treat their Threat as one tier lower for one minute." },
+  { id: "flame-wave",         tier: 2, name: "Flame Wave",         desc: "Creatures in a 15-foot line before you take 1d8 damage." },
+  { id: "hold-person",        tier: 2, name: "Hold Person",        desc: "A humanoid you can see within 40 feet must pass a Mind save at Normal (5+) or cannot act on his next turn. On a success, he is Shocked until the end of his next turn instead." },
+  { id: "mind-lance",         tier: 2, name: "Mind Lance",         desc: "A creature you can see within 40 feet takes 1d10 damage and treats his next action as one difficulty tier harder." },
+  { id: "mist-shroud",        tier: 2, name: "Mist Shroud",        desc: "A 30-foot radius centered on you becomes heavily obscured for ten minutes." },
+  { id: "stone-passage",      tier: 2, name: "Stone Passage",      desc: "You open a 5-foot-wide gap in stone within 10 feet that remains for one minute." },
+  { id: "windborne-leap",     tier: 2, name: "Windborne Leap",     desc: "You fly at your normal movement speed for one minute." },
+  { id: "zone-of-truth",      tier: 2, name: "Zone of Truth",      desc: "Creatures within a 15-foot radius centered on a point you can see cannot knowingly speak lies for one minute." },
+  { id: "aegis-field",        tier: 3, name: "Aegis Field",        desc: "You and all allies within 20 feet make all Defense rolls at Easy for three rounds." },
+  { id: "crushing-weight",    tier: 3, name: "Crushing Weight",    desc: "A creature you can see within 40 feet takes 1d10 damage, falls prone, and cannot stand on his next turn." },
+  { id: "death-mark",         tier: 3, name: "Death Mark",         desc: "A creature you can see within 50 feet takes 2d10 damage." },
+  { id: "dimensional-step",   tier: 3, name: "Dimensional Step",   desc: "You instantly appear at any unoccupied location you can see within 50 feet." },
+  { id: "fireburst",          tier: 3, name: "Fireburst",          desc: "All creatures within a 20-foot radius centered on a point you can see take 2d6 damage." },
+  { id: "mass-dread",         tier: 3, name: "Mass Dread",         desc: "All hostile creatures within 30 feet who can see you must move away from you on their next turn by the safest available path." },
+  { id: "spell-break",        tier: 3, name: "Spell Break",        desc: "One active spell effect you can see within 50 feet immediately ends." },
+  { id: "veil-of-shadows",    tier: 3, name: "Veil of Shadows",    desc: "You and up to three allies within 15 feet become invisible until you move, attack, or cast a spell." },
+  { id: "wall-of-stone",      tier: 3, name: "Wall of Stone",      desc: "A solid stone wall 20 feet long and 10 feet high rises from the ground within 30 feet and remains until destroyed." },
+  { id: "wracking-curse",     tier: 3, name: "Wracking Curse",     desc: "A creature you can see within 50 feet takes 1d8 damage at the start of each of his turns for three turns. The effect ends early if the curse is broken." }
+];
+
 const STORAGE_KEY = "tystnad-character";
 
 const SKULL_SVG = `
@@ -60,6 +93,7 @@ const SKULL_SVG = `
 
 let character = null;
 let pendingSkill = null;
+let pendingSpellTier = null;
 let rollLocked = false;
 let pendingConfirmAction = null;
 let attackMomentum = 0;
@@ -103,6 +137,7 @@ function migrate(c) {
     c.skillTicks = {};
   }
   if (typeof c.supply !== "number" || isNaN(c.supply) || c.supply < 0) c.supply = 0;
+  if (typeof c.level !== "number" || c.level < 1) c.level = 1;
   return c;
 }
 
@@ -270,11 +305,10 @@ function renderSheet() {
   $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
   $("sheet-def").textContent = character.defense;
   renderInit();
-  if (character.cls === "Sorcerer") {
-    show($("btn-cast"));
-  } else {
-    hide($("btn-cast"));
-  }
+  const isSorcerer = character.cls === "Sorcerer";
+  const sorceryTabBtn = document.querySelector(".sorcery-tab");
+  if (sorceryTabBtn) isSorcerer ? show(sorceryTabBtn) : hide(sorceryTabBtn);
+  document.querySelector(".tab-bar").classList.toggle("tab-bar--five", isSorcerer);
 }
 
 function switchTab(tab) {
@@ -283,6 +317,7 @@ function switchTab(tab) {
   document.querySelectorAll(".tab-btn").forEach((b) => {
     b.classList.toggle("active", b.dataset.tab === tab);
   });
+  if (tab === "sorcery") renderSorceryTab();
 }
 
 function showShell() {
@@ -887,25 +922,8 @@ function performRollCamp(die, target) {
 
 // ---------- Cast Spell ----------
 
-function openCast() {
-  $("cast-die-label").textContent = character.skills["Sorcery"];
-  const warn = $("cast-warning");
-  const state = lpState(totalLP());
-  if (state === "heavy") {
-    warn.textContent = "You are Heavy. Casting is not allowed while Heavy.";
-    show(warn);
-  } else if (state === "overloaded") {
-    warn.textContent = "You are Overloaded. Casting is not allowed while Overloaded.";
-    show(warn);
-  } else {
-    hide(warn);
-  }
-  show($("overlay-cast"));
-}
-
 function castTier(tier) {
   const t = CAST_TIERS[tier];
-  hide($("overlay-cast"));
 
   character.hpCur = Math.max(character.hpCur - t.cost, -99);
   renderHP();
@@ -920,6 +938,65 @@ function castTier(tier) {
     performRoll(die, t.target, "Tier " + tier + " · Sorcery " + die + " vs " + t.target + "+",
       { tickSkill: "Sorcery" });
   }
+}
+
+// ---------- Sorcery tab ----------
+
+function adjustLevel(delta) {
+  character.level = Math.min(Math.max(character.level + delta, 1), 20);
+  renderSorceryTab();
+  save();
+}
+
+function renderSorceryTab() {
+  $("level-value").textContent = character.level;
+  const list = $("spell-list-sorcery");
+  list.innerHTML = "";
+  const unlockLevel = { 1: 1, 2: 3, 3: 6 };
+  [1, 2, 3].forEach((tier) => {
+    const locked = character.level < unlockLevel[tier];
+    const t = CAST_TIERS[tier];
+    const hdr = document.createElement("p");
+    hdr.className = "spell-tier-header";
+    hdr.textContent = locked
+      ? "Tier " + tier + " · Unlocks at Level " + unlockLevel[tier]
+      : "Tier " + tier + " · " + t.cost + " HP · " + t.target + "+";
+    list.appendChild(hdr);
+    SPELLS.filter((s) => s.tier === tier).forEach((spell) => {
+      const btn = document.createElement("button");
+      btn.className = "spell-row" + (locked ? " spell-locked" : "");
+      btn.dataset.spellId = spell.id;
+      btn.disabled = locked;
+      btn.textContent = spell.name;
+      list.appendChild(btn);
+    });
+  });
+}
+
+function openSpell(spell) {
+  $("spell-name-display").firstChild.textContent = spell.name + " ";
+  $("spell-tier-badge").textContent = "Tier " + spell.tier;
+  const t = CAST_TIERS[spell.tier];
+  $("spell-cost-display").textContent = t.cost + " HP · " + t.target + "+ · Sorcery " + character.skills["Sorcery"];
+  $("spell-desc-display").textContent = spell.desc;
+  const warn = $("spell-cast-warning");
+  const state = lpState(totalLP());
+  if (state === "heavy") {
+    warn.textContent = "Heavy: casting is not allowed.";
+    show(warn);
+  } else if (state === "overloaded") {
+    warn.textContent = "Overloaded: casting is not allowed.";
+    show(warn);
+  } else {
+    hide(warn);
+  }
+  pendingSpellTier = spell.tier;
+  show($("overlay-spell"));
+}
+
+function castSpell() {
+  hide($("overlay-spell"));
+  castTier(pendingSpellTier);
 }
 
 // ---------- Rolling ----------
@@ -1292,12 +1369,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("attack-cancel").addEventListener("click", () => hide($("overlay-attack")));
 
-  // Cast Spell
-  $("btn-cast").addEventListener("click", openCast);
-  document.querySelectorAll("#overlay-cast .diff-btn").forEach((btn) => {
-    btn.addEventListener("click", () => castTier(parseInt(btn.dataset.tier, 10)));
+  // Sorcery tab
+  $("level-minus").addEventListener("click", () => adjustLevel(-1));
+  $("level-plus").addEventListener("click", () => adjustLevel(1));
+  $("spell-list-sorcery").addEventListener("click", (e) => {
+    const btn = e.target.closest(".spell-row");
+    if (!btn || btn.disabled) return;
+    const spell = SPELLS.find((s) => s.id === btn.dataset.spellId);
+    if (spell) openSpell(spell);
   });
-  $("cast-cancel").addEventListener("click", () => hide($("overlay-cast")));
+  $("spell-cast-btn").addEventListener("click", castSpell);
+  $("spell-cancel-btn").addEventListener("click", () => hide($("overlay-spell")));
 
   // Result overlay: dismiss on tap
   $("overlay-result").addEventListener("click", () => {
