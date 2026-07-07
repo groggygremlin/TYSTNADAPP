@@ -30,6 +30,14 @@ body {
   -webkit-user-select: none;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: #0c0a0b url("app-bg.webp") center / cover no-repeat;
+  z-index: -1;
+}
+
 .hidden { display: none !important; }
 
 .screen {
@@ -1008,10 +1016,6 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .shell-screen {
   padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
-  background-image: url("app-bg.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .tab-panel {
