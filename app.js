@@ -1,9 +1,9 @@
 /* ============================================================
-   TYSTNAD Companion - v17
+   TYSTNAD Companion - v18
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v17";
+const VERSION = "v18";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -239,10 +239,10 @@ function createCharacter() {
   save();
   renderSheet();
   hide($("screen-create"));
-  show($("screen-sheet"));
+  showShell();
 }
 
-// ---------- Explorer screen ----------
+// ---------- Shell ----------
 
 function renderSheet() {
   $("version-note").textContent = VERSION;
@@ -253,21 +253,26 @@ function renderSheet() {
   renderExpedition();
   renderInventory();
   $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
-}
-
-// ---------- Combat screen ----------
-
-function renderCombat() {
-  $("version-note-combat").textContent = VERSION;
-  $("combat-char-name").textContent = character.name;
   $("sheet-def").textContent = character.defense;
-  renderHP();
   renderInit();
   if (character.cls === "Sorcerer") {
     show($("btn-cast"));
   } else {
     hide($("btn-cast"));
   }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab-panel").forEach((p) => hide(p));
+  show($("tab-" + tab));
+  document.querySelectorAll(".tab-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+}
+
+function showShell() {
+  switchTab("sheet");
+  show($("screen-shell"));
 }
 
 // ---------- Intro screen ----------
@@ -297,18 +302,8 @@ function renderHP() {
   const maxnum = $("hp-maxnum");
   if (maxnum) maxnum.textContent = character.hpMax;
 
-  const explCur = $("hp-expl-current");
-  if (explCur) {
-    explCur.textContent = character.hpCur;
-    explCur.classList.toggle("low", isLow);
-  }
-  const explMax = $("hp-expl-maxnum");
-  if (explMax) explMax.textContent = character.hpMax;
-
-  const deathExpl = $("btn-death");
-  if (deathExpl) { isDead ? show(deathExpl) : hide(deathExpl); }
-  const deathCombat = $("btn-death-combat");
-  if (deathCombat) { isDead ? show(deathCombat) : hide(deathCombat); }
+  const death = $("btn-death");
+  if (death) { isDead ? show(death) : hide(death); }
 }
 
 function adjustHP(delta) {
@@ -582,7 +577,7 @@ function applyImport(data) {
   renderSheet();
   hide($("screen-intro"));
   hide($("screen-create"));
-  show($("screen-sheet"));
+  showShell();
 }
 
 function importCharacter(file) {
@@ -693,7 +688,6 @@ function performRollAttack(combatDie, damageDie, target, momentum) {
 }
 
 // ---------- Expedition effort rolls ----------
-
 
 function openTravel() {
   $("travel-die-label").textContent = character.skills["Lore"];
@@ -1085,12 +1079,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("export-close").addEventListener("click", () => hide($("overlay-export")));
 
-  // Explorer compact HP strip
-  $("hp-expl-minus").addEventListener("click", () => adjustHP(-1));
-  $("hp-expl-plus").addEventListener("click", () => adjustHP(1));
-  $("hp-expl-max-btn").addEventListener("click", openMaxHP);
-
-  // Combat page HP
+  // HP strip (single, in shell)
   $("hp-minus").addEventListener("click", () => adjustHP(-1));
   $("hp-plus").addEventListener("click", () => adjustHP(1));
   $("hp-max-btn").addEventListener("click", openMaxHP);
@@ -1100,11 +1089,11 @@ document.addEventListener("DOMContentLoaded", () => {
   $("btn-continue").addEventListener("click", () => {
     renderSheet();
     hide($("screen-intro"));
-    show($("screen-sheet"));
+    showShell();
   });
   $("btn-back").addEventListener("click", () => {
     renderIntro();
-    hide($("screen-sheet"));
+    hide($("screen-shell"));
     show($("screen-intro"));
   });
   $("btn-new-explorer").addEventListener("click", () => {
@@ -1121,15 +1110,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sec.classList.contains("hidden")) { show(sec); } else { hide(sec); }
   });
 
-  // Explorer <-> Combat navigation
-  $("btn-to-combat").addEventListener("click", () => {
-    renderCombat();
-    hide($("screen-sheet"));
-    show($("screen-combat"));
-  });
-  $("btn-back-combat").addEventListener("click", () => {
-    hide($("screen-combat"));
-    show($("screen-sheet"));
+  // Tab bar
+  document.querySelector(".tab-bar").addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab-btn");
+    if (!btn) return;
+    switchTab(btn.dataset.tab);
   });
 
   // Confirm overlay (abandon)
@@ -1178,9 +1163,8 @@ document.addEventListener("DOMContentLoaded", () => {
     save();
   });
 
-  // Death Roll (both pages)
+  // Death Roll (single button in shell)
   $("btn-death").addEventListener("click", openDeath);
-  $("btn-death-combat").addEventListener("click", openDeath);
   $("death-roll-btn").addEventListener("click", rollDeath);
   $("death-cancel").addEventListener("click", () => hide($("overlay-death")));
 

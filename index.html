@@ -94,8 +94,9 @@
     <button id="btn-create" class="primary-btn" disabled>Begin the Expedition</button>
   </section>
 
-  <!-- ============ EXPLORER SCREEN ============ -->
-  <section id="screen-sheet" class="screen hidden">
+  <!-- ============ SHELL SCREEN ============ -->
+  <section id="screen-shell" class="screen shell-screen hidden">
+
     <header class="sheet-head">
       <div class="sheet-head-left">
         <button id="btn-back" class="back-btn" aria-label="Back to intro">&#8249;</button>
@@ -110,108 +111,94 @@
     <div class="hp-compact-strip">
       <span class="vital-label">HP</span>
       <div class="hp-controls">
-        <button id="hp-expl-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
-        <div class="hp-readout hp-readout-compact">
-          <span id="hp-expl-current">12</span><button class="hp-max" id="hp-expl-max-btn" aria-label="Edit max HP">/<span id="hp-expl-maxnum">12</span></button>
-        </div>
-        <button id="hp-expl-plus" class="hp-btn" aria-label="Recover HP">+</button>
-      </div>
-    </div>
-
-    <button id="btn-to-combat" class="combat-nav-btn">Combat</button>
-
-    <button id="btn-death" class="death-btn hidden">Death Roll</button>
-
-    <div class="skills-section">
-      <p class="field-label">Skills</p>
-      <div class="skill-list" id="skill-list"></div>
-    </div>
-
-    <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
-
-    <button id="btn-clear-ticks" class="clear-ticks-btn hidden">Clear ticks</button>
-
-    <div class="expedition-section">
-      <p class="field-label">Expedition</p>
-      <div class="role-chips" id="role-chips">
-        <button class="role-chip" data-role="Pathfinder">Pathfinder</button>
-        <button class="role-chip" data-role="Scout">Scout</button>
-        <button class="role-chip" data-role="Quartermaster">Quartermaster</button>
-      </div>
-      <div class="effort-grid">
-        <button class="effort-btn" id="btn-travel">Travel</button>
-        <button class="effort-btn" id="btn-explore">Explore</button>
-        <button class="effort-btn" id="btn-forage">Forage</button>
-        <button class="effort-btn" id="btn-camp">Camp</button>
-      </div>
-    </div>
-
-    <div class="inv-section">
-      <div class="inv-head">
-        <span class="field-label">Inventory</span>
-        <span class="inv-total"><span id="inv-lp">0</span>/30 LP</span>
-        <span class="inv-badge" id="inv-badge">Unburdened</span>
-      </div>
-      <div id="inv-list"></div>
-      <div class="inv-add">
-        <input id="inv-name" type="text" maxlength="24" autocomplete="off" placeholder="Item">
-        <input id="inv-lp-in" type="number" inputmode="numeric" min="0" max="30" placeholder="LP">
-        <button id="inv-add-btn" aria-label="Add item">+</button>
-      </div>
-      <div class="inv-coins">
-        <span class="inv-coins-label">Coins</span>
-        <input id="inv-coins-in" type="number" inputmode="numeric" min="0" placeholder="0">
-        <span class="inv-coins-lp" id="coin-lp"></span>
-      </div>
-      <p class="inv-hint hidden" id="inv-hint"></p>
-    </div>
-
-    <p class="version-note" id="version-note"></p>
-  </section>
-
-  <!-- ============ COMBAT SCREEN ============ -->
-  <section id="screen-combat" class="screen hidden">
-    <header class="sheet-head">
-      <div class="sheet-head-left">
-        <button id="btn-back-combat" class="back-btn" aria-label="Back to Explorer">&#8249;</button>
-        <div>
-          <h2 class="combat-page-title">Combat</h2>
-          <p class="combat-name-sub" id="combat-char-name"></p>
-        </div>
-      </div>
-    </header>
-
-    <div class="hp-block">
-      <span class="vital-label">HP</span>
-      <div class="hp-controls">
         <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
-        <div class="hp-readout">
+        <div class="hp-readout hp-readout-compact">
           <span id="hp-current">12</span><button class="hp-max" id="hp-max-btn" aria-label="Edit max HP">/<span id="hp-maxnum">12</span></button>
         </div>
         <button id="hp-plus" class="hp-btn" aria-label="Recover HP">+</button>
       </div>
     </div>
 
-    <button id="btn-attack" class="primary-btn">Attack</button>
+    <button id="btn-death" class="death-btn hidden">Death Roll</button>
 
-    <div class="def-init-row">
-      <button class="def-block" id="def-block" aria-label="Roll Defense">
-        <span class="vital-label">Defense</span>
-        <span class="def-die" id="sheet-def">d8</span>
-        <span class="chip-hint">Tap to roll</span>
-      </button>
-      <button class="def-block" id="init-block" aria-label="Edit loadout">
-        <span class="vital-label">Initiative</span>
-        <span class="def-die" id="sheet-init">+0</span>
-        <span class="chip-hint">Tap to edit</span>
-      </button>
+    <!-- SHEET TAB -->
+    <div id="tab-sheet" class="tab-panel">
+      <div class="skills-section">
+        <p class="field-label">Skills</p>
+        <div class="skill-list" id="skill-list"></div>
+      </div>
+      <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
+      <button id="btn-clear-ticks" class="clear-ticks-btn hidden">Clear ticks</button>
     </div>
 
-    <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
+    <!-- EXPEDITION TAB -->
+    <div id="tab-expedition" class="tab-panel hidden">
+      <div class="expedition-section">
+        <p class="field-label">Expedition</p>
+        <div class="role-chips" id="role-chips">
+          <button class="role-chip" data-role="Pathfinder">Pathfinder</button>
+          <button class="role-chip" data-role="Scout">Scout</button>
+          <button class="role-chip" data-role="Quartermaster">Quartermaster</button>
+        </div>
+        <div class="effort-grid">
+          <button class="effort-btn" id="btn-travel">Travel</button>
+          <button class="effort-btn" id="btn-explore">Explore</button>
+          <button class="effort-btn" id="btn-forage">Forage</button>
+          <button class="effort-btn" id="btn-camp">Camp</button>
+        </div>
+      </div>
+    </div>
 
-    <button id="btn-death-combat" class="death-btn hidden">Death Roll</button>
+    <!-- COMBAT TAB -->
+    <div id="tab-combat" class="tab-panel hidden">
+      <button id="btn-attack" class="primary-btn">Attack</button>
+      <div class="def-init-row">
+        <button class="def-block" id="def-block" aria-label="Roll Defense">
+          <span class="vital-label">Defense</span>
+          <span class="def-die" id="sheet-def">d8</span>
+          <span class="chip-hint">Tap to roll</span>
+        </button>
+        <button class="def-block" id="init-block" aria-label="Edit loadout">
+          <span class="vital-label">Initiative</span>
+          <span class="def-die" id="sheet-init">+0</span>
+          <span class="chip-hint">Tap to edit</span>
+        </button>
+      </div>
+      <button class="cast-btn hidden" id="btn-cast">Cast Spell</button>
+    </div>
 
-    <p class="version-note" id="version-note-combat"></p>
+    <!-- GEAR TAB -->
+    <div id="tab-gear" class="tab-panel hidden">
+      <div class="inv-section">
+        <div class="inv-head">
+          <span class="field-label">Inventory</span>
+          <span class="inv-total"><span id="inv-lp">0</span>/30 LP</span>
+          <span class="inv-badge" id="inv-badge">Unburdened</span>
+        </div>
+        <div id="inv-list"></div>
+        <div class="inv-add">
+          <input id="inv-name" type="text" maxlength="24" autocomplete="off" placeholder="Item">
+          <input id="inv-lp-in" type="number" inputmode="numeric" min="0" max="30" placeholder="LP">
+          <button id="inv-add-btn" aria-label="Add item">+</button>
+        </div>
+        <div class="inv-coins">
+          <span class="inv-coins-label">Coins</span>
+          <input id="inv-coins-in" type="number" inputmode="numeric" min="0" placeholder="0">
+          <span class="inv-coins-lp" id="coin-lp"></span>
+        </div>
+        <p class="inv-hint hidden" id="inv-hint"></p>
+      </div>
+    </div>
+
+    <p class="version-note" id="version-note"></p>
+
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-tab="sheet">Sheet</button>
+      <button class="tab-btn" data-tab="expedition">Expedition</button>
+      <button class="tab-btn" data-tab="combat">Combat</button>
+      <button class="tab-btn" data-tab="gear">Gear</button>
+    </nav>
+
   </section>
 
   <!-- ============ DIFFICULTY OVERLAY (skills) ============ -->

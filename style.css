@@ -333,7 +333,7 @@ input:focus { border-color: var(--blood); }
 
 /* ============ VITALS ============ */
 
-.hp-block, .def-block {
+.def-block {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -342,8 +342,6 @@ input:focus { border-color: var(--blood); }
   flex-direction: column;
   gap: 8px;
 }
-
-.hp-block { padding: 10px 14px; gap: 6px; }
 
 .def-block {
   align-items: center;
@@ -405,7 +403,7 @@ button.hp-max {
 
 button.hp-max:active { color: var(--blood-bright); }
 
-#hp-current.low, #hp-expl-current.low { color: var(--blood-bright); }
+#hp-current.low { color: var(--blood-bright); }
 
 .def-die { font-size: 1.7rem; font-weight: 900; }
 
@@ -841,45 +839,6 @@ button.hp-max:active { color: var(--blood-bright); }
   font-size: 1.3rem;
 }
 
-/* ============ COMBAT NAV BUTTON ============ */
-
-.combat-nav-btn {
-  background: transparent;
-  border: 1px solid var(--blood);
-  border-radius: 8px;
-  color: var(--blood-bright);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
-  height: 44px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  width: 100%;
-}
-
-.combat-nav-btn:active { background: var(--panel-hi); }
-
-/* ============ COMBAT PAGE TITLE ============ */
-
-.combat-page-title {
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bone);
-  margin: 0;
-  line-height: 1.1;
-}
-
-.combat-name-sub {
-  font-size: 0.72rem;
-  color: var(--ash);
-  margin: 0;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 /* ============ ATTACK MOMENTUM SELECTOR ============ */
 
 .momentum-row {
@@ -1032,3 +991,48 @@ button.hp-max:active { color: var(--blood-bright); }
 .effort-result-exposed { color: var(--blood-bright); font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .effort-result-label { color: var(--bone); font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .effort-result-margin { color: var(--ash); font-size: 0.8rem; }
+
+/* ============ SHELL + TAB ARCHITECTURE (v18) ============ */
+
+.shell-screen {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+}
+
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--ash);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  min-height: 48px;
+  padding: 10px 4px;
+  text-transform: uppercase;
+}
+
+.tab-btn.active { color: var(--blood-bright); }
+
+.tab-btn:active { color: var(--bone); }
