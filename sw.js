@@ -1,7 +1,7 @@
 /* TYSTNAD Companion service worker.
    Cache-first: the app works in the basement, the cabin, the dead zone. */
 
-const CACHE = "tystnad-v25";
+const CACHE = "tystnad-v26";
 
 const ASSETS = [
   "./",
@@ -13,7 +13,10 @@ const ASSETS = [
   "./icon-512.png",
   "./logo.png",
   "./intro-bg.webp",
-  "./app-bg.webp"
+  "./app-bg.webp",
+  "./CormorantGaramond-Medium.woff2",
+  "./CormorantGaramond-SemiBold.woff2",
+  "./CormorantGaramond-Bold.woff2"
 ];
 
 self.addEventListener("install", (event) => {
