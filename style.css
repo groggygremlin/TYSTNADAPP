@@ -46,6 +46,10 @@ body {
 #screen-intro {
   min-height: 100dvh;
   justify-content: center;
+  background-image: url("intro-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .intro-logo-wrap {
