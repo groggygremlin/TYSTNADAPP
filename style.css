@@ -1207,21 +1207,23 @@ button.hp-max:active { color: var(--blood-bright); }
   padding: 6px 16px 0;
 }
 .cond-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   padding: 8px 0 12px;
 }
 .cond-chip {
   background: transparent;
   border: 1px solid var(--ash);
-  border-radius: 4px;
-  color: var(--bone);
+  border-radius: 6px;
+  color: var(--ash);
   cursor: pointer;
-  font-size: 0.78rem;
-  letter-spacing: 0.05em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   min-height: 44px;
-  padding: 6px 10px;
+  padding: 0 14px;
+  text-transform: uppercase;
 }
 .cond-chip--active {
   border-color: var(--blood);

@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v28";
+const VERSION = "v29";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
