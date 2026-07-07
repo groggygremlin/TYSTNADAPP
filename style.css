@@ -17,10 +17,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: #0c0a0b; }
 
 body {
-  background: var(--ink);
+  background: transparent;
   color: var(--bone);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
@@ -34,7 +34,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: #0c0a0b url("app-bg.webp") center / cover no-repeat;
+  background: url("app-bg.webp") center / cover no-repeat;
   z-index: -1;
 }
 
