@@ -1,9 +1,9 @@
 /* ============================================================
-   TYSTNAD Companion - v16
+   TYSTNAD Companion - v17
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v16";
+const VERSION = "v17";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -14,6 +14,9 @@ const SKILLS = [
 
 const DICE = ["d6", "d8", "d10", "d12", "d20"];
 
+// Extended ladder for Forage Rough die step-down; d4 is the floor (PB v2.5 Hexploration)
+const FORAGE_DICE = ["d4", "d6", "d8", "d10", "d12", "d20"];
+
 const CLASSES = {
   Warrior:  { hp: 12, defense: "d8", core: "Combat",  d8: ["Combat", "Athletics", "Presence"] },
   Rogue:    { hp: 11, defense: "d8", core: "Finesse", d8: ["Finesse", "Awareness", "Athletics"] },
@@ -22,25 +25,26 @@ const CLASSES = {
 };
 
 const DIFFICULTY_NAMES = { 4: "Easy 4+", 5: "Normal 5+", 6: "Hard 6+" };
-const THREAT_NAMES = { 4: "Weak 4+", 5: "Standard 5+", 6: "Strong 6+" };
+const TERRAIN_NAMES    = { 4: "Easy 4+", 5: "Standard 5+", 6: "Rough 6+" };
+const THREAT_NAMES     = { 4: "Weak 4+", 5: "Standard 5+", 6: "Strong 6+" };
 
-/* Initiative contribution by loadout (canon PB v2.5).
-   Medium armor and standard weapons contribute 0. */
-const INIT_ARMOR = { none: 2, light: 1, medium: 0, heavy: -1 };
+const INIT_ARMOR  = { none: 2, light: 1, medium: 0, heavy: -1 };
 const INIT_WEAPON = { light: 1, standard: 0, heavy: -1 };
 
-/* Weapon damage dice (canon PB v2.5, equipment chapter):
+/* Weapon damage dice (PB v2.5 equipment chapter):
    Light 1d6, Standard 1d8, Heavy 1d10.
    Unarmed maps to the light bucket; separate ruling awaited. */
 const WEAPON_DAMAGE = { light: "d6", standard: "d8", heavy: "d10" };
 
-/* Spell tiers (canon PB v2.5): cost in HP, Sorcery target to cast.
-   The cost is paid on success, failure, and death alike. */
+/* Spell tiers (PB v2.5): cost in HP, Sorcery target to cast.
+   Cost paid on success, failure, and death alike. */
 const CAST_TIERS = {
   1: { cost: 1, target: 4 },
   2: { cost: 2, target: 5 },
   3: { cost: 3, target: 6 }
 };
+
+const EXPEDITION_ROLES = ["Pathfinder", "Scout", "Quartermaster"];
 
 const STORAGE_KEY = "tystnad-character";
 
@@ -54,11 +58,12 @@ const SKULL_SVG = `
 
 // ---------- State ----------
 
-let character = null;   // { name, cls, skills: {name: die}, hpMax, hpCur, defense, loadout, items, coins }
+let character = null;
 let pendingSkill = null;
 let rollLocked = false;
 let pendingConfirmAction = null;
 let attackMomentum = 0;
+let forageRough = false;
 
 // ---------- Persistence ----------
 
@@ -83,8 +88,6 @@ function load() {
   }
 }
 
-/* Characters saved before v6 lack loadout, items, and coins.
-   Default loadout is medium armor and a standard weapon: contribution 0. */
 function migrate(c) {
   if (!c.loadout || !INIT_ARMOR.hasOwnProperty(c.loadout.armor)) {
     c.loadout = { armor: "medium", weapon: "standard" };
@@ -94,6 +97,11 @@ function migrate(c) {
   }
   if (!Array.isArray(c.items)) c.items = [];
   if (typeof c.coins !== "number" || isNaN(c.coins)) c.coins = 0;
+  // v17: expedition roles and skill ticks
+  if (!Array.isArray(c.roles)) c.roles = [];
+  if (!c.skillTicks || typeof c.skillTicks !== "object" || Array.isArray(c.skillTicks)) {
+    c.skillTicks = {};
+  }
   return c;
 }
 
@@ -109,6 +117,12 @@ function stepDie(die, dir) {
   const i = DICE.indexOf(die);
   const next = Math.min(Math.max(i + dir, 0), DICE.length - 1);
   return DICE[next];
+}
+
+function forageStepDown(die) {
+  const i = FORAGE_DICE.indexOf(die);
+  if (i <= 0) return FORAGE_DICE[0]; // floor at d4
+  return FORAGE_DICE[i - 1];
 }
 
 function show(el) { el.classList.remove("hidden"); }
@@ -218,7 +232,9 @@ function createCharacter() {
     defense: createState.defense,
     loadout: { armor: "medium", weapon: "standard" },
     items: [],
-    coins: 0
+    coins: 0,
+    roles: [],
+    skillTicks: {}
   };
   save();
   renderSheet();
@@ -234,6 +250,7 @@ function renderSheet() {
   $("sheet-class").textContent = character.cls;
   renderHP();
   renderSkillList();
+  renderExpedition();
   renderInventory();
   $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
 }
@@ -272,7 +289,6 @@ function renderHP() {
   const isLow = character.hpCur <= Math.floor(character.hpMax / 3);
   const isDead = character.hpCur <= 0;
 
-  // Combat page full HP block
   const cur = $("hp-current");
   if (cur) {
     cur.textContent = character.hpCur;
@@ -281,7 +297,6 @@ function renderHP() {
   const maxnum = $("hp-maxnum");
   if (maxnum) maxnum.textContent = character.hpMax;
 
-  // Explorer page compact HP strip
   const explCur = $("hp-expl-current");
   if (explCur) {
     explCur.textContent = character.hpCur;
@@ -290,7 +305,6 @@ function renderHP() {
   const explMax = $("hp-expl-maxnum");
   if (explMax) explMax.textContent = character.hpMax;
 
-  // Death Roll buttons on both pages
   const deathExpl = $("btn-death");
   if (deathExpl) { isDead ? show(deathExpl) : hide(deathExpl); }
   const deathCombat = $("btn-death-combat");
@@ -298,7 +312,6 @@ function renderHP() {
 }
 
 function adjustHP(delta) {
-  // HP runs negative. The Death Roll die shrinks with the depth (canon PB v2.5).
   character.hpCur = Math.min(Math.max(character.hpCur + delta, -99), character.hpMax);
   renderHP();
   save();
@@ -314,7 +327,6 @@ function openMaxHP() {
 function adjustMaxHP(delta) {
   const next = Math.min(Math.max(character.hpMax + delta, 1), 99);
   character.hpMax = next;
-  // Lowering max clamps current. Raising max does not heal.
   if (character.hpCur > character.hpMax) {
     character.hpCur = character.hpMax;
   }
@@ -331,6 +343,7 @@ function renderSkillList() {
   SKILLS.forEach((skill) => {
     const btn = document.createElement("button");
     btn.className = "skill-row";
+    if (character.skillTicks[skill]) btn.classList.add("ticked");
     btn.setAttribute("aria-label", "Roll " + skill);
 
     const name = document.createElement("span");
@@ -345,6 +358,39 @@ function renderSkillList() {
     btn.appendChild(die);
     btn.addEventListener("click", () => openDifficulty(skill));
     list.appendChild(btn);
+  });
+
+  const anyTick = Object.keys(character.skillTicks).some((k) => character.skillTicks[k]);
+  const clearBtn = $("btn-clear-ticks");
+  if (clearBtn) { anyTick ? show(clearBtn) : hide(clearBtn); }
+}
+
+// ---------- Skill ticks ----------
+
+function tickSkill(name) {
+  if (!character.skillTicks[name]) {
+    character.skillTicks[name] = true;
+    renderSkillList();
+    save();
+  }
+}
+
+function openClearTicks() {
+  show($("overlay-clear-ticks"));
+}
+
+function confirmClearTicks() {
+  character.skillTicks = {};
+  renderSkillList();
+  save();
+  hide($("overlay-clear-ticks"));
+}
+
+// ---------- Expedition section ----------
+
+function renderExpedition() {
+  document.querySelectorAll(".role-chip").forEach((btn) => {
+    btn.classList.toggle("active", character.roles.indexOf(btn.dataset.role) !== -1);
   });
 }
 
@@ -378,11 +424,6 @@ function openLoadout() {
 }
 
 // ---------- Inventory and Load Points ----------
-
-/* Load thresholds (canon PB v2.5):
-   0-23 Unburdened. 24-27 Heavy: no Full Actions, Sorcerers cannot cast.
-   28-30 Overloaded: 1 Main Action only, no Full Actions, Sorcerers cannot cast.
-   Coins: every 100 coins, or part thereof, counts as 1 LP. */
 
 function coinLP() {
   return character.coins > 0 ? Math.ceil(character.coins / 100) : 0;
@@ -489,7 +530,6 @@ function exportCharacter() {
     return;
   }
 
-  // .tystnad.txt uses text/plain -- Android's share allowlist rejects application/json files.
   const file = new File([json], safe + ".tystnad.txt", { type: "text/plain" });
   if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
     navigator.share({ files: [file], title: character.name })
@@ -580,9 +620,6 @@ function openAttack() {
   show($("overlay-attack"));
 }
 
-/* Exploding damage (canon PB v2.5): on a max roll, roll the damage die again.
-   Continue until the result is less than the maximum. Sum all rolls.
-   Cap at 20 iterations. */
 function rollExplosion(die) {
   const sides = dieSides(die);
   const chain = [];
@@ -610,6 +647,10 @@ function performRollAttack(combatDie, damageDie, target, momentum) {
 
   const sides = dieSides(combatDie);
   const result = Math.floor(Math.random() * sides) + 1;
+  const success = result >= target;
+
+  // Apply persistent effects immediately; animation is purely visual
+  if (success) tickSkill("Combat");
 
   $("result-context").textContent = "Attack " + combatDie + " vs " + DIFFICULTY_NAMES[target];
 
@@ -629,7 +670,7 @@ function performRollAttack(combatDie, damageDie, target, momentum) {
       clearInterval(flicker);
       numEl.classList.remove("rolling");
       numEl.textContent = result;
-      if (result >= target) {
+      if (success) {
         const chain = rollExplosion(damageDie);
         const base = chain.reduce((a, b) => a + b, 0);
         const total = base + momentum;
@@ -645,6 +686,184 @@ function performRollAttack(combatDie, damageDie, target, momentum) {
         verdictEl.innerHTML = html;
       } else {
         verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
+      }
+      rollLocked = false;
+    }
+  }, 60);
+}
+
+// ---------- Expedition effort rolls ----------
+
+
+function openTravel() {
+  $("travel-die-label").textContent = character.skills["Lore"];
+  show($("overlay-travel"));
+}
+
+function rollTravel(target) {
+  hide($("overlay-travel"));
+  const die = character.skills["Lore"];
+  performRoll(die, target,
+    "Travel " + die + " vs " + TERRAIN_NAMES[target],
+    { tickSkill: "Lore" });
+}
+
+function openExplore() {
+  $("explore-die-label").textContent = character.skills["Awareness"];
+  show($("overlay-explore"));
+}
+
+function rollExplore(target) {
+  hide($("overlay-explore"));
+  const die = character.skills["Awareness"];
+  performRollExplore(die, target);
+}
+
+function performRollExplore(die, target) {
+  if (rollLocked) return;
+  rollLocked = true;
+
+  const sides = dieSides(die);
+  const result = Math.floor(Math.random() * sides) + 1;
+  const success = result >= target;
+
+  if (success) tickSkill("Awareness");
+
+  $("result-context").textContent = "Explore " + die + " vs " + TERRAIN_NAMES[target];
+
+  const overlay = $("overlay-result");
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  verdictEl.innerHTML = "";
+  overlay.classList.remove("death-flood");
+  numEl.classList.add("rolling");
+  show(overlay);
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      numEl.textContent = result;
+      if (success) {
+        const margin = result - target;
+        verdictEl.innerHTML =
+          '<span class="verdict-success">SUCCEEDED BY ' + margin + "</span>";
+      } else {
+        verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
+      }
+      rollLocked = false;
+    }
+  }, 60);
+}
+
+function openForage() {
+  forageRough = false;
+  $("forage-rough-btn").classList.remove("selected");
+  $("forage-die-label").textContent = character.skills["Athletics"];
+  show($("overlay-forage"));
+}
+
+function rollForage() {
+  hide($("overlay-forage"));
+  let die = character.skills["Athletics"];
+  if (forageRough) die = forageStepDown(die);
+  performRollForage(die);
+}
+
+function performRollForage(die) {
+  if (rollLocked) return;
+  rollLocked = true;
+
+  const sides = dieSides(die);
+  const result = Math.floor(Math.random() * sides) + 1;
+
+  if (result >= 4) tickSkill("Athletics");
+
+  $("result-context").textContent = "Forage " + die + (forageRough ? " (Rough)" : "");
+
+  const overlay = $("overlay-result");
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  verdictEl.innerHTML = "";
+  overlay.classList.remove("death-flood");
+  numEl.classList.add("rolling");
+  show(overlay);
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      numEl.textContent = result;
+      if (result >= 6) {
+        verdictEl.innerHTML = '<span class="effort-result-label">GAIN 2 SUPPLY</span>';
+      } else if (result >= 4) {
+        verdictEl.innerHTML = '<span class="effort-result-label">GAIN 1 SUPPLY</span>';
+      } else {
+        verdictEl.innerHTML = '<span class="effort-result-label" style="color:var(--ash)">NOTHING FOUND</span>';
+      }
+      rollLocked = false;
+    }
+  }, 60);
+}
+
+function openCamp() {
+  $("camp-die-label").textContent = character.skills["Awareness"];
+  show($("overlay-camp"));
+}
+
+function rollCamp(target) {
+  hide($("overlay-camp"));
+  const die = character.skills["Awareness"];
+  performRollCamp(die, target);
+}
+
+function performRollCamp(die, target) {
+  if (rollLocked) return;
+  rollLocked = true;
+
+  const sides = dieSides(die);
+  const result = Math.floor(Math.random() * sides) + 1;
+  const success = result >= target;
+
+  if (success) tickSkill("Awareness");
+
+  $("result-context").textContent = "Camp " + die + " vs " + TERRAIN_NAMES[target];
+
+  const overlay = $("overlay-result");
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  verdictEl.innerHTML = "";
+  overlay.classList.remove("death-flood");
+  numEl.classList.add("rolling");
+  show(overlay);
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      numEl.textContent = result;
+      if (success) {
+        const margin = result - target;
+        if (margin >= 2) {
+          verdictEl.innerHTML =
+            '<div class="attack-result">' +
+            '<span class="effort-result-label">DEFENSIBLE</span>' +
+            '<span class="effort-result-margin">Succeeded by ' + margin + "</span>" +
+            "</div>";
+        } else {
+          verdictEl.innerHTML = '<span class="effort-result-label">STABLE</span>';
+        }
+      } else {
+        verdictEl.innerHTML = '<span class="effort-result-exposed">EXPOSED</span>';
       }
       rollLocked = false;
     }
@@ -669,11 +888,6 @@ function openCast() {
   show($("overlay-cast"));
 }
 
-/* Casting (canon PB v2.5): pay the HP cost, then roll Sorcery against
-   the tier target. The cost is paid on success and failure alike.
-   If paying the cost drops you to 0 HP or below, skip the Sorcery roll
-   and make a Death Roll immediately. Survive, and the spell takes
-   effect as you fall unconscious. Die, and it fizzles. */
 function castTier(tier) {
   const t = CAST_TIERS[tier];
   hide($("overlay-cast"));
@@ -688,7 +902,8 @@ function castTier(tier) {
       { death: true, casting: true });
   } else {
     const die = character.skills["Sorcery"];
-    performRoll(die, t.target, "Tier " + tier + " · Sorcery " + die + " vs " + t.target + "+", {});
+    performRoll(die, t.target, "Tier " + tier + " · Sorcery " + die + " vs " + t.target + "+",
+      { tickSkill: "Sorcery" });
   }
 }
 
@@ -708,8 +923,6 @@ function openDefense() {
 
 // ---------- Death Roll ----------
 
-/* Death Roll die by HP depth (canon PB v2.5):
-   0 HP: d20. -1: d12. -2: d10. -3: d8. -4 or below: d6. */
 function deathDie(hp) {
   if (hp >= 0) return "d20";
   if (hp === -1) return "d12";
@@ -729,14 +942,11 @@ function rollDeath() {
   performRoll(die, 5, "Death Roll " + die + " vs 5+", { death: true });
 }
 
-/* Shared roll runner. opts:
-   shortfall: on failure, also display FAILED BY (target minus roll).
-     Used for Defense, where the shortfall is the base damage taken
-     before the monster's damage bonus. The player adjusts HP himself.
-   death: Death Roll mode. Success shows SURVIVES and rolls 1d6
-     unconscious rounds. Failure shows DEATH and floods the overlay.
-     The app changes nothing on death. Rerolls (Nine Lives, Not Yet)
-     and the final ruling belong to the table. */
+/* Generic roll runner. opts:
+   tickSkill: string -- ticks that skill on success.
+   shortfall: bool -- on failure show FAILED BY X (Defense use).
+   death: bool -- Death Roll mode with SURVIVES / DEATH display.
+   casting: bool -- with death:true, shows "The spell takes effect" on survival. */
 function performRoll(die, target, context, opts) {
   if (rollLocked) return;
   rollLocked = true;
@@ -744,6 +954,10 @@ function performRoll(die, target, context, opts) {
 
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
+  const success = result >= target;
+
+  // Apply persistent effects immediately; animation is purely visual
+  if (success && opts.tickSkill) tickSkill(opts.tickSkill);
 
   $("result-context").textContent = context;
 
@@ -763,7 +977,7 @@ function performRoll(die, target, context, opts) {
       clearInterval(flicker);
       numEl.classList.remove("rolling");
       numEl.textContent = result;
-      if (result >= target) {
+      if (success) {
         if (opts.death) {
           const rounds = Math.floor(Math.random() * 6) + 1;
           let notes = "";
@@ -799,7 +1013,8 @@ function rollSkill(target) {
   const skill = pendingSkill;
   const die = character.skills[skill];
   hide($("overlay-difficulty"));
-  performRoll(die, target, skill + " " + die + " vs " + DIFFICULTY_NAMES[target], {});
+  performRoll(die, target, skill + " " + die + " vs " + DIFFICULTY_NAMES[target],
+    { tickSkill: skill });
 }
 
 function rollDefense(target) {
@@ -832,7 +1047,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("def-stepper").addEventListener("click", (e) => {
     const btn = e.target.closest(".step-btn");
     if (!btn) return;
-    // Defense die caps at d12 per global rule.
     const dir = parseInt(btn.dataset.dir, 10);
     const next = stepDie(createState.defense, dir);
     createState.defense = next === "d20" ? "d12" : next;
@@ -871,12 +1085,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("export-close").addEventListener("click", () => hide($("overlay-export")));
 
-  // Explorer HP (compact strip)
+  // Explorer compact HP strip
   $("hp-expl-minus").addEventListener("click", () => adjustHP(-1));
   $("hp-expl-plus").addEventListener("click", () => adjustHP(1));
   $("hp-expl-max-btn").addEventListener("click", openMaxHP);
 
-  // Combat HP (full block)
+  // Combat page HP
   $("hp-minus").addEventListener("click", () => adjustHP(-1));
   $("hp-plus").addEventListener("click", () => adjustHP(1));
   $("hp-max-btn").addEventListener("click", openMaxHP);
@@ -918,7 +1132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     show($("screen-sheet"));
   });
 
-  // Confirm overlay
+  // Confirm overlay (abandon)
   $("confirm-no").addEventListener("click", () => {
     pendingConfirmAction = null;
     hide($("overlay-confirm"));
@@ -952,7 +1166,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("def-cancel").addEventListener("click", () => hide($("overlay-defense")));
 
-  // Defense die editing (persistent, capped at d12 per global rule)
+  // Defense die editing
   $("def-edit-stepper").addEventListener("click", (e) => {
     const btn = e.target.closest(".step-btn");
     if (!btn) return;
@@ -964,7 +1178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     save();
   });
 
-  // Death Roll (both pages share the same overlay)
+  // Death Roll (both pages)
   $("btn-death").addEventListener("click", openDeath);
   $("btn-death-combat").addEventListener("click", openDeath);
   $("death-roll-btn").addEventListener("click", rollDeath);
@@ -994,6 +1208,60 @@ document.addEventListener("DOMContentLoaded", () => {
   $("inv-add-btn").addEventListener("click", addItem);
   $("inv-coins-in").addEventListener("input", (e) => setCoins(e.target.value));
 
+  // Expedition roles
+  document.querySelectorAll(".role-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const role = btn.dataset.role;
+      const idx = character.roles.indexOf(role);
+      if (idx === -1) {
+        character.roles.push(role);
+      } else {
+        character.roles.splice(idx, 1);
+      }
+      renderExpedition();
+      save();
+    });
+  });
+
+  // Effort buttons
+  $("btn-travel").addEventListener("click", openTravel);
+  $("btn-explore").addEventListener("click", openExplore);
+  $("btn-forage").addEventListener("click", openForage);
+  $("btn-camp").addEventListener("click", openCamp);
+
+  // Travel overlay
+  document.querySelectorAll(".travel-diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => rollTravel(parseInt(btn.dataset.target, 10)));
+  });
+  $("travel-cancel").addEventListener("click", () => hide($("overlay-travel")));
+
+  // Explore overlay
+  document.querySelectorAll(".explore-diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => rollExplore(parseInt(btn.dataset.target, 10)));
+  });
+  $("explore-cancel").addEventListener("click", () => hide($("overlay-explore")));
+
+  // Forage overlay
+  $("forage-rough-btn").addEventListener("click", () => {
+    forageRough = !forageRough;
+    $("forage-rough-btn").classList.toggle("selected", forageRough);
+    const base = character.skills["Athletics"];
+    $("forage-die-label").textContent = forageRough ? forageStepDown(base) : base;
+  });
+  $("forage-roll-btn").addEventListener("click", rollForage);
+  $("forage-cancel").addEventListener("click", () => hide($("overlay-forage")));
+
+  // Camp overlay
+  document.querySelectorAll(".camp-diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => rollCamp(parseInt(btn.dataset.target, 10)));
+  });
+  $("camp-cancel").addEventListener("click", () => hide($("overlay-camp")));
+
+  // Clear ticks
+  $("btn-clear-ticks").addEventListener("click", openClearTicks);
+  $("clear-ticks-yes").addEventListener("click", confirmClearTicks);
+  $("clear-ticks-no").addEventListener("click", () => hide($("overlay-clear-ticks")));
+
   // Attack overlay
   $("btn-attack").addEventListener("click", openAttack);
   document.querySelectorAll(".momentum-btn").forEach((btn) => {
@@ -1016,19 +1284,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("cast-cancel").addEventListener("click", () => hide($("overlay-cast")));
 
-  // Result overlay dismisses on tap, but not mid-flicker
+  // Result overlay: dismiss on tap
   $("overlay-result").addEventListener("click", () => {
     if (rollLocked) return;
     hide($("overlay-result"));
     $("overlay-result").classList.remove("death-flood");
   });
 
-  // Boot: always show intro; mid-session returns never reload the page
+  // Boot
   character = load();
   renderIntro();
   show($("screen-intro"));
 
-  // PWA service worker
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch((e) => {
       console.error("Service worker registration failed:", e);

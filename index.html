@@ -129,6 +129,23 @@
 
     <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
 
+    <button id="btn-clear-ticks" class="clear-ticks-btn hidden">Clear ticks</button>
+
+    <div class="expedition-section">
+      <p class="field-label">Expedition</p>
+      <div class="role-chips" id="role-chips">
+        <button class="role-chip" data-role="Pathfinder">Pathfinder</button>
+        <button class="role-chip" data-role="Scout">Scout</button>
+        <button class="role-chip" data-role="Quartermaster">Quartermaster</button>
+      </div>
+      <div class="effort-grid">
+        <button class="effort-btn" id="btn-travel">Travel</button>
+        <button class="effort-btn" id="btn-explore">Explore</button>
+        <button class="effort-btn" id="btn-forage">Forage</button>
+        <button class="effort-btn" id="btn-camp">Camp</button>
+      </div>
+    </div>
+
     <div class="inv-section">
       <div class="inv-head">
         <span class="field-label">Inventory</span>
@@ -322,6 +339,60 @@
     <div class="confirm-buttons">
       <button id="confirm-yes" class="danger-btn">Abandon</button>
       <button id="confirm-no" class="ghost-btn">Keep Him</button>
+    </div>
+  </div>
+
+  <!-- ============ TRAVEL OVERLAY ============ -->
+  <div id="overlay-travel" class="overlay hidden">
+    <p class="overlay-skill">Travel <span id="travel-die-label">d6</span></p>
+    <p class="field-hint overlay-hint">Pathfinder rolls Lore. The GM sets the terrain.</p>
+    <div class="diff-buttons">
+      <button class="travel-diff-btn diff-btn" data-target="4">Easy<span>4+</span></button>
+      <button class="travel-diff-btn diff-btn" data-target="5">Standard<span>5+</span></button>
+      <button class="travel-diff-btn diff-btn" data-target="6">Rough<span>6+</span></button>
+    </div>
+    <button id="travel-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ EXPLORE OVERLAY ============ -->
+  <div id="overlay-explore" class="overlay hidden">
+    <p class="overlay-skill">Explore <span id="explore-die-label">d6</span></p>
+    <p class="field-hint overlay-hint">Scout rolls Awareness. The GM sets the terrain.</p>
+    <div class="diff-buttons">
+      <button class="explore-diff-btn diff-btn" data-target="4">Easy<span>4+</span></button>
+      <button class="explore-diff-btn diff-btn" data-target="5">Standard<span>5+</span></button>
+      <button class="explore-diff-btn diff-btn" data-target="6">Rough<span>6+</span></button>
+    </div>
+    <button id="explore-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ FORAGE OVERLAY ============ -->
+  <div id="overlay-forage" class="overlay hidden">
+    <p class="overlay-skill">Forage <span id="forage-die-label">d6</span></p>
+    <p class="field-hint overlay-hint">Quartermaster rolls Athletics. Rough terrain steps the die down.</p>
+    <button class="class-btn" id="forage-rough-btn">Rough Terrain</button>
+    <button id="forage-roll-btn" class="primary-btn slim">Forage</button>
+    <button id="forage-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ CAMP OVERLAY ============ -->
+  <div id="overlay-camp" class="overlay hidden">
+    <p class="overlay-skill">Camp <span id="camp-die-label">d6</span></p>
+    <p class="field-hint overlay-hint">Scout rolls Awareness. The GM sets the terrain.</p>
+    <div class="diff-buttons">
+      <button class="camp-diff-btn diff-btn" data-target="4">Easy<span>4+</span></button>
+      <button class="camp-diff-btn diff-btn" data-target="5">Standard<span>5+</span></button>
+      <button class="camp-diff-btn diff-btn" data-target="6">Rough<span>6+</span></button>
+    </div>
+    <button id="camp-cancel" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ CLEAR TICKS OVERLAY ============ -->
+  <div id="overlay-clear-ticks" class="overlay hidden">
+    <p class="confirm-text">Clear all skill ticks? This cannot be undone.</p>
+    <div class="confirm-buttons">
+      <button id="clear-ticks-yes" class="danger-btn">Clear</button>
+      <button id="clear-ticks-no" class="ghost-btn">Keep</button>
     </div>
   </div>
 

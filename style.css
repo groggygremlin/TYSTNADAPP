@@ -877,6 +877,7 @@ button.hp-max:active { color: var(--blood-bright); }
   color: var(--ash);
   margin: 0;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* ============ ATTACK MOMENTUM SELECTOR ============ */
@@ -925,3 +926,109 @@ button.hp-max:active { color: var(--blood-bright); }
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* ============ EXPEDITION SECTION ============ */
+
+.expedition-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.role-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.role-chip {
+  background: transparent;
+  border: 1px solid var(--ash);
+  border-radius: 6px;
+  color: var(--ash);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  min-height: 44px;
+  padding: 0 14px;
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.role-chip.active {
+  border-color: var(--blood);
+  color: var(--bone);
+}
+
+.role-chip:active { background: var(--panel-hi); }
+
+.effort-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.effort-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--bone);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  height: 44px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.effort-btn:active { background: var(--panel-hi); border-color: var(--blood); }
+
+/* ============ SKILL TICKS ============ */
+
+.skill-row { position: relative; }
+
+.skill-row.ticked::after {
+  content: "✓";
+  color: var(--bone);
+  font-size: 0.65rem;
+  font-weight: 900;
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  line-height: 1;
+}
+
+/* ============ CLEAR TICKS CONTROL ============ */
+
+.clear-ticks-btn {
+  background: none;
+  border: none;
+  color: var(--ash);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  min-height: 44px;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+/* ============ FORAGE OVERLAY ============ */
+
+.forage-die-note {
+  font-size: 0.75rem;
+  color: var(--ash);
+  text-align: center;
+}
+
+/* ============ EFFORT RESULT DISPLAY ============ */
+
+.effort-result-exposed { color: var(--blood-bright); font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.effort-result-label { color: var(--bone); font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.effort-result-margin { color: var(--ash); font-size: 0.8rem; }
