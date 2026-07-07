@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v30";
+const VERSION = "v31";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -104,13 +104,8 @@ const CONDITIONS = [
 
 const STORAGE_KEY = "tystnad-character";
 
-const SKULL_SVG = `
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Failure" role="img">
-  <path fill="#d92b32" d="M50 6C27 6 12 22 12 44c0 12 5 21 13 27v11c0 3 2 5 5 5h4v-8c0-1.5 1-2.5 2.5-2.5S39 77.5 39 79v8h7v-8c0-1.5 1-2.5 2.5-2.5S51 77.5 51 79v8h7v-8c0-1.5 1-2.5 2.5-2.5S63 77.5 63 79v8h4c3 0 5-2 5-5V71c8-6 13-15 13-27C85 22 73 6 50 6z"/>
-  <circle fill="#0c0a0b" cx="35" cy="44" r="9"/>
-  <circle fill="#0c0a0b" cx="65" cy="44" r="9"/>
-  <path fill="#0c0a0b" d="M50 52l6 12H44z"/>
-</svg>`;
+const SKULL_IMG       = '<img class="verdict-skull" src="skull.webp" alt="Failure">';
+const SKULL_IMG_DEATH = '<img class="verdict-skull verdict-skull--death" src="skull.webp" alt="Death">';
 
 // ---------- State ----------
 
@@ -829,7 +824,7 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
         html += "</div>";
         verdictEl.innerHTML = html;
       } else {
-        verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
+        verdictEl.innerHTML = SKULL_IMG;
       }
       rollLocked = false;
     }
@@ -899,7 +894,7 @@ function performRollExplore(die, target, wearyActive) {
         verdictEl.innerHTML =
           '<span class="verdict-success">SUCCEEDED BY ' + margin + "</span>";
       } else {
-        verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
+        verdictEl.innerHTML = SKULL_IMG;
       }
       rollLocked = false;
     }
@@ -1197,14 +1192,14 @@ function performRoll(die, target, context, opts) {
       } else if (opts.death) {
         overlay.classList.add("death-flood");
         verdictEl.innerHTML =
-          '<div class="verdict-fail"><span class="verdict-skull">' + SKULL_SVG + "</span>" +
+          '<div class="verdict-fail">' + SKULL_IMG_DEATH +
           '<span class="verdict-death">DEATH</span></div>';
       } else if (opts.shortfall) {
         verdictEl.innerHTML =
-          '<div class="verdict-fail"><span class="verdict-skull">' + SKULL_SVG + "</span>" +
+          '<div class="verdict-fail">' + SKULL_IMG +
           '<span class="fail-by">Failed by ' + (target - result) + "</span></div>";
       } else {
-        verdictEl.innerHTML = '<span class="verdict-skull">' + SKULL_SVG + "</span>";
+        verdictEl.innerHTML = SKULL_IMG;
       }
       rollLocked = false;
     }

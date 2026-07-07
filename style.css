@@ -776,7 +776,8 @@ button.hp-max:active { color: var(--blood-bright); }
   gap: 12px;
 }
 
-.verdict-skull svg { width: 88px; height: 88px; display: block; }
+.verdict-skull { display: block; height: 110px; width: auto; }
+.verdict-skull--death { height: 160px; }
 
 .fail-by {
   font-size: 0.85rem;
