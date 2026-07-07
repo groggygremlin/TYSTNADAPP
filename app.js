@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v27";
+const VERSION = "v28";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -79,6 +79,29 @@ const SPELLS = [
   { id: "wracking-curse",     tier: 3, name: "Wracking Curse",     desc: "A creature you can see within 50 feet takes 1d8 damage at the start of each of his turns for three turns. The effect ends early if the curse is broken." }
 ];
 
+const CONDITIONS = [
+  { id: "weary",         name: "Weary",
+    desc: "All checks are one step harder. Easy becomes Normal. Normal becomes Hard. Hard stays Hard." },
+  { id: "poisoned",      name: "Poisoned",
+    desc: "1 damage per turn. Body save at end of each turn (difficulty set by source) to end the condition." },
+  { id: "lethal-poison", name: "Lethal Poison",
+    desc: "2 damage per turn. Body save at end of each turn (difficulty set by source) to end the condition." },
+  { id: "diseased",      name: "Diseased",
+    desc: "1 damage at the start of each day. Body save Hard (6+) once per day to end the condition." },
+  { id: "frightened",    name: "Frightened",
+    desc: "On your turn: move only. No attacks, spells, or skills. Defense is unaffected. Spirit save at end of each turn (difficulty set by source) to end the condition." },
+  { id: "prone",         name: "Prone",
+    desc: "Melee attacks Hard (6+). Defense vs melee Hard (6+). Defense vs ranged Easy (4+). Movement halved. Target prone: your melee Easy (4+), your ranged Hard (6+). Standing up costs a Quick Action." },
+  { id: "shocked",       name: "Shocked",
+    desc: "Only one Main Action per turn. Quick Action proceeds normally. Duration: as specified by source. Default: until end of your next turn." },
+  { id: "burning",       name: "Burning",
+    desc: "1d6 damage per turn. Body save Normal (5+) at end of each turn, or use a Full Action to extinguish. Either ends the condition." },
+  { id: "immolation",    name: "Immolation",
+    desc: "Engulfment in fire. 3d6 damage per turn. Body save Hard (6+) at end of each turn, or use a Full Action to extinguish. Either ends the condition." },
+  { id: "blinded",       name: "Blinded",
+    desc: "All your attacks Hard (6+). All your Defense rolls Hard (6+). Target blinded: your attacks Easy (4+), your Defense rolls Easy (4+). Both sides blinded: effects cancel." }
+];
+
 const STORAGE_KEY = "tystnad-character";
 
 const SKULL_SVG = `
@@ -138,6 +161,7 @@ function migrate(c) {
   }
   if (typeof c.supply !== "number" || isNaN(c.supply) || c.supply < 0) c.supply = 0;
   if (typeof c.level !== "number" || c.level < 1) c.level = 1;
+  if (!c.conditions || typeof c.conditions !== "object" || Array.isArray(c.conditions)) c.conditions = {};
   return c;
 }
 
@@ -271,7 +295,8 @@ function createCharacter() {
     coins: 0,
     roles: [],
     skillTicks: {},
-    supply: 0
+    supply: 0,
+    conditions: {}
   };
   save();
   renderSheet();
@@ -309,6 +334,7 @@ function renderSheet() {
   const sorceryTabBtn = document.querySelector(".sorcery-tab");
   if (sorceryTabBtn) isSorcerer ? show(sorceryTabBtn) : hide(sorceryTabBtn);
   document.querySelector(".tab-bar").classList.toggle("tab-bar--five", isSorcerer);
+  renderConditions();
 }
 
 function switchTab(tab) {
@@ -430,6 +456,73 @@ function confirmClearTicks() {
   renderSkillList();
   save();
   hide($("overlay-clear-ticks"));
+}
+
+// ---------- Conditions ----------
+
+function wearyShift(target) {
+  return (character.conditions && character.conditions["weary"]) ? Math.min(target + 1, 6) : target;
+}
+
+function refreshWearyOverlay(overlayId) {
+  const overlay = $(overlayId);
+  const wearyOn = !!(character.conditions && character.conditions["weary"]);
+  overlay.querySelectorAll(".diff-btn").forEach((btn) => {
+    const base = parseInt(btn.dataset.target, 10);
+    btn.querySelector("span").textContent = (wearyOn ? Math.min(base + 1, 6) : base) + "+";
+  });
+  const note = overlay.querySelector(".weary-note");
+  if (note) { wearyOn ? show(note) : hide(note); }
+}
+
+function renderConditionStrip() {
+  const strip = $("condition-strip");
+  const active = CONDITIONS.filter((c) => character.conditions[c.id]);
+  if (active.length > 0) {
+    strip.textContent = active.map((c) => c.name).join(", ");
+    show(strip);
+  } else {
+    strip.textContent = "";
+    hide(strip);
+  }
+}
+
+function renderConditions() {
+  const grid = $("condition-chips");
+  grid.innerHTML = "";
+  CONDITIONS.forEach((c) => {
+    const btn = document.createElement("button");
+    btn.className = "cond-chip" + (character.conditions[c.id] ? " cond-chip--active" : "");
+    btn.dataset.condId = c.id;
+    btn.textContent = c.name;
+    grid.appendChild(btn);
+  });
+
+  const list = $("condition-effects");
+  list.innerHTML = "";
+  const active = CONDITIONS.filter((c) => character.conditions[c.id]);
+  if (active.length > 0) {
+    active.forEach((c) => {
+      const p = document.createElement("p");
+      p.className = "cond-effect";
+      const strong = document.createElement("strong");
+      strong.textContent = c.name + ": ";
+      p.appendChild(strong);
+      p.appendChild(document.createTextNode(c.desc));
+      list.appendChild(p);
+    });
+    show(list);
+  } else {
+    hide(list);
+  }
+
+  renderConditionStrip();
+}
+
+function toggleCondition(id) {
+  character.conditions[id] = !character.conditions[id];
+  save();
+  renderConditions();
 }
 
 // ---------- Expedition section ----------
@@ -665,6 +758,7 @@ function openAttack() {
   document.querySelectorAll(".momentum-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.momentum, 10) === 0);
   });
+  refreshWearyOverlay("overlay-attack");
   show($("overlay-attack"));
 }
 
@@ -683,13 +777,15 @@ function rollExplosion(die) {
 
 function rollAttack(target) {
   const momentum = attackMomentum;
+  const effective = wearyShift(target);
   hide($("overlay-attack"));
   const combatDie = character.skills["Combat"];
   const damageDie = damageDieForWeapon();
-  performRollAttack(combatDie, damageDie, target, momentum);
+  performRollAttack(combatDie, damageDie, effective, momentum,
+    effective !== target ? " (Weary)" : "");
 }
 
-function performRollAttack(combatDie, damageDie, target, momentum) {
+function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   if (rollLocked) return;
   rollLocked = true;
 
@@ -700,7 +796,7 @@ function performRollAttack(combatDie, damageDie, target, momentum) {
   // Apply persistent effects immediately; animation is purely visual
   if (success) tickSkill("Combat");
 
-  $("result-context").textContent = "Attack " + combatDie + " vs " + DIFFICULTY_NAMES[target];
+  $("result-context").textContent = "Attack " + combatDie + " vs " + target + "+" + (wearyNote || "");
 
   const overlay = $("overlay-result");
   const numEl = $("result-number");
@@ -744,29 +840,33 @@ function performRollAttack(combatDie, damageDie, target, momentum) {
 
 function openTravel() {
   $("travel-die-label").textContent = character.skills["Lore"];
+  refreshWearyOverlay("overlay-travel");
   show($("overlay-travel"));
 }
 
 function rollTravel(target) {
+  const effective = wearyShift(target);
   hide($("overlay-travel"));
   const die = character.skills["Lore"];
-  performRoll(die, target,
-    "Travel " + die + " vs " + TERRAIN_NAMES[target],
+  performRoll(die, effective,
+    "Travel " + die + " vs " + effective + "+" + (effective !== target ? " (Weary)" : ""),
     { tickSkill: "Lore" });
 }
 
 function openExplore() {
   $("explore-die-label").textContent = character.skills["Awareness"];
+  refreshWearyOverlay("overlay-explore");
   show($("overlay-explore"));
 }
 
 function rollExplore(target) {
+  const effective = wearyShift(target);
   hide($("overlay-explore"));
   const die = character.skills["Awareness"];
-  performRollExplore(die, target);
+  performRollExplore(die, effective, effective !== target);
 }
 
-function performRollExplore(die, target) {
+function performRollExplore(die, target, wearyActive) {
   if (rollLocked) return;
   rollLocked = true;
 
@@ -776,7 +876,7 @@ function performRollExplore(die, target) {
 
   if (success) tickSkill("Awareness");
 
-  $("result-context").textContent = "Explore " + die + " vs " + TERRAIN_NAMES[target];
+  $("result-context").textContent = "Explore " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : "");
 
   const overlay = $("overlay-result");
   const numEl = $("result-number");
@@ -864,16 +964,18 @@ function performRollForage(die) {
 
 function openCamp() {
   $("camp-die-label").textContent = character.skills["Awareness"];
+  refreshWearyOverlay("overlay-camp");
   show($("overlay-camp"));
 }
 
 function rollCamp(target) {
+  const effective = wearyShift(target);
   hide($("overlay-camp"));
   const die = character.skills["Awareness"];
-  performRollCamp(die, target);
+  performRollCamp(die, effective, effective !== target);
 }
 
-function performRollCamp(die, target) {
+function performRollCamp(die, target, wearyActive) {
   if (rollLocked) return;
   rollLocked = true;
 
@@ -883,7 +985,7 @@ function performRollCamp(die, target) {
 
   if (success) tickSkill("Awareness");
 
-  $("result-context").textContent = "Camp " + die + " vs " + TERRAIN_NAMES[target];
+  $("result-context").textContent = "Camp " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : "");
 
   const overlay = $("overlay-result");
   const numEl = $("result-number");
@@ -924,6 +1026,7 @@ function performRollCamp(die, target) {
 
 function castTier(tier) {
   const t = CAST_TIERS[tier];
+  const effectiveTarget = wearyShift(t.target);
 
   character.hpCur = Math.max(character.hpCur - t.cost, -99);
   renderHP();
@@ -931,11 +1034,14 @@ function castTier(tier) {
 
   if (character.hpCur <= 0) {
     const die = deathDie(character.hpCur);
+    // Death Roll target is always 5 — Weary does not apply per canon
     performRoll(die, 5, "Tier " + tier + " · Death Roll " + die + " vs 5+",
       { death: true, casting: true });
   } else {
     const die = character.skills["Sorcery"];
-    performRoll(die, t.target, "Tier " + tier + " · Sorcery " + die + " vs " + t.target + "+",
+    const wearyNote = effectiveTarget !== t.target ? " (Weary)" : "";
+    performRoll(die, effectiveTarget,
+      "Tier " + tier + " · Sorcery " + die + " vs " + effectiveTarget + "+" + wearyNote,
       { tickSkill: "Sorcery" });
   }
 }
@@ -977,7 +1083,9 @@ function openSpell(spell) {
   $("spell-name-display").firstChild.textContent = spell.name + " ";
   $("spell-tier-badge").textContent = "Tier " + spell.tier;
   const t = CAST_TIERS[spell.tier];
-  $("spell-cost-display").textContent = t.cost + " HP · " + t.target + "+ · Sorcery " + character.skills["Sorcery"];
+  const effective = wearyShift(t.target);
+  $("spell-cost-display").textContent = t.cost + " HP · " + effective + "+" +
+    (effective !== t.target ? " (Weary)" : "") + " · Sorcery " + character.skills["Sorcery"];
   $("spell-desc-display").textContent = spell.desc;
   const warn = $("spell-cast-warning");
   const state = lpState(totalLP());
@@ -1005,11 +1113,13 @@ function openDifficulty(skill) {
   pendingSkill = skill;
   $("diff-skill-name").firstChild.textContent = skill + " ";
   $("diff-skill-die").textContent = character.skills[skill];
+  refreshWearyOverlay("overlay-difficulty");
   show($("overlay-difficulty"));
 }
 
 function openDefense() {
   $("def-edit-value").textContent = character.defense;
+  refreshWearyOverlay("overlay-defense");
   show($("overlay-defense"));
 }
 
@@ -1104,15 +1214,20 @@ function performRoll(die, target, context, opts) {
 function rollSkill(target) {
   const skill = pendingSkill;
   const die = character.skills[skill];
+  const effective = wearyShift(target);
   hide($("overlay-difficulty"));
-  performRoll(die, target, skill + " " + die + " vs " + DIFFICULTY_NAMES[target],
+  performRoll(die, effective,
+    skill + " " + die + " vs " + effective + "+" + (effective !== target ? " (Weary)" : ""),
     { tickSkill: skill });
 }
 
 function rollDefense(target) {
   const die = character.defense;
+  const effective = wearyShift(target);
   hide($("overlay-defense"));
-  performRoll(die, target, "Defense " + die + " vs " + THREAT_NAMES[target], { shortfall: true });
+  performRoll(die, effective,
+    "Defense " + die + " vs " + effective + "+" + (effective !== target ? " (Weary)" : ""),
+    { shortfall: true });
 }
 
 // ---------- Navigation helpers ----------
@@ -1348,6 +1463,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => rollCamp(parseInt(btn.dataset.target, 10)));
   });
   $("camp-cancel").addEventListener("click", () => hide($("overlay-camp")));
+
+  // Conditions
+  $("condition-chips").addEventListener("click", (e) => {
+    const btn = e.target.closest(".cond-chip");
+    if (!btn || !character) return;
+    toggleCondition(btn.dataset.condId);
+  });
 
   // Clear ticks
   $("btn-clear-ticks").addEventListener("click", openClearTicks);

@@ -122,6 +122,7 @@
     <button id="btn-death" class="death-btn hidden">Death Roll</button>
 
     <div class="shell-divider"></div>
+    <div id="condition-strip" class="condition-strip hidden"></div>
 
     <!-- SHEET TAB -->
     <div id="tab-sheet" class="tab-panel">
@@ -130,6 +131,9 @@
         <div class="skill-list" id="skill-list"></div>
       </div>
       <p class="foot-note">Tap a skill. The GM sets the difficulty.</p>
+      <p class="field-label">Conditions</p>
+      <div class="cond-grid" id="condition-chips"></div>
+      <div id="condition-effects" class="cond-effects hidden"></div>
       <button id="btn-clear-ticks" class="clear-ticks-btn hidden">Clear ticks</button>
     </div>
 
@@ -234,6 +238,7 @@
       <button class="diff-btn" data-target="5">Normal<span>5+</span></button>
       <button class="diff-btn" data-target="6">Hard<span>6+</span></button>
     </div>
+    <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="diff-cancel" class="ghost-btn">Cancel</button>
   </div>
 
@@ -250,6 +255,7 @@
       <button class="diff-btn" data-target="5">Standard<span>5+</span></button>
       <button class="diff-btn" data-target="6">Strong<span>6+</span></button>
     </div>
+    <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="def-cancel" class="ghost-btn">Cancel</button>
   </div>
 
@@ -305,6 +311,7 @@
       <button class="diff-btn" data-target="5">Normal<span>5+</span></button>
       <button class="diff-btn" data-target="6">Hard<span>6+</span></button>
     </div>
+    <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="attack-cancel" class="ghost-btn">Cancel</button>
   </div>
 
@@ -361,6 +368,7 @@
       <button class="travel-diff-btn diff-btn" data-target="5">Standard<span>5+</span></button>
       <button class="travel-diff-btn diff-btn" data-target="6">Rough<span>6+</span></button>
     </div>
+    <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="travel-cancel" class="ghost-btn">Cancel</button>
   </div>
 
@@ -373,6 +381,7 @@
       <button class="explore-diff-btn diff-btn" data-target="5">Standard<span>5+</span></button>
       <button class="explore-diff-btn diff-btn" data-target="6">Rough<span>6+</span></button>
     </div>
+    <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="explore-cancel" class="ghost-btn">Cancel</button>
   </div>
 
@@ -394,6 +403,7 @@
       <button class="camp-diff-btn diff-btn" data-target="5">Standard<span>5+</span></button>
       <button class="camp-diff-btn diff-btn" data-target="6">Rough<span>6+</span></button>
     </div>
+    <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="camp-cancel" class="ghost-btn">Cancel</button>
   </div>
 

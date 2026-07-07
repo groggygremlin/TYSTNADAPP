@@ -1197,3 +1197,48 @@ button.hp-max:active { color: var(--blood-bright); }
   max-width: 320px;
   text-align: center;
 }
+
+/* ============ CONDITIONS (v28) ============ */
+.condition-strip {
+  color: var(--blood);
+  font-size: 0.70rem;
+  font-variant: small-caps;
+  letter-spacing: 0.10em;
+  padding: 6px 16px 0;
+}
+.cond-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 12px;
+}
+.cond-chip {
+  background: transparent;
+  border: 1px solid var(--ash);
+  border-radius: 4px;
+  color: var(--bone);
+  cursor: pointer;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  min-height: 44px;
+  padding: 6px 10px;
+}
+.cond-chip--active {
+  border-color: var(--blood);
+  color: var(--blood);
+}
+.cond-effects { padding: 0 0 12px; }
+.cond-effect {
+  color: var(--ash);
+  font-size: 0.80rem;
+  line-height: 1.45;
+  margin: 0 0 8px;
+}
+.cond-effect strong { color: var(--blood); font-weight: 600; }
+.weary-note {
+  color: var(--blood);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  margin: 4px 0;
+  text-transform: uppercase;
+}
