@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v18";
+const VERSION = "v19";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -102,6 +102,7 @@ function migrate(c) {
   if (!c.skillTicks || typeof c.skillTicks !== "object" || Array.isArray(c.skillTicks)) {
     c.skillTicks = {};
   }
+  if (typeof c.supply !== "number" || isNaN(c.supply) || c.supply < 0) c.supply = 0;
   return c;
 }
 
@@ -234,7 +235,8 @@ function createCharacter() {
     items: [],
     coins: 0,
     roles: [],
-    skillTicks: {}
+    skillTicks: {},
+    supply: 0
   };
   save();
   renderSheet();
@@ -384,6 +386,7 @@ function confirmClearTicks() {
 // ---------- Expedition section ----------
 
 function renderExpedition() {
+  $("supply-count").textContent = character.supply;
   document.querySelectorAll(".role-chip").forEach((btn) => {
     btn.classList.toggle("active", character.roles.indexOf(btn.dataset.role) !== -1);
   });
@@ -776,6 +779,9 @@ function performRollForage(die) {
 
   if (result >= 4) tickSkill("Athletics");
 
+  const gained = result >= 6 ? 2 : result >= 4 ? 1 : 0;
+  if (gained > 0) { character.supply += gained; save(); renderExpedition(); }
+
   $("result-context").textContent = "Forage " + die + (forageRough ? " (Rough)" : "");
 
   const overlay = $("overlay-result");
@@ -795,9 +801,9 @@ function performRollForage(die) {
       numEl.classList.remove("rolling");
       numEl.textContent = result;
       if (result >= 6) {
-        verdictEl.innerHTML = '<span class="effort-result-label">GAIN 2 SUPPLY</span>';
+        verdictEl.innerHTML = '<span class="effort-result-label">+2 SUPPLY</span>';
       } else if (result >= 4) {
-        verdictEl.innerHTML = '<span class="effort-result-label">GAIN 1 SUPPLY</span>';
+        verdictEl.innerHTML = '<span class="effort-result-label">+1 SUPPLY</span>';
       } else {
         verdictEl.innerHTML = '<span class="effort-result-label" style="color:var(--ash)">NOTHING FOUND</span>';
       }
@@ -1205,6 +1211,16 @@ document.addEventListener("DOMContentLoaded", () => {
       renderExpedition();
       save();
     });
+  });
+
+  // Supply steppers
+  $("supply-minus").addEventListener("click", () => {
+    if (character.supply > 0) { character.supply--; save(); renderExpedition(); }
+  });
+  $("supply-plus").addEventListener("click", () => {
+    character.supply++;
+    save();
+    renderExpedition();
   });
 
   // Effort buttons

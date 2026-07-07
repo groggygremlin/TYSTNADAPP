@@ -48,7 +48,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding-top: 6px;
+  padding-top: 30px;
 }
 
 .intro-logo {
@@ -97,7 +97,7 @@ body {
 /* ============ BRAND SUBLINE (shared) ============ */
 
 .brand-sub {
-  font-size: 0.7rem;
+  font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: 0.5em;
   margin-right: -0.5em;
@@ -441,7 +441,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .foot-note { text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.06em; }
 
-.version-note { text-align: center; font-size: 0.6rem; color: var(--line); letter-spacing: 0.18em; text-transform: uppercase; }
+.version-note { position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 0.72rem; color: var(--ash); letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none; }
 
 /* ============ CAST SPELL (full-width standalone) ============ */
 
@@ -995,7 +995,7 @@ button.hp-max:active { color: var(--blood-bright); }
 /* ============ SHELL + TAB ARCHITECTURE (v18) ============ */
 
 .shell-screen {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
 }
 
 .tab-panel {
@@ -1006,33 +1006,57 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .tab-bar {
   position: fixed;
-  bottom: 0;
+  bottom: calc(12px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
+  width: calc(100% - 24px);
+  max-width: 456px;
   display: flex;
   background: var(--panel);
-  border-top: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 16px;
   z-index: 20;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .tab-btn {
   flex: 1;
   background: none;
   border: none;
-  color: var(--ash);
+  border-radius: 10px;
+  color: rgba(207, 201, 192, 0.70);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.62rem;
+  font-size: 0.70rem;
   font-weight: 700;
   letter-spacing: 0.14em;
-  min-height: 48px;
-  padding: 10px 4px;
+  margin: 5px 4px;
+  min-height: 44px;
+  padding: 8px 4px;
   text-transform: uppercase;
 }
 
-.tab-btn.active { color: var(--blood-bright); }
+.tab-btn.active { background: var(--panel-hi); color: var(--blood-bright); }
 
 .tab-btn:active { color: var(--bone); }
+
+/* ============ SUPPLY METER (v19) ============ */
+
+.supply-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.supply-count {
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  text-align: center;
+}
+
+.supply-hint {
+  font-size: 0.72rem;
+  color: var(--ash);
+  letter-spacing: 0.06em;
+}

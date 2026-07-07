@@ -134,7 +134,15 @@
     <!-- EXPEDITION TAB -->
     <div id="tab-expedition" class="tab-panel hidden">
       <div class="expedition-section">
-        <p class="field-label">Expedition</p>
+        <div class="supply-strip">
+          <span class="field-label">Supply</span>
+          <div class="hp-controls">
+            <button id="supply-minus" class="hp-btn" aria-label="Use supply">−</button>
+            <span id="supply-count" class="supply-count">0</span>
+            <button id="supply-plus" class="hp-btn" aria-label="Add supply">+</button>
+          </div>
+        </div>
+        <p class="supply-hint">1 LP each if carried.</p>
         <div class="role-chips" id="role-chips">
           <button class="role-chip" data-role="Pathfinder">Pathfinder</button>
           <button class="role-chip" data-role="Scout">Scout</button>
@@ -182,7 +190,7 @@
           <button id="inv-add-btn" aria-label="Add item">+</button>
         </div>
         <div class="inv-coins">
-          <span class="inv-coins-label">Coins</span>
+          <span class="inv-coins-label">Copper (CP)</span>
           <input id="inv-coins-in" type="number" inputmode="numeric" min="0" placeholder="0">
           <span class="inv-coins-lp" id="coin-lp"></span>
         </div>
