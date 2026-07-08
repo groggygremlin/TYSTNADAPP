@@ -410,7 +410,7 @@ input:focus { border-color: var(--blood); }
   color: var(--blood-bright);
 }
 
-.hp-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex: 1; }
+.hp-controls { display: flex; align-items: center; gap: 12px; }
 
 .hp-btn {
   background: var(--panel-hi);
@@ -931,6 +931,7 @@ button.hp-max:active { color: var(--blood-bright); }
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
