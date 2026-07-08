@@ -667,6 +667,14 @@ button.hp-max:active { color: var(--blood-bright); }
 #overlay-result { background: #0c0a0b; }
 #overlay-attack { background: #0c0a0b; }
 #overlay-defense { background: #0c0a0b; }
+
+.def-armor-note {
+  font-size: 0.72rem;
+  color: var(--ash);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
 #overlay-result.death-flood { background: rgba(38, 6, 8, 0.97); }
 
 .verdict-death {
@@ -1030,6 +1038,8 @@ button.hp-max:active { color: var(--blood-bright); }
   clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 8px);
   margin-top: 4px;
 }
+
+.wake-btn { margin-top: 16px; }
 
 /* ============ ACT 3 PROMPT CARD ============ */
 

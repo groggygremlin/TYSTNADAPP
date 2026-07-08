@@ -44,6 +44,10 @@ Present your plan before editing files on any task larger than a one-line fix. N
 * On a failed Death Roll the app changes NOTHING. No locking, no prompts, no auto-abandon.
 * Nothing GM-facing. No opposed rolls. The app never sets difficulty.
 
+## Defense die semantics (v44)
+
+`character.defense` is the BASE Defense die (what the class grants). The effective die shown in the Defense overlay and used in Defense rolls is derived at read time by `effectiveDefense()`: no armor and light armor leave the die unchanged; medium armor steps it up 1; heavy armor steps it up 2. The effective die is capped at d12 globally. A character with no armor takes +2 extra damage on a failed Defense roll (the `noArmor` penalty in `performRollDefense`). Per-class starting loadouts: Warrior medium/standard, Rogue light/light, Scholar medium/standard, Sorcerer none/light.
+
 ## Tech constraints
 
 * Vanilla JavaScript, HTML, CSS. No frameworks, no build step, no runtime dependencies. Ever.

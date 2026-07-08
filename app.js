@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v43";
+const VERSION = "v44";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -18,15 +18,12 @@ const DICE = ["d6", "d8", "d10", "d12", "d20"];
 const FORAGE_DICE = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
 const CLASSES = {
-  Warrior:  { hp: 12, defense: "d8", core: "Combat",  d8: ["Combat", "Athletics", "Presence"] },
-  Rogue:    { hp: 11, defense: "d8", core: "Finesse", d8: ["Finesse", "Awareness", "Athletics"] },
-  Scholar:  { hp: 10, defense: "d6", core: "Lore",    d8: ["Lore", "Combat", "Ingenuity"] },
-  Sorcerer: { hp: 9,  defense: "d6", core: "Sorcery", d8: ["Sorcery", "Presence", "Lore"] }
+  Warrior:  { hp: 12, defense: "d8", core: "Combat",  d8: ["Combat", "Athletics", "Presence"],  loadout: { armor: "medium", weapon: "standard" } },
+  Rogue:    { hp: 11, defense: "d8", core: "Finesse", d8: ["Finesse", "Awareness", "Athletics"], loadout: { armor: "light",  weapon: "light"    } },
+  Scholar:  { hp: 10, defense: "d6", core: "Lore",    d8: ["Lore", "Combat", "Ingenuity"],       loadout: { armor: "medium", weapon: "standard" } },
+  Sorcerer: { hp: 9,  defense: "d6", core: "Sorcery", d8: ["Sorcery", "Presence", "Lore"],       loadout: { armor: "none",   weapon: "light"    } }
 };
 
-const DIFFICULTY_NAMES = { 4: "Easy 4+", 5: "Normal 5+", 6: "Hard 6+" };
-const TERRAIN_NAMES    = { 4: "Easy 4+", 5: "Standard 5+", 6: "Rough 6+" };
-const THREAT_NAMES     = { 4: "Weak 4+", 5: "Standard 5+", 6: "Strong 6+" };
 
 const INIT_ARMOR  = { none: 2, light: 1, medium: 0, heavy: -1 };
 const INIT_WEAPON = { light: 1, standard: 0, heavy: -1 };
@@ -306,7 +303,7 @@ function createCharacter() {
     hpMax: hpMax,
     hpCur: hpMax,
     defense: createState.defense,
-    loadout: { armor: "medium", weapon: "standard" },
+    loadout: Object.assign({}, CLASSES[createState.cls].loadout),
     items: [],
     coins: 0,
     roles: [],
@@ -722,17 +719,47 @@ function triggerDownload(blob, filename) {
 }
 
 function parseCharacterJSON(jsonString) {
-  const data = JSON.parse(jsonString);
-  if (
-    !data || typeof data !== "object" ||
-    typeof data.name !== "string" || !data.name ||
-    typeof data.cls !== "string" || !CLASSES[data.cls] ||
-    typeof data.skills !== "object" || !data.skills ||
-    !(data.hpMax > 0) ||
-    typeof data.hpCur !== "number" ||
-    typeof data.defense !== "string"
-  ) throw new Error("invalid");
-  return migrate(data);
+  let data;
+  try { data = JSON.parse(jsonString); } catch (_) { throw new Error("invalid"); }
+  if (!data || typeof data !== "object") throw new Error("invalid");
+  // Validate before migrate for fields migrate would otherwise silently coerce
+  if (data.level !== undefined &&
+      (!Number.isInteger(data.level) || data.level < 1 || data.level > 20)) {
+    throw new Error("invalid");
+  }
+  if (data.items !== undefined && !Array.isArray(data.items)) throw new Error("invalid");
+  migrate(data);
+  if (typeof data.name !== "string" || !data.name.trim()) throw new Error("invalid");
+  if (!CLASSES[data.cls]) throw new Error("invalid");
+  if (!data.skills || typeof data.skills !== "object") throw new Error("invalid");
+  for (const s of SKILLS) {
+    if (!DICE.includes(data.skills[s])) throw new Error("invalid");
+  }
+  if (!["d6", "d8", "d10", "d12"].includes(data.defense)) throw new Error("invalid");
+  if (!Number.isInteger(data.hpMax) || data.hpMax < 1 || data.hpMax > 99) throw new Error("invalid");
+  if (!Number.isInteger(data.hpCur) || data.hpCur < -99 || data.hpCur > data.hpMax) throw new Error("invalid");
+  if (!Number.isInteger(data.level) || data.level < 1 || data.level > 20) throw new Error("invalid");
+  if (!Number.isInteger(data.supply) || data.supply < 0) throw new Error("invalid");
+  if (!Number.isInteger(data.coins) || data.coins < 0) throw new Error("invalid");
+  if (!Array.isArray(data.items)) throw new Error("invalid");
+  for (const item of data.items) {
+    if (!item || typeof item !== "object" || typeof item.name !== "string" ||
+        typeof item.lp !== "number" || item.lp < 0) throw new Error("invalid");
+  }
+  if (!data.conditions || typeof data.conditions !== "object" || Array.isArray(data.conditions)) throw new Error("invalid");
+  const condIds = CONDITIONS.map(c => c.id);
+  for (const k of Object.keys(data.conditions)) {
+    if (!condIds.includes(k) || typeof data.conditions[k] !== "boolean") throw new Error("invalid");
+  }
+  if (!Array.isArray(data.roles)) throw new Error("invalid");
+  for (const r of data.roles) {
+    if (!EXPEDITION_ROLES.includes(r)) throw new Error("invalid");
+  }
+  if (!data.skillTicks || typeof data.skillTicks !== "object" || Array.isArray(data.skillTicks)) throw new Error("invalid");
+  for (const k of Object.keys(data.skillTicks)) {
+    if (!SKILLS.includes(k)) throw new Error("invalid");
+  }
+  return data;
 }
 
 function applyImport(data) {
@@ -778,18 +805,6 @@ function openAttack() {
   show($("overlay-attack"));
 }
 
-function rollExplosion(die) {
-  const sides = dieSides(die);
-  const chain = [];
-  let cap = 0;
-  let roll;
-  do {
-    roll = Math.floor(Math.random() * sides) + 1;
-    chain.push(roll);
-    cap++;
-  } while (roll === sides && cap < 20);
-  return chain;
-}
 
 function rollAttack(target) {
   const momentum = attackMomentum;
@@ -1198,12 +1213,37 @@ function openDifficulty(skill) {
   show($("overlay-difficulty"));
 }
 
+function effectiveDefense() {
+  const steps = { none: 0, light: 0, medium: 1, heavy: 2 }[character.loadout.armor] || 0;
+  let die = character.defense;
+  for (let i = 0; i < steps; i++) die = stepDie(die, 1);
+  if (DICE.indexOf(die) > DICE.indexOf("d12")) die = "d12";
+  return die;
+}
+
+function renderDefenseNote() {
+  const armor = character.loadout.armor;
+  const base = character.defense;
+  let text;
+  if (armor === "none") {
+    text = "BASE " + base + " · NO ARMOR · +2 DAMAGE ON FAIL";
+  } else if (armor === "light") {
+    text = "BASE " + base + " · LIGHT ARMOR";
+  } else if (armor === "medium") {
+    text = "BASE " + base + " · MEDIUM ARMOR +1 STEP";
+  } else {
+    text = "BASE " + base + " · HEAVY ARMOR +2 STEPS";
+  }
+  $("def-armor-note").textContent = text;
+}
+
 function openDefense() {
   defenseBonus = 0;
   document.querySelectorAll(".bonus-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.bonus, 10) === 0);
   });
-  $("def-edit-value").textContent = character.defense;
+  $("def-edit-value").textContent = effectiveDefense();
+  renderDefenseNote();
   refreshWearyOverlay("overlay-defense");
   show($("overlay-defense"));
 }
@@ -1266,8 +1306,8 @@ function performRoll(die, target, context, opts) {
         }
         notes += '<span class="survive-note">Unconscious ' + rounds +
           (rounds === 1 ? " round" : " rounds") + "</span>";
-        notes += '<span class="survive-note">Wake at 1 HP</span>';
         notes += '<span class="survive-note">Further damage kills outright</span>';
+        notes += '<button class="roll-damage-btn wake-btn" onclick="wakeAtOneHP(event)">WAKE AT 1 HP</button>';
         verdictEl.innerHTML =
           '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
           notes + "</div>";
@@ -1318,7 +1358,7 @@ function performRollDefense(target) {
   rollLocked = true;
 
   const bonus = defenseBonus;
-  const die = character.defense;
+  const die = effectiveDefense();
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
@@ -1342,7 +1382,8 @@ function performRollDefense(target) {
       verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
       document.querySelector(".result-dismiss").classList.remove("hidden");
     } else {
-      pendingDefenseDamage = Math.max(0, (target - result) + bonus);
+      const noArmor = character.loadout.armor === "none" ? 2 : 0;
+      pendingDefenseDamage = Math.max(0, (target - result) + bonus + noArmor);
       overlay.classList.add("overlay--action");
       verdictEl.innerHTML =
         '<div class="verdict-fail">' + SKULL_IMG +
@@ -1362,6 +1403,14 @@ function closeResultOverlay() {
   $("result-context").classList.remove("hidden");
   overlay.classList.remove("overlay--action", "overlay--act3", "death-flood");
   hide(overlay);
+}
+
+function wakeAtOneHP(ev) {
+  ev.stopPropagation();
+  character.hpCur = 1;
+  save();
+  renderHP();
+  closeResultOverlay();
 }
 
 function takeDefenseDamage(btn) {
@@ -1526,8 +1575,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const dir = parseInt(btn.dataset.dir, 10);
     const next = stepDie(character.defense, dir);
     character.defense = next === "d20" ? "d12" : next;
-    $("def-edit-value").textContent = character.defense;
     save();
+    $("def-edit-value").textContent = effectiveDefense();
+    renderDefenseNote();
   });
 
   // Death Roll (single button in shell)
