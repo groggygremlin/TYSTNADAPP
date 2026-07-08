@@ -666,6 +666,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 #overlay-result { background: #0c0a0b; }
 #overlay-attack { background: #0c0a0b; }
+#overlay-defense { background: #0c0a0b; }
 #overlay-result.death-flood { background: rgba(38, 6, 8, 0.97); }
 
 .verdict-death {
@@ -940,6 +941,14 @@ button.hp-max:active { color: var(--blood-bright); }
 .momentum-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   width: 100%;
   max-width: 320px;

@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v39";
+const VERSION = "v40";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -132,6 +132,7 @@ let pendingSpellTier = null;
 let rollLocked = false;
 let pendingConfirmAction = null;
 let attackMomentum = 0;
+let defenseBonus = 0;
 let forageRough = false;
 let explosionState = null;
 let hitState = null;
@@ -1233,6 +1234,10 @@ function openDifficulty(skill) {
 }
 
 function openDefense() {
+  defenseBonus = 0;
+  document.querySelectorAll(".bonus-btn").forEach((b) => {
+    b.classList.toggle("selected", parseInt(b.dataset.bonus, 10) === 0);
+  });
   $("def-edit-value").textContent = character.defense;
   refreshWearyOverlay("overlay-defense");
   show($("overlay-defense"));
@@ -1344,12 +1349,56 @@ function rollSkill(target) {
 }
 
 function rollDefense(target) {
-  const die = character.defense;
   const effective = wearyShift(target);
   hide($("overlay-defense"));
-  performRoll(die, effective,
-    "Defense " + die + " vs " + effective + "+" + (effective !== target ? " (Weary)" : ""),
-    { shortfall: true });
+  performRollDefense(effective);
+}
+
+function performRollDefense(target) {
+  if (rollLocked) return;
+  rollLocked = true;
+
+  const bonus = defenseBonus;
+  const die = character.defense;
+  const sides = dieSides(die);
+  const result = Math.floor(Math.random() * sides) + 1;
+  const success = result >= target;
+
+  const overlay = $("overlay-result");
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  const ctxEl = $("result-context");
+  ctxEl.classList.add("hidden");
+  ctxEl.textContent = "";
+  verdictEl.innerHTML = "";
+  overlay.classList.remove("death-flood", "overlay--action", "overlay--act3");
+  numEl.classList.remove("hidden");
+  numEl.classList.add("rolling");
+  show(overlay);
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      numEl.classList.add("hidden");
+      numEl.textContent = "";
+      if (success) {
+        overlay.classList.add("overlay--act3");
+        verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
+        document.querySelector(".result-dismiss").classList.remove("hidden");
+      } else {
+        const damage = Math.max(0, (target - result) + bonus);
+        verdictEl.innerHTML =
+          '<div class="verdict-fail">' + SKULL_IMG +
+          '<span class="fail-by">Take ' + damage + ' Damage</span></div>';
+        if (navigator.vibrate) navigator.vibrate(40);
+      }
+      rollLocked = false;
+    }
+  }, 60);
 }
 
 // ---------- Navigation helpers ----------
@@ -1485,6 +1534,16 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => rollDefense(parseInt(btn.dataset.target, 10)));
   });
   $("def-cancel").addEventListener("click", () => hide($("overlay-defense")));
+
+  // Defense damage bonus chips
+  document.querySelectorAll(".bonus-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      defenseBonus = parseInt(btn.dataset.bonus, 10);
+      document.querySelectorAll(".bonus-btn").forEach((b) => {
+        b.classList.toggle("selected", b === btn);
+      });
+    });
+  });
 
   // Defense die editing
   $("def-edit-stepper").addEventListener("click", (e) => {

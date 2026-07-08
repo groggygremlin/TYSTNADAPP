@@ -244,16 +244,27 @@
 
   <!-- ============ THREAT OVERLAY (Defense) ============ -->
   <div id="overlay-defense" class="overlay hidden">
-    <p class="overlay-skill">Defense</p>
     <div class="stepper" id="def-edit-stepper">
       <button class="step-btn" data-dir="-1" aria-label="Lower Defense die">&minus;</button>
       <span class="step-value" id="def-edit-value">d6</span>
       <button class="step-btn" data-dir="1" aria-label="Raise Defense die">+</button>
     </div>
+    <p class="atk-section-label">Enemy Threat Level</p>
     <div class="diff-buttons" id="threat-buttons">
       <button class="diff-btn" data-target="4">Weak<span>4+</span></button>
       <button class="diff-btn" data-target="5">Standard<span>5+</span></button>
       <button class="diff-btn" data-target="6">Strong<span>6+</span></button>
+    </div>
+    <p class="atk-section-label">Damage Bonus</p>
+    <div class="bonus-grid" id="def-bonus-grid">
+      <button class="bonus-btn class-btn selected" data-bonus="0">+0</button>
+      <button class="bonus-btn class-btn" data-bonus="1">+1</button>
+      <button class="bonus-btn class-btn" data-bonus="2">+2</button>
+      <button class="bonus-btn class-btn" data-bonus="3">+3</button>
+      <button class="bonus-btn class-btn" data-bonus="4">+4</button>
+      <button class="bonus-btn class-btn" data-bonus="5">+5</button>
+      <button class="bonus-btn class-btn" data-bonus="6">+6</button>
+      <button class="bonus-btn class-btn" data-bonus="7">+7</button>
     </div>
     <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="def-cancel" class="ghost-btn">Cancel</button>
