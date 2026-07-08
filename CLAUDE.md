@@ -48,11 +48,12 @@ Present your plan before editing files on any task larger than a one-line fix. N
 
 `character.defense` is the BASE Defense die (what the class grants). The effective die shown in the Defense overlay and used in Defense rolls is derived at read time by `effectiveDefense()`: no armor and light armor leave the die unchanged; medium armor steps it up 1; heavy armor steps it up 2. The effective die is capped at d12 globally. A character with no armor takes +2 extra damage on a failed Defense roll (the `noArmor` penalty in `performRollDefense`). Per-class starting loadouts: Warrior medium/standard, Rogue light/light, Scholar medium/standard, Sorcerer none/light.
 
-## Visual identity laws (v45)
+## Visual identity laws (v46)
 
-* Law 1 -- Blood contrast: Use `var(--blood-bright)` (#d92b32) for all text-color uses on labels, headers, and chips. `var(--blood)` (#a11e24) is reserved for borders, backgrounds, and very large display text (2rem+). Any new text rule using blood must use blood-bright.
-* Law 2 -- Text floor: No font-size below 0.75rem. The single exception is `.tab-bar--five .tab-btn` at 0.72rem (five tabs cannot fit at 0.75rem). When adding new labels or chips, start at 0.75rem.
-* Law 3 -- Cost and survival text: `.spell-cost-line` and `.survive-note` use `var(--bone)`, not ash. Spell costs and death-survival notices are primary information.
+* Law 1 -- Blood contrast: Use `var(--blood-bright)` (#d92b32) for all text-color uses on labels, headers, and chips. `var(--blood)` (#a11e24) is reserved for borders, backgrounds, and very large display text (2rem+). Any new text rule using blood must use blood-bright. Red marks structure; red never carries mechanics or data (use bone for those).
+* Law 2 -- Text floor: No font-size below 0.75rem. When adding new labels or chips, start at 0.75rem. Section headers are display elements: Cormorant Garamond, 1.5rem, blood-bright, weight 600, letter-spacing 0.06em. Apply via `.shell-screen .field-label`, `.vital-label`, and `.spell-tier-header`.
+* Law 3 -- Cost and survival text: `.spell-cost-line`, `.survive-note`, and `.tier-mech` use `var(--bone)`, not ash. Spell costs, death-survival notices, and tier mechanics are primary information.
+* Law 4 -- Navigation: One nav size for all tab counts. `.tab-btn` is 0.9rem, `flex: 1 1 auto`. No compressed mode; no `.tab-bar--five .tab-btn` override. The JS that adds `.tab-bar--five` on the bar may remain harmless.
 * Zoom: `user-scalable=no` is removed from the viewport meta. `touch-action: manipulation` on `html` prevents double-tap zoom without blocking pinch.
 
 ## Tech constraints

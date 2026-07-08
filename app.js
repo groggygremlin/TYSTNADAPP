@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v45";
+const VERSION = "v46";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -173,7 +173,7 @@ function migrate(c) {
     c.skillTicks = {};
   }
   if (typeof c.supply !== "number" || isNaN(c.supply) || c.supply < 0) c.supply = 0;
-  if (typeof c.level !== "number" || c.level < 1) c.level = 1;
+  if (!Number.isInteger(c.level) || c.level < 1 || c.level > 20) c.level = 1;
   if (!c.conditions || typeof c.conditions !== "object" || Array.isArray(c.conditions)) c.conditions = {};
   return c;
 }
@@ -309,6 +309,7 @@ function createCharacter() {
     roles: [],
     skillTicks: {},
     supply: 0,
+    level: 1,
     conditions: {}
   };
   save();
@@ -1160,9 +1161,16 @@ function renderSorceryTab() {
     const t = CAST_TIERS[tier];
     const hdr = document.createElement("p");
     hdr.className = "spell-tier-header";
-    hdr.textContent = locked
-      ? "Tier " + tier + " · Unlocks at Level " + unlockLevel[tier]
-      : "Tier " + tier + " · " + t.cost + " HP · " + t.target + "+";
+    const tierName = document.createElement("span");
+    tierName.className = "tier-name";
+    tierName.textContent = "Tier " + tier;
+    const tierMech = document.createElement("span");
+    tierMech.className = "tier-mech";
+    tierMech.textContent = locked
+      ? " · Unlocks at Level " + unlockLevel[tier]
+      : " · " + t.cost + " HP · " + t.target + "+";
+    hdr.appendChild(tierName);
+    hdr.appendChild(tierMech);
     list.appendChild(hdr);
     SPELLS.filter((s) => s.tier === tier).forEach((spell) => {
       const btn = document.createElement("button");
