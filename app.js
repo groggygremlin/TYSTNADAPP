@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v42";
+const VERSION = "v43";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -801,6 +801,20 @@ function rollAttack(target) {
     effective !== target ? " (Weary)" : "");
 }
 
+function runFlicker(numEl, sides, onDone) {
+  numEl.classList.add("rolling");
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      onDone();
+    }
+  }, 60);
+}
+
 function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   if (rollLocked) return;
   rollLocked = true;
@@ -820,36 +834,28 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood", "overlay--action", "overlay--act3");
   numEl.classList.remove("hidden");
-  numEl.classList.add("rolling");
   show(overlay);
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      numEl.classList.add("hidden");
-      numEl.textContent = "";
-      if (success) {
-        const dmgSides = dieSides(damageDie);
-        hitState = { sides: dmgSides, momentum };
-        overlay.classList.add("overlay--action");
-        verdictEl.innerHTML =
-          '<div class="attack-result">' +
-          '<span class="strike-hit">HIT</span>' +
-          '<button class="roll-damage-btn" onclick="startDamageRoll()">ROLL DAMAGE</button>' +
-          "</div>";
-        document.querySelector(".result-dismiss").classList.add("hidden");
-        rollLocked = false;
-      } else {
-        verdictEl.innerHTML = SKULL_IMG;
-        if (navigator.vibrate) navigator.vibrate(40);
-        rollLocked = false;
-      }
+  runFlicker(numEl, sides, () => {
+    numEl.classList.add("hidden");
+    numEl.textContent = "";
+    if (success) {
+      const dmgSides = dieSides(damageDie);
+      hitState = { sides: dmgSides, momentum };
+      overlay.classList.add("overlay--action");
+      verdictEl.innerHTML =
+        '<div class="attack-result">' +
+        '<span class="strike-hit">HIT</span>' +
+        '<button class="roll-damage-btn" onclick="startDamageRoll()">ROLL DAMAGE</button>' +
+        "</div>";
+      document.querySelector(".result-dismiss").classList.add("hidden");
+      rollLocked = false;
+    } else {
+      verdictEl.innerHTML = SKULL_IMG;
+      if (navigator.vibrate) navigator.vibrate(40);
+      rollLocked = false;
     }
-  }, 60);
+  });
 }
 
 function startDamageRoll() {
@@ -864,25 +870,17 @@ function startDamageRoll() {
   overlay.classList.remove("overlay--action");
   verdictEl.innerHTML = "";
   numEl.classList.remove("hidden");
-  numEl.classList.add("rolling");
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      const roll = Math.floor(Math.random() * sides) + 1;
-      numEl.textContent = roll;
-      explosionState = { sides, momentum, chain: [roll] };
-      if (roll === sides && explosionState.chain.length < 20) {
-        showExplosionWait(verdictEl);
-      } else {
-        finalizeExplosionChain(verdictEl);
-      }
+  runFlicker(numEl, sides, () => {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    numEl.textContent = roll;
+    explosionState = { sides, momentum, chain: [roll] };
+    if (roll === sides && explosionState.chain.length < 20) {
+      showExplosionWait(verdictEl);
+    } else {
+      finalizeExplosionChain(verdictEl);
     }
-  }, 60);
+  });
 }
 
 function showExplosionWait(verdictEl) {
@@ -906,25 +904,16 @@ function continueExplosionChain() {
   const verdictEl = $("result-verdict");
   $("overlay-result").classList.remove("overlay--action");
   verdictEl.innerHTML = "";
-  numEl.classList.add("rolling");
-
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      const roll = Math.floor(Math.random() * sides) + 1;
-      numEl.textContent = roll;
-      explosionState.chain.push(roll);
-      if (roll === sides && explosionState.chain.length < 20) {
-        showExplosionWait(verdictEl);
-      } else {
-        finalizeExplosionChain(verdictEl);
-      }
+  runFlicker(numEl, sides, () => {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    numEl.textContent = roll;
+    explosionState.chain.push(roll);
+    if (roll === sides && explosionState.chain.length < 20) {
+      showExplosionWait(verdictEl);
+    } else {
+      finalizeExplosionChain(verdictEl);
     }
-  }, 60);
+  });
 }
 
 function finalizeExplosionChain(verdictEl) {
@@ -994,28 +983,20 @@ function performRollExplore(die, target, wearyActive) {
   const verdictEl = $("result-verdict");
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood");
-  numEl.classList.add("rolling");
   show(overlay);
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      numEl.textContent = result;
-      if (success) {
-        const margin = result - target;
-        verdictEl.innerHTML =
-          '<span class="verdict-success">SUCCEEDED BY ' + margin + "</span>";
-      } else {
-        verdictEl.innerHTML = SKULL_IMG;
-        if (navigator.vibrate) navigator.vibrate(40);
-      }
-      rollLocked = false;
+  runFlicker(numEl, sides, () => {
+    numEl.textContent = result;
+    if (success) {
+      const margin = result - target;
+      verdictEl.innerHTML =
+        '<span class="verdict-success">SUCCEEDED BY ' + margin + "</span>";
+    } else {
+      verdictEl.innerHTML = SKULL_IMG;
+      if (navigator.vibrate) navigator.vibrate(40);
     }
-  }, 60);
+    rollLocked = false;
+  });
 }
 
 function openForage() {
@@ -1051,28 +1032,20 @@ function performRollForage(die) {
   const verdictEl = $("result-verdict");
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood");
-  numEl.classList.add("rolling");
   show(overlay);
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      numEl.textContent = result;
-      if (result >= 6) {
-        verdictEl.innerHTML = '<span class="effort-result-label">+2 SUPPLY</span>';
-      } else if (result >= 4) {
-        verdictEl.innerHTML = '<span class="effort-result-label">+1 SUPPLY</span>';
-      } else {
-        verdictEl.innerHTML = SKULL_IMG;
-        if (navigator.vibrate) navigator.vibrate(40);
-      }
-      rollLocked = false;
+  runFlicker(numEl, sides, () => {
+    numEl.textContent = result;
+    if (result >= 6) {
+      verdictEl.innerHTML = '<span class="effort-result-label">+2 SUPPLY</span>';
+    } else if (result >= 4) {
+      verdictEl.innerHTML = '<span class="effort-result-label">+1 SUPPLY</span>';
+    } else {
+      verdictEl.innerHTML = SKULL_IMG;
+      if (navigator.vibrate) navigator.vibrate(40);
     }
-  }, 60);
+    rollLocked = false;
+  });
 }
 
 function openCamp() {
@@ -1105,37 +1078,29 @@ function performRollCamp(die, target, wearyActive) {
   const verdictEl = $("result-verdict");
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood");
-  numEl.classList.add("rolling");
   show(overlay);
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      numEl.textContent = result;
-      if (success) {
-        const margin = result - target;
-        if (margin >= 2) {
-          verdictEl.innerHTML =
-            '<div class="attack-result">' +
-            '<span class="effort-result-label">DEFENSIBLE</span>' +
-            '<span class="effort-result-margin">Succeeded by ' + margin + "</span>" +
-            "</div>";
-        } else {
-          verdictEl.innerHTML = '<span class="effort-result-label">STABLE</span>';
-        }
-      } else {
+  runFlicker(numEl, sides, () => {
+    numEl.textContent = result;
+    if (success) {
+      const margin = result - target;
+      if (margin >= 2) {
         verdictEl.innerHTML =
-          '<div class="verdict-fail">' + SKULL_IMG +
-          '<span class="fail-by">EXPOSED</span></div>';
-        if (navigator.vibrate) navigator.vibrate(40);
+          '<div class="attack-result">' +
+          '<span class="effort-result-label">DEFENSIBLE</span>' +
+          '<span class="effort-result-margin">Succeeded by ' + margin + "</span>" +
+          "</div>";
+      } else {
+        verdictEl.innerHTML = '<span class="effort-result-label">STABLE</span>';
       }
-      rollLocked = false;
+    } else {
+      verdictEl.innerHTML =
+        '<div class="verdict-fail">' + SKULL_IMG +
+        '<span class="fail-by">EXPOSED</span></div>';
+      if (navigator.vibrate) navigator.vibrate(40);
     }
-  }, 60);
+    rollLocked = false;
+  });
 }
 
 // ---------- Cast Spell ----------
@@ -1288,56 +1253,48 @@ function performRoll(die, target, context, opts) {
   const verdictEl = $("result-verdict");
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood");
-  numEl.classList.add("rolling");
   show(overlay);
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      numEl.textContent = result;
-      if (success) {
-        if (opts.death) {
-          const rounds = Math.floor(Math.random() * 6) + 1;
-          let notes = "";
-          if (opts.casting) {
-            notes += '<span class="survive-note">The spell takes effect</span>';
-          }
-          notes += '<span class="survive-note">Unconscious ' + rounds +
-            (rounds === 1 ? " round" : " rounds") + "</span>";
-          notes += '<span class="survive-note">Wake at 1 HP</span>';
-          notes += '<span class="survive-note">Further damage kills outright</span>';
-          verdictEl.innerHTML =
-            '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
-            notes + "</div>";
-        } else if (opts.cast) {
-          verdictEl.innerHTML =
-            '<div class="verdict-fail"><span class="verdict-success">SUCCESS</span>' +
-            '<span class="success-text">' + randSuccessText() + "</span></div>";
-        } else {
-          verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
+  runFlicker(numEl, sides, () => {
+    numEl.textContent = result;
+    if (success) {
+      if (opts.death) {
+        const rounds = Math.floor(Math.random() * 6) + 1;
+        let notes = "";
+        if (opts.casting) {
+          notes += '<span class="survive-note">The spell takes effect</span>';
         }
-      } else if (opts.death) {
-        overlay.classList.add("death-flood");
+        notes += '<span class="survive-note">Unconscious ' + rounds +
+          (rounds === 1 ? " round" : " rounds") + "</span>";
+        notes += '<span class="survive-note">Wake at 1 HP</span>';
+        notes += '<span class="survive-note">Further damage kills outright</span>';
         verdictEl.innerHTML =
-          '<div class="verdict-fail">' + SKULL_IMG_DEATH +
-          '<span class="verdict-death">DEATH</span></div>';
-        if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
-      } else if (opts.shortfall) {
+          '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
+          notes + "</div>";
+      } else if (opts.cast) {
         verdictEl.innerHTML =
-          '<div class="verdict-fail">' + SKULL_IMG +
-          '<span class="fail-by">Failed by ' + (target - result) + '</span></div>';
-        if (navigator.vibrate) navigator.vibrate(40);
+          '<div class="verdict-fail"><span class="verdict-success">SUCCESS</span>' +
+          '<span class="success-text">' + randSuccessText() + "</span></div>";
       } else {
-        verdictEl.innerHTML = SKULL_IMG;
-        if (navigator.vibrate) navigator.vibrate(40);
+        verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
       }
-      rollLocked = false;
+    } else if (opts.death) {
+      overlay.classList.add("death-flood");
+      verdictEl.innerHTML =
+        '<div class="verdict-fail">' + SKULL_IMG_DEATH +
+        '<span class="verdict-death">DEATH</span></div>';
+      if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
+    } else if (opts.shortfall) {
+      verdictEl.innerHTML =
+        '<div class="verdict-fail">' + SKULL_IMG +
+        '<span class="fail-by">Failed by ' + (target - result) + '</span></div>';
+      if (navigator.vibrate) navigator.vibrate(40);
+    } else {
+      verdictEl.innerHTML = SKULL_IMG;
+      if (navigator.vibrate) navigator.vibrate(40);
     }
-  }, 60);
+    rollLocked = false;
+  });
 }
 
 function rollSkill(target) {
@@ -1375,49 +1332,47 @@ function performRollDefense(target) {
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood", "overlay--action", "overlay--act3");
   numEl.classList.remove("hidden");
-  numEl.classList.add("rolling");
   show(overlay);
 
-  let ticks = 0;
-  const flicker = setInterval(() => {
-    numEl.textContent = Math.floor(Math.random() * sides) + 1;
-    ticks++;
-    if (ticks >= 8) {
-      clearInterval(flicker);
-      numEl.classList.remove("rolling");
-      numEl.classList.add("hidden");
-      numEl.textContent = "";
-      if (success) {
-        overlay.classList.add("overlay--act3");
-        verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
-        document.querySelector(".result-dismiss").classList.remove("hidden");
-      } else {
-        pendingDefenseDamage = Math.max(0, (target - result) + bonus);
-        overlay.classList.add("overlay--action");
-        verdictEl.innerHTML =
-          '<div class="verdict-fail">' + SKULL_IMG +
-          '<span class="def-damage">Take ' + pendingDefenseDamage + ' Damage</span>' +
-          '<button class="roll-damage-btn def-take-btn" onclick="takeDefenseDamage(this)">Take It</button>' +
-          '<button class="def-dismiss-btn" onclick="closeDefenseFailure()">Dismiss</button>' +
-          '</div>';
-        if (navigator.vibrate) navigator.vibrate(40);
-      }
-      rollLocked = false;
+  runFlicker(numEl, sides, () => {
+    numEl.classList.add("hidden");
+    numEl.textContent = "";
+    if (success) {
+      overlay.classList.add("overlay--act3");
+      verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
+      document.querySelector(".result-dismiss").classList.remove("hidden");
+    } else {
+      pendingDefenseDamage = Math.max(0, (target - result) + bonus);
+      overlay.classList.add("overlay--action");
+      verdictEl.innerHTML =
+        '<div class="verdict-fail">' + SKULL_IMG +
+        '<span class="def-damage">Take ' + pendingDefenseDamage + ' Damage</span>' +
+        '<button class="roll-damage-btn def-take-btn" onclick="takeDefenseDamage(this)">Take It</button>' +
+        '<button class="def-dismiss-btn" onclick="closeDefenseFailure()">Dismiss</button>' +
+        '</div>';
+      if (navigator.vibrate) navigator.vibrate(40);
     }
-  }, 60);
+    rollLocked = false;
+  });
+}
+
+function closeResultOverlay() {
+  const overlay = $("overlay-result");
+  $("result-number").classList.remove("hidden");
+  $("result-context").classList.remove("hidden");
+  overlay.classList.remove("overlay--action", "overlay--act3", "death-flood");
+  hide(overlay);
 }
 
 function takeDefenseDamage(btn) {
   if (btn) btn.disabled = true;
   adjustHP(-pendingDefenseDamage);
-  $("overlay-result").classList.remove("overlay--action", "overlay--act3");
-  hide($("overlay-result"));
+  closeResultOverlay();
   if (character.hpCur <= 0) openDeath();
 }
 
 function closeDefenseFailure() {
-  $("overlay-result").classList.remove("overlay--action", "overlay--act3");
-  hide($("overlay-result"));
+  closeResultOverlay();
 }
 
 // ---------- Navigation helpers ----------
@@ -1707,11 +1662,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (rollLocked || explosionState || hitState) return;
     const overlay = $("overlay-result");
     if (overlay.classList.contains("overlay--action")) return; // defense failure: explicit buttons only
-    $("result-number").classList.remove("hidden");
-    $("result-context").classList.remove("hidden");
-    overlay.classList.remove("overlay--action", "overlay--act3");
-    hide(overlay);
-    overlay.classList.remove("death-flood");
+    closeResultOverlay();
   });
 
   // Boot
