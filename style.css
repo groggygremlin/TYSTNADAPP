@@ -1088,6 +1088,25 @@ button.hp-max:active { color: var(--blood-bright); }
   width: auto;
 }
 
+/* Defense failure: DISMISS above TAKE IT, ash text, no fill */
+.def-dismiss-btn {
+  background: none;
+  border: none;
+  color: var(--ash);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+#overlay-result.overlay--action .def-dismiss-btn {
+  position: absolute;
+  bottom: 136px;
+  left: 24px;
+  right: 24px;
+}
+
 /* ============ EXPEDITION SECTION ============ */
 
 .expedition-section {

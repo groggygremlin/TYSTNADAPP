@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v41";
+const VERSION = "v42";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1308,6 +1308,8 @@ function performRoll(die, target, context, opts) {
           }
           notes += '<span class="survive-note">Unconscious ' + rounds +
             (rounds === 1 ? " round" : " rounds") + "</span>";
+          notes += '<span class="survive-note">Wake at 1 HP</span>';
+          notes += '<span class="survive-note">Further damage kills outright</span>';
           verdictEl.innerHTML =
             '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
             notes + "</div>";
@@ -1396,6 +1398,7 @@ function performRollDefense(target) {
           '<div class="verdict-fail">' + SKULL_IMG +
           '<span class="def-damage">Take ' + pendingDefenseDamage + ' Damage</span>' +
           '<button class="roll-damage-btn def-take-btn" onclick="takeDefenseDamage(this)">Take It</button>' +
+          '<button class="def-dismiss-btn" onclick="closeDefenseFailure()">Dismiss</button>' +
           '</div>';
         if (navigator.vibrate) navigator.vibrate(40);
       }
@@ -1410,6 +1413,11 @@ function takeDefenseDamage(btn) {
   $("overlay-result").classList.remove("overlay--action", "overlay--act3");
   hide($("overlay-result"));
   if (character.hpCur <= 0) openDeath();
+}
+
+function closeDefenseFailure() {
+  $("overlay-result").classList.remove("overlay--action", "overlay--act3");
+  hide($("overlay-result"));
 }
 
 // ---------- Navigation helpers ----------
@@ -1694,14 +1702,16 @@ document.addEventListener("DOMContentLoaded", () => {
   $("spell-cast-btn").addEventListener("click", castSpell);
   $("spell-cancel-btn").addEventListener("click", () => hide($("overlay-spell")));
 
-  // Result overlay: dismiss on tap (suppressed mid-chain or HIT-wait)
+  // Result overlay: dismiss on tap (suppressed mid-chain, HIT-wait, or defense-failure)
   $("overlay-result").addEventListener("click", () => {
     if (rollLocked || explosionState || hitState) return;
+    const overlay = $("overlay-result");
+    if (overlay.classList.contains("overlay--action")) return; // defense failure: explicit buttons only
     $("result-number").classList.remove("hidden");
     $("result-context").classList.remove("hidden");
-    $("overlay-result").classList.remove("overlay--action", "overlay--act3");
-    hide($("overlay-result"));
-    $("overlay-result").classList.remove("death-flood");
+    overlay.classList.remove("overlay--action", "overlay--act3");
+    hide(overlay);
+    overlay.classList.remove("death-flood");
   });
 
   // Boot
