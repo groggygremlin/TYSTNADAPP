@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v35";
+const VERSION = "v36";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -133,6 +133,7 @@ let rollLocked = false;
 let pendingConfirmAction = null;
 let attackMomentum = 0;
 let forageRough = false;
+let explosionState = null;
 
 // ---------- Persistence ----------
 
@@ -808,7 +809,6 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
 
-  // Apply persistent effects immediately; animation is purely visual
   if (success) tickSkill("Combat");
 
   $("result-context").textContent = "Attack " + combatDie + " vs " + target + "+" + (wearyNote || "");
@@ -830,27 +830,83 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
       numEl.classList.remove("rolling");
       numEl.textContent = result;
       if (success) {
-        const chain = rollExplosion(damageDie);
-        const base = chain.reduce((a, b) => a + b, 0);
-        const total = base + momentum;
-        let html = '<div class="attack-result">';
-        html += '<span class="damage-total">' + total + "</span>";
-        if (chain.length > 1) {
-          html += '<span class="damage-chain">' + chain.join(" + ") + "</span>";
+        const dmgSides = dieSides(damageDie);
+        const firstRoll = Math.floor(Math.random() * dmgSides) + 1;
+        explosionState = { sides: dmgSides, momentum, chain: [firstRoll] };
+        if (firstRoll === dmgSides && explosionState.chain.length < 20) {
+          showExplosionWait(verdictEl);
+        } else {
+          finalizeExplosionChain(verdictEl);
         }
-        if (momentum > 0) {
-          html += '<span class="damage-momentum">+' + momentum + " Momentum</span>";
-        }
-        html += '<span class="success-text">' + randSuccessText() + "</span>";
-        html += "</div>";
-        verdictEl.innerHTML = html;
       } else {
         verdictEl.innerHTML = SKULL_IMG;
         if (navigator.vibrate) navigator.vibrate(40);
+        rollLocked = false;
       }
-      rollLocked = false;
     }
   }, 60);
+}
+
+function showExplosionWait(verdictEl) {
+  const chain = explosionState.chain;
+  const current = chain[chain.length - 1];
+  const chainLabel = chain.length > 1 ? chain.join(" + ") : "";
+  let html = '<div class="attack-result">';
+  html += '<span class="damage-total">' + current + "</span>";
+  if (chainLabel) html += '<span class="damage-chain">' + chainLabel + "</span>";
+  html += '<span class="damage-explodes">EXPLODES</span>';
+  html += '<button class="roll-again-btn" onclick="continueExplosionChain()">ROLL AGAIN</button>';
+  html += "</div>";
+  verdictEl.innerHTML = html;
+  document.querySelector(".result-dismiss").classList.add("hidden");
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function continueExplosionChain() {
+  if (!explosionState) return;
+  const { sides } = explosionState;
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  verdictEl.innerHTML = "";
+  numEl.classList.add("rolling");
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      const roll = Math.floor(Math.random() * sides) + 1;
+      numEl.textContent = roll;
+      explosionState.chain.push(roll);
+      if (roll === sides && explosionState.chain.length < 20) {
+        showExplosionWait(verdictEl);
+      } else {
+        finalizeExplosionChain(verdictEl);
+      }
+    }
+  }, 60);
+}
+
+function finalizeExplosionChain(verdictEl) {
+  const { chain, momentum } = explosionState;
+  const base = chain.reduce((a, b) => a + b, 0);
+  const total = base + momentum;
+  let html = '<div class="attack-result">';
+  html += '<span class="damage-total">' + total + "</span>";
+  if (chain.length > 1) {
+    html += '<span class="damage-chain">' + chain.join(" + ") + "</span>";
+  }
+  if (momentum > 0) {
+    html += '<span class="damage-momentum">+' + momentum + " Momentum</span>";
+  }
+  html += '<span class="success-text">' + randSuccessText() + "</span>";
+  html += "</div>";
+  verdictEl.innerHTML = html;
+  document.querySelector(".result-dismiss").classList.remove("hidden");
+  explosionState = null;
+  rollLocked = false;
 }
 
 // ---------- Expedition effort rolls ----------
@@ -1532,9 +1588,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("spell-cast-btn").addEventListener("click", castSpell);
   $("spell-cancel-btn").addEventListener("click", () => hide($("overlay-spell")));
 
-  // Result overlay: dismiss on tap
+  // Result overlay: dismiss on tap (suppressed mid-explosion-chain)
   $("overlay-result").addEventListener("click", () => {
-    if (rollLocked) return;
+    if (rollLocked || explosionState) return;
     hide($("overlay-result"));
     $("overlay-result").classList.remove("death-flood");
   });

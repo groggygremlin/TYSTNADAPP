@@ -968,6 +968,30 @@ button.hp-max:active { color: var(--blood-bright); }
   text-transform: uppercase;
 }
 
+.damage-explodes {
+  font-size: 0.8rem;
+  color: var(--blood-bright);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-variant: small-caps;
+}
+
+.roll-again-btn {
+  width: 100%;
+  min-height: 44px;
+  background: var(--blood);
+  color: var(--bone);
+  border: none;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 8px);
+  margin-top: 4px;
+}
+
 /* ============ EXPEDITION SECTION ============ */
 
 .expedition-section {
