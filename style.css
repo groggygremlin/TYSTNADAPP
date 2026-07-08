@@ -59,7 +59,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: url("app-bg.webp") center / cover no-repeat;
+  background: url("bg-pages.webp") center / cover no-repeat;
   z-index: -1;
 }
 
