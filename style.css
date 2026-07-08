@@ -664,6 +664,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .danger-btn.big { padding: 18px 64px; font-size: 1rem; letter-spacing: 0.3em; }
 
+#overlay-result { background: #0c0a0b; }
 #overlay-result.death-flood { background: rgba(38, 6, 8, 0.97); }
 
 .verdict-death {
@@ -920,16 +921,20 @@ button.hp-max:active { color: var(--blood-bright); }
   font-size: 2.6rem;
 }
 
-/* ============ ATTACK MOMENTUM SELECTOR ============ */
+/* ============ ATTACK OVERLAY ============ */
 
-.momentum-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  max-width: 320px;
+.atk-section-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blood);
+  margin: 0.6rem 0 0;
+  text-align: center;
 }
+
+/* ============ ATTACK MOMENTUM SELECTOR ============ */
 
 .momentum-grid {
   display: grid;
@@ -947,33 +952,30 @@ button.hp-max:active { color: var(--blood-bright); }
   gap: 6px;
 }
 
-.damage-total {
+.strike-hit {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: clamp(3rem, 20vw, 5rem);
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--bone);
+  display: block;
+  text-align: center;
 }
 
 .damage-chain {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--ash);
   font-variant-numeric: tabular-nums;
 }
 
-.damage-momentum {
-  font-size: 0.7rem;
-  color: var(--ash);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .damage-explodes {
-  font-size: 0.8rem;
+  font-size: 2rem;
   color: var(--blood-bright);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-variant: small-caps;
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .roll-again-btn {
@@ -990,6 +992,60 @@ button.hp-max:active { color: var(--blood-bright); }
   cursor: pointer;
   clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 8px);
   margin-top: 4px;
+}
+
+.roll-damage-btn {
+  width: 100%;
+  min-height: 44px;
+  background: var(--blood);
+  color: var(--bone);
+  border: none;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 8px);
+  margin-top: 4px;
+}
+
+/* ============ ACT 3 PROMPT CARD ============ */
+
+.prompt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.prompt-success-text {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+
+.prompt-total {
+  font-family: var(--font-display);
+  font-size: clamp(7rem, 42vw, 14rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--bone);
+  line-height: 1;
+}
+
+.prompt-damage-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blood);
 }
 
 /* ============ EXPEDITION SECTION ============ */

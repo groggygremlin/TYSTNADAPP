@@ -297,19 +297,17 @@
 
   <!-- ============ ATTACK OVERLAY ============ -->
   <div id="overlay-attack" class="overlay hidden">
-    <p class="overlay-skill">Attack <span id="attack-combat-die">d8</span> / <span id="attack-damage-die">d8</span></p>
-    <div class="momentum-row">
-      <span class="field-label">Momentum</span>
-      <div class="momentum-grid">
-        <button class="momentum-btn class-btn selected" data-momentum="0">None</button>
-        <button class="momentum-btn class-btn" data-momentum="1">+1</button>
-        <button class="momentum-btn class-btn" data-momentum="2">+2</button>
-      </div>
-    </div>
+    <p class="atk-section-label">Enemy Threat Level</p>
     <div class="diff-buttons" id="attack-diff-buttons">
-      <button class="diff-btn" data-target="4">Easy<span>4+</span></button>
-      <button class="diff-btn" data-target="5">Normal<span>5+</span></button>
-      <button class="diff-btn" data-target="6">Hard<span>6+</span></button>
+      <button class="diff-btn" data-target="4">Weak<span>4+</span></button>
+      <button class="diff-btn" data-target="5">Standard<span>5+</span></button>
+      <button class="diff-btn" data-target="6">Strong<span>6+</span></button>
+    </div>
+    <p class="atk-section-label">Momentum</p>
+    <div class="momentum-grid">
+      <button class="momentum-btn class-btn selected" data-momentum="0">None</button>
+      <button class="momentum-btn class-btn" data-momentum="1">+1</button>
+      <button class="momentum-btn class-btn" data-momentum="2">+2</button>
     </div>
     <p class="weary-note hidden">Weary: all targets one step harder.</p>
     <button id="attack-cancel" class="ghost-btn">Cancel</button>

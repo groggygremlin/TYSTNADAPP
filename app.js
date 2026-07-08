@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v36";
+const VERSION = "v37";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -134,6 +134,7 @@ let pendingConfirmAction = null;
 let attackMomentum = 0;
 let forageRough = false;
 let explosionState = null;
+let hitState = null;
 
 // ---------- Persistence ----------
 
@@ -769,8 +770,6 @@ function importFromPaste() {
 
 function openAttack() {
   attackMomentum = 0;
-  $("attack-combat-die").textContent = character.skills["Combat"];
-  $("attack-damage-die").textContent = damageDieForWeapon();
   document.querySelectorAll(".momentum-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.momentum, 10) === 0);
   });
@@ -818,6 +817,7 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   const verdictEl = $("result-verdict");
   verdictEl.innerHTML = "";
   overlay.classList.remove("death-flood");
+  numEl.classList.remove("hidden");
   numEl.classList.add("rolling");
   show(overlay);
 
@@ -828,16 +828,18 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
     if (ticks >= 8) {
       clearInterval(flicker);
       numEl.classList.remove("rolling");
-      numEl.textContent = result;
+      numEl.classList.add("hidden");
+      numEl.textContent = "";
       if (success) {
         const dmgSides = dieSides(damageDie);
-        const firstRoll = Math.floor(Math.random() * dmgSides) + 1;
-        explosionState = { sides: dmgSides, momentum, chain: [firstRoll] };
-        if (firstRoll === dmgSides && explosionState.chain.length < 20) {
-          showExplosionWait(verdictEl);
-        } else {
-          finalizeExplosionChain(verdictEl);
-        }
+        hitState = { sides: dmgSides, momentum };
+        verdictEl.innerHTML =
+          '<div class="attack-result">' +
+          '<span class="strike-hit">HIT</span>' +
+          '<button class="roll-damage-btn" onclick="startDamageRoll()">ROLL DAMAGE</button>' +
+          "</div>";
+        document.querySelector(".result-dismiss").classList.add("hidden");
+        rollLocked = false;
       } else {
         verdictEl.innerHTML = SKULL_IMG;
         if (navigator.vibrate) navigator.vibrate(40);
@@ -847,13 +849,42 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   }, 60);
 }
 
+function startDamageRoll() {
+  if (!hitState) return;
+  const { sides, momentum } = hitState;
+  hitState = null;
+  rollLocked = true;
+
+  const numEl = $("result-number");
+  const verdictEl = $("result-verdict");
+  verdictEl.innerHTML = "";
+  numEl.classList.remove("hidden");
+  numEl.classList.add("rolling");
+
+  let ticks = 0;
+  const flicker = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(flicker);
+      numEl.classList.remove("rolling");
+      const roll = Math.floor(Math.random() * sides) + 1;
+      numEl.textContent = roll;
+      explosionState = { sides, momentum, chain: [roll] };
+      if (roll === sides && explosionState.chain.length < 20) {
+        showExplosionWait(verdictEl);
+      } else {
+        finalizeExplosionChain(verdictEl);
+      }
+    }
+  }, 60);
+}
+
 function showExplosionWait(verdictEl) {
   const chain = explosionState.chain;
-  const current = chain[chain.length - 1];
-  const chainLabel = chain.length > 1 ? chain.join(" + ") : "";
+  const chainLabel = chain.join(" + ");
   let html = '<div class="attack-result">';
-  html += '<span class="damage-total">' + current + "</span>";
-  if (chainLabel) html += '<span class="damage-chain">' + chainLabel + "</span>";
+  html += '<span class="damage-chain">' + chainLabel + "</span>";
   html += '<span class="damage-explodes">EXPLODES</span>';
   html += '<button class="roll-again-btn" onclick="continueExplosionChain()">ROLL AGAIN</button>';
   html += "</div>";
@@ -890,20 +921,17 @@ function continueExplosionChain() {
 }
 
 function finalizeExplosionChain(verdictEl) {
+  const numEl = $("result-number");
+  numEl.classList.add("hidden");
+  numEl.textContent = "";
   const { chain, momentum } = explosionState;
-  const base = chain.reduce((a, b) => a + b, 0);
-  const total = base + momentum;
-  let html = '<div class="attack-result">';
-  html += '<span class="damage-total">' + total + "</span>";
-  if (chain.length > 1) {
-    html += '<span class="damage-chain">' + chain.join(" + ") + "</span>";
-  }
-  if (momentum > 0) {
-    html += '<span class="damage-momentum">+' + momentum + " Momentum</span>";
-  }
-  html += '<span class="success-text">' + randSuccessText() + "</span>";
-  html += "</div>";
-  verdictEl.innerHTML = html;
+  const total = chain.reduce((a, b) => a + b, 0) + momentum;
+  verdictEl.innerHTML =
+    '<div class="prompt-card">' +
+    '<span class="prompt-success-text">' + randSuccessText() + "</span>" +
+    '<span class="prompt-total">' + total + "</span>" +
+    '<span class="prompt-damage-label">DAMAGE</span>' +
+    "</div>";
   document.querySelector(".result-dismiss").classList.remove("hidden");
   explosionState = null;
   rollLocked = false;
@@ -1588,9 +1616,10 @@ document.addEventListener("DOMContentLoaded", () => {
   $("spell-cast-btn").addEventListener("click", castSpell);
   $("spell-cancel-btn").addEventListener("click", () => hide($("overlay-spell")));
 
-  // Result overlay: dismiss on tap (suppressed mid-explosion-chain)
+  // Result overlay: dismiss on tap (suppressed mid-chain or HIT-wait)
   $("overlay-result").addEventListener("click", () => {
-    if (rollLocked || explosionState) return;
+    if (rollLocked || explosionState || hitState) return;
+    $("result-number").classList.remove("hidden");
     hide($("overlay-result"));
     $("overlay-result").classList.remove("death-flood");
   });
