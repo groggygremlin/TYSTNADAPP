@@ -36,6 +36,8 @@
   --ash: #7d766f;        /* secondary text */
   --blood: #a11e24;      /* accent */
   --blood-bright: #d92b32; /* results, warnings */
+  --ember-light: #d97a24;  /* HP warning: exactly 3 */
+  --ember-strong: #b96a33; /* HP warning: exactly 2 */
   --success: #cfc9c0;    /* success stays bone: clinical, no celebration */
   --font-display: "Cormorant Garamond", Georgia, serif;
 }
@@ -407,7 +409,7 @@ input:focus { border-color: var(--blood); }
   color: var(--blood);
 }
 
-.hp-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hp-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex: 1; }
 
 .hp-btn {
   background: var(--panel-hi);
@@ -449,7 +451,10 @@ button.hp-max {
 
 button.hp-max:active { color: var(--blood-bright); }
 
-#hp-current.low { color: var(--blood-bright); }
+#hp-current { color: var(--bone); }
+#hp-current.hp-t3 { color: var(--ember-light); }
+#hp-current.hp-t2 { color: var(--ember-strong); }
+#hp-current.hp-t1 { color: var(--blood-bright); }
 
 .def-die { font-size: 1.7rem; font-weight: 900; }
 
@@ -776,8 +781,19 @@ button.hp-max:active { color: var(--blood-bright); }
   gap: 12px;
 }
 
-.verdict-skull { display: block; height: 110px; width: auto; }
-.verdict-skull--death { height: 160px; }
+.verdict-skull { display: block; height: 45vh; max-width: 90vw; width: auto; }
+.verdict-skull--death { height: 60vh; }
+
+.success-text {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-variant: small-caps;
+  letter-spacing: 0.2em;
+  color: var(--ash);
+  text-align: center;
+  display: block;
+  margin-top: 4px;
+}
 
 .fail-by {
   font-size: 0.85rem;
@@ -886,12 +902,22 @@ button.hp-max:active { color: var(--blood-bright); }
   clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
   padding: 8px 14px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.hp-label-large {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--blood);
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .hp-readout-compact {
-  font-size: 1.3rem;
+  font-size: 2.6rem;
 }
 
 /* ============ ATTACK MOMENTUM SELECTOR ============ */

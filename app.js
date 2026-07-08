@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v33";
+const VERSION = "v34";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -106,6 +106,23 @@ const STORAGE_KEY = "tystnad-character";
 
 const SKULL_IMG       = '<img class="verdict-skull" src="skull.webp" alt="Failure">';
 const SKULL_IMG_DEATH = '<img class="verdict-skull verdict-skull--death" src="skull.webp" alt="Death">';
+
+const SUCCESS_TEXTS = [
+  "STRUCK TRUE", "IT LANDS", "A TELLING BLOW", "CLEAN AND TRUE",
+  "THE FRONTIER YIELDS", "WORTHY OF THE TALE", "IT FINDS ITS MARK",
+  "THE MARK IS MET", "YOUR WILL PREVAILS", "THE MOMENT IS YOURS",
+  "NOTHING WASTED", "SWIFT AND SURE", "THE DARK GIVES GROUND",
+  "THE DARK RECOILS", "NO HESITATION", "DONE, AND DONE WELL",
+  "THE FRONTIER TAKES NOTE", "THE FRONTIER REMEMBERS", "YOUR AIM HOLDS",
+  "YOUR HAND IS STEADY", "IT STRIKES HOME", "THE DEED IS DONE",
+  "SHARP AND CERTAIN", "TRUE TO THE LAST", "MADE TO COUNT",
+  "THE EFFORT HOLDS", "STRENGTH ANSWERS", "POWER ANSWERS",
+  "THE OLD WAYS HOLD", "CARVED INTO THE TALE"
+];
+
+function randSuccessText() {
+  return SUCCESS_TEXTS[Math.floor(Math.random() * SUCCESS_TEXTS.length)];
+}
 
 // ---------- State ----------
 
@@ -362,13 +379,16 @@ function renderIntro() {
 // ---------- HP ----------
 
 function renderHP() {
-  const isLow = character.hpCur <= Math.floor(character.hpMax / 3);
-  const isDead = character.hpCur <= 0;
+  const hp = character.hpCur;
+  const isDead = hp <= 0;
 
   const cur = $("hp-current");
   if (cur) {
-    cur.textContent = character.hpCur;
-    cur.classList.toggle("low", isLow);
+    cur.textContent = hp;
+    cur.classList.remove("hp-t3", "hp-t2", "hp-t1");
+    if (hp <= 1) cur.classList.add("hp-t1");
+    else if (hp === 2) cur.classList.add("hp-t2");
+    else if (hp === 3) cur.classList.add("hp-t3");
   }
   const maxnum = $("hp-maxnum");
   if (maxnum) maxnum.textContent = character.hpMax;
@@ -821,10 +841,12 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
         if (momentum > 0) {
           html += '<span class="damage-momentum">+' + momentum + " Momentum</span>";
         }
+        html += '<span class="success-text">' + randSuccessText() + "</span>";
         html += "</div>";
         verdictEl.innerHTML = html;
       } else {
         verdictEl.innerHTML = SKULL_IMG;
+        if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
     }
@@ -895,6 +917,7 @@ function performRollExplore(die, target, wearyActive) {
           '<span class="verdict-success">SUCCEEDED BY ' + margin + "</span>";
       } else {
         verdictEl.innerHTML = SKULL_IMG;
+        if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
     }
@@ -950,7 +973,8 @@ function performRollForage(die) {
       } else if (result >= 4) {
         verdictEl.innerHTML = '<span class="effort-result-label">+1 SUPPLY</span>';
       } else {
-        verdictEl.innerHTML = '<span class="effort-result-label" style="color:var(--ash)">NOTHING FOUND</span>';
+        verdictEl.innerHTML = SKULL_IMG;
+        if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
     }
@@ -1010,7 +1034,8 @@ function performRollCamp(die, target, wearyActive) {
           verdictEl.innerHTML = '<span class="effort-result-label">STABLE</span>';
         }
       } else {
-        verdictEl.innerHTML = '<span class="effort-result-exposed">EXPOSED</span>';
+        verdictEl.innerHTML = SKULL_IMG;
+        if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
     }
@@ -1037,7 +1062,7 @@ function castTier(tier) {
     const wearyNote = effectiveTarget !== t.target ? " (Weary)" : "";
     performRoll(die, effectiveTarget,
       "Tier " + tier + " · Sorcery " + die + " vs " + effectiveTarget + "+" + wearyNote,
-      { tickSkill: "Sorcery" });
+      { tickSkill: "Sorcery", cast: true });
   }
 }
 
@@ -1186,6 +1211,10 @@ function performRoll(die, target, context, opts) {
           verdictEl.innerHTML =
             '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
             notes + "</div>";
+        } else if (opts.cast) {
+          verdictEl.innerHTML =
+            '<div class="verdict-fail"><span class="verdict-success">SUCCESS</span>' +
+            '<span class="success-text">' + randSuccessText() + "</span></div>";
         } else {
           verdictEl.innerHTML = '<span class="verdict-success">SUCCESS</span>';
         }
@@ -1194,12 +1223,10 @@ function performRoll(die, target, context, opts) {
         verdictEl.innerHTML =
           '<div class="verdict-fail">' + SKULL_IMG_DEATH +
           '<span class="verdict-death">DEATH</span></div>';
-      } else if (opts.shortfall) {
-        verdictEl.innerHTML =
-          '<div class="verdict-fail">' + SKULL_IMG +
-          '<span class="fail-by">Failed by ' + (target - result) + "</span></div>";
+        if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
       } else {
         verdictEl.innerHTML = SKULL_IMG;
+        if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
     }
