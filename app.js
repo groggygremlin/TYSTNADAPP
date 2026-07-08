@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v46";
+const VERSION = "v47";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -346,8 +346,7 @@ function renderSheet() {
   const isSorcerer = character.cls === "Sorcerer";
   const sorceryTabBtn = document.querySelector(".sorcery-tab");
   if (sorceryTabBtn) isSorcerer ? show(sorceryTabBtn) : hide(sorceryTabBtn);
-  document.querySelector(".tab-bar").classList.toggle("tab-bar--five", isSorcerer);
-  renderConditions();
+renderConditions();
 }
 
 function switchTab(tab) {
