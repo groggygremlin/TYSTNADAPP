@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v37";
+const VERSION = "v39";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -810,13 +810,14 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
 
   if (success) tickSkill("Combat");
 
-  $("result-context").textContent = "Attack " + combatDie + " vs " + target + "+" + (wearyNote || "");
-
   const overlay = $("overlay-result");
   const numEl = $("result-number");
   const verdictEl = $("result-verdict");
+  const ctxEl = $("result-context");
+  ctxEl.classList.add("hidden");
+  ctxEl.textContent = "";
   verdictEl.innerHTML = "";
-  overlay.classList.remove("death-flood");
+  overlay.classList.remove("death-flood", "overlay--action", "overlay--act3");
   numEl.classList.remove("hidden");
   numEl.classList.add("rolling");
   show(overlay);
@@ -833,6 +834,7 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
       if (success) {
         const dmgSides = dieSides(damageDie);
         hitState = { sides: dmgSides, momentum };
+        overlay.classList.add("overlay--action");
         verdictEl.innerHTML =
           '<div class="attack-result">' +
           '<span class="strike-hit">HIT</span>' +
@@ -855,8 +857,10 @@ function startDamageRoll() {
   hitState = null;
   rollLocked = true;
 
+  const overlay = $("overlay-result");
   const numEl = $("result-number");
   const verdictEl = $("result-verdict");
+  overlay.classList.remove("overlay--action");
   verdictEl.innerHTML = "";
   numEl.classList.remove("hidden");
   numEl.classList.add("rolling");
@@ -889,6 +893,7 @@ function showExplosionWait(verdictEl) {
   html += '<button class="roll-again-btn" onclick="continueExplosionChain()">ROLL AGAIN</button>';
   html += "</div>";
   verdictEl.innerHTML = html;
+  $("overlay-result").classList.add("overlay--action");
   document.querySelector(".result-dismiss").classList.add("hidden");
   if (navigator.vibrate) navigator.vibrate(30);
 }
@@ -898,6 +903,7 @@ function continueExplosionChain() {
   const { sides } = explosionState;
   const numEl = $("result-number");
   const verdictEl = $("result-verdict");
+  $("overlay-result").classList.remove("overlay--action");
   verdictEl.innerHTML = "";
   numEl.classList.add("rolling");
 
@@ -921,9 +927,12 @@ function continueExplosionChain() {
 }
 
 function finalizeExplosionChain(verdictEl) {
+  const overlay = $("overlay-result");
   const numEl = $("result-number");
   numEl.classList.add("hidden");
   numEl.textContent = "";
+  overlay.classList.remove("overlay--action");
+  overlay.classList.add("overlay--act3");
   const { chain, momentum } = explosionState;
   const total = chain.reduce((a, b) => a + b, 0) + momentum;
   verdictEl.innerHTML =
@@ -1620,6 +1629,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("overlay-result").addEventListener("click", () => {
     if (rollLocked || explosionState || hitState) return;
     $("result-number").classList.remove("hidden");
+    $("result-context").classList.remove("hidden");
+    $("overlay-result").classList.remove("overlay--action", "overlay--act3");
     hide($("overlay-result"));
     $("overlay-result").classList.remove("death-flood");
   });

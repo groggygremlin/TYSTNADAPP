@@ -665,6 +665,7 @@ button.hp-max:active { color: var(--blood-bright); }
 .danger-btn.big { padding: 18px 64px; font-size: 1rem; letter-spacing: 0.3em; }
 
 #overlay-result { background: #0c0a0b; }
+#overlay-attack { background: #0c0a0b; }
 #overlay-result.death-flood { background: rgba(38, 6, 8, 0.97); }
 
 .verdict-death {
@@ -925,7 +926,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .atk-section-label {
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -939,8 +940,9 @@ button.hp-max:active { color: var(--blood-bright); }
 .momentum-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
   width: 100%;
+  max-width: 320px;
 }
 
 /* ============ ATTACK RESULT DISPLAY ============ */
@@ -1021,7 +1023,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .prompt-success-text {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1046,6 +1048,25 @@ button.hp-max:active { color: var(--blood-bright); }
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--blood);
+}
+
+/* Act 3: TAP TO CONTINUE anchored at bottom, prompt card centers freely */
+#overlay-result.overlay--act3 .result-dismiss {
+  position: absolute;
+  bottom: 88px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+/* Action state: ROLL DAMAGE / ROLL AGAIN anchored to thumb zone */
+#overlay-result.overlay--action .roll-damage-btn,
+#overlay-result.overlay--action .roll-again-btn {
+  position: absolute;
+  bottom: 88px;
+  left: 24px;
+  right: 24px;
+  width: auto;
 }
 
 /* ============ EXPEDITION SECTION ============ */
