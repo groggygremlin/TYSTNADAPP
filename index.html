@@ -156,19 +156,13 @@
 
     <!-- COMBAT TAB -->
     <div id="tab-combat" class="tab-panel hidden">
+      <button class="def-block" id="init-block" aria-label="Edit loadout">
+        <span class="vital-label">Initiative</span>
+        <span class="def-die" id="sheet-init">+0</span>
+        <span class="chip-hint">Tap to edit</span>
+      </button>
       <button id="btn-attack" class="primary-btn">Attack</button>
-      <div class="def-init-row">
-        <button class="def-block" id="def-block" aria-label="Roll Defense">
-          <span class="vital-label">Defense</span>
-          <span class="def-die" id="sheet-def">d8</span>
-          <span class="chip-hint">Tap to roll</span>
-        </button>
-        <button class="def-block" id="init-block" aria-label="Edit loadout">
-          <span class="vital-label">Initiative</span>
-          <span class="def-die" id="sheet-init">+0</span>
-          <span class="chip-hint">Tap to edit</span>
-        </button>
-      </div>
+      <button id="def-block" class="primary-btn">Defend</button>
     </div>
 
     <!-- GEAR TAB -->
@@ -244,6 +238,7 @@
 
   <!-- ============ THREAT OVERLAY (Defense) ============ -->
   <div id="overlay-defense" class="overlay hidden">
+    <p class="atk-section-label">Defense Die</p>
     <div class="stepper" id="def-edit-stepper">
       <button class="step-btn" data-dir="-1" aria-label="Lower Defense die">&minus;</button>
       <span class="step-value" id="def-edit-value">d6</span>

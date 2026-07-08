@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v40";
+const VERSION = "v41";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -133,6 +133,7 @@ let rollLocked = false;
 let pendingConfirmAction = null;
 let attackMomentum = 0;
 let defenseBonus = 0;
+let pendingDefenseDamage = 0;
 let forageRough = false;
 let explosionState = null;
 let hitState = null;
@@ -343,7 +344,6 @@ function renderSheet() {
   renderExpedition();
   renderInventory();
   $("inv-coins-in").value = character.coins > 0 ? character.coins : "";
-  $("sheet-def").textContent = character.defense;
   renderInit();
   const isSorcerer = character.cls === "Sorcerer";
   const sorceryTabBtn = document.querySelector(".sorcery-tab");
@@ -1390,15 +1390,26 @@ function performRollDefense(target) {
         verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
         document.querySelector(".result-dismiss").classList.remove("hidden");
       } else {
-        const damage = Math.max(0, (target - result) + bonus);
+        pendingDefenseDamage = Math.max(0, (target - result) + bonus);
+        overlay.classList.add("overlay--action");
         verdictEl.innerHTML =
           '<div class="verdict-fail">' + SKULL_IMG +
-          '<span class="fail-by">Take ' + damage + ' Damage</span></div>';
+          '<span class="def-damage">Take ' + pendingDefenseDamage + ' Damage</span>' +
+          '<button class="roll-damage-btn def-take-btn" onclick="takeDefenseDamage(this)">Take It</button>' +
+          '</div>';
         if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
     }
   }, 60);
+}
+
+function takeDefenseDamage(btn) {
+  if (btn) btn.disabled = true;
+  adjustHP(-pendingDefenseDamage);
+  $("overlay-result").classList.remove("overlay--action", "overlay--act3");
+  hide($("overlay-result"));
+  if (character.hpCur <= 0) openDeath();
 }
 
 // ---------- Navigation helpers ----------
@@ -1553,7 +1564,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const next = stepDie(character.defense, dir);
     character.defense = next === "d20" ? "d12" : next;
     $("def-edit-value").textContent = character.defense;
-    $("sheet-def").textContent = character.defense;
     save();
   });
 
