@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v34";
+const VERSION = "v35";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1034,7 +1034,9 @@ function performRollCamp(die, target, wearyActive) {
           verdictEl.innerHTML = '<span class="effort-result-label">STABLE</span>';
         }
       } else {
-        verdictEl.innerHTML = SKULL_IMG;
+        verdictEl.innerHTML =
+          '<div class="verdict-fail">' + SKULL_IMG +
+          '<span class="fail-by">EXPOSED</span></div>';
         if (navigator.vibrate) navigator.vibrate(40);
       }
       rollLocked = false;
@@ -1224,6 +1226,11 @@ function performRoll(die, target, context, opts) {
           '<div class="verdict-fail">' + SKULL_IMG_DEATH +
           '<span class="verdict-death">DEATH</span></div>';
         if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
+      } else if (opts.shortfall) {
+        verdictEl.innerHTML =
+          '<div class="verdict-fail">' + SKULL_IMG +
+          '<span class="fail-by">Failed by ' + (target - result) + '</span></div>';
+        if (navigator.vibrate) navigator.vibrate(40);
       } else {
         verdictEl.innerHTML = SKULL_IMG;
         if (navigator.vibrate) navigator.vibrate(40);

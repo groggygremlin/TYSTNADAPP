@@ -801,7 +801,7 @@ button.hp-max:active { color: var(--blood-bright); }
   letter-spacing: 0.28em;
   margin-right: -0.28em;
   text-transform: uppercase;
-  color: var(--blood-bright);
+  color: var(--bone);
 }
 
 .result-dismiss {
