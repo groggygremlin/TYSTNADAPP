@@ -27,6 +27,7 @@
         </button>
         <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
         <button id="btn-import-toggle" class="ghost-btn">Import</button>
+        <button id="btn-join-table" class="ghost-btn">Join a table</button>
       </div>
       <p class="version-note" id="intro-version-note"></p>
     </div>
@@ -237,6 +238,74 @@
           <span class="tab-label">SORCERY</span>
         </button>
       </nav>
+    </div>
+
+  </section>
+
+  <!-- ============ TABLE LINK SCREEN (CAP-07) ============ -->
+  <section id="screen-table" class="screen table-screen hidden">
+
+    <header class="sheet-head">
+      <div class="sheet-head-left">
+        <button id="tl-back" class="back-btn" aria-label="Back to intro">&#8249;</button>
+        <div>
+          <h2>Table Link</h2>
+          <p class="sheet-class" id="tl-status-line">Join your GM's table</p>
+        </div>
+      </div>
+    </header>
+
+    <p id="tl-conn-banner" class="tl-conn-banner hidden"></p>
+
+    <!-- STATE: not linked -->
+    <div id="tl-state-link" class="tl-state hidden">
+      <p class="tl-lead">Link this device to your TYSTNAD account to join a GM's table and receive what he shares. Your solo game never needs an account.</p>
+      <ol class="tl-steps">
+        <li>Open your account on the site and tap Link a device.</li>
+        <li>Copy the one-time link code it shows.</li>
+        <li>Enter that code below.</li>
+      </ol>
+      <a id="tl-open-site" class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Open my account on the site</a>
+      <label class="field">
+        <span class="field-label">Link code</span>
+        <input id="tl-link-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AB3C-9XYZ-K2MN">
+      </label>
+      <label class="field">
+        <span class="field-label">Device name (optional)</span>
+        <input id="tl-device-label" type="text" maxlength="100" autocomplete="off" placeholder="My phone">
+      </label>
+      <button id="tl-link-btn" class="primary-btn slim">Link this device</button>
+      <p class="tl-error hidden" id="tl-link-error"></p>
+    </div>
+
+    <!-- STATE: linked, choosing a table (lobby) -->
+    <div id="tl-state-lobby" class="tl-state hidden">
+      <p class="tl-entitlement" id="tl-entitlement"></p>
+      <div id="tl-buy-prompt" class="tl-buy hidden">
+        <p class="tl-buy-text">You need Table Link to join this table, or ask your GM for a Full House table.</p>
+        <a class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Get Table Link</a>
+      </div>
+      <label class="field">
+        <span class="field-label">Join code</span>
+        <input id="tl-join-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6JC5Q035">
+      </label>
+      <label class="field">
+        <span class="field-label">Display name</span>
+        <input id="tl-display-name" type="text" maxlength="50" autocomplete="off" placeholder="Ari">
+      </label>
+      <button id="tl-join-btn" class="primary-btn slim">Join the table</button>
+      <p class="tl-error hidden" id="tl-join-error"></p>
+      <button id="tl-unlink-btn" class="ghost-btn tl-unlink">Unlink this device</button>
+    </div>
+
+    <!-- STATE: in session -->
+    <div id="tl-state-session" class="tl-state hidden">
+      <div class="tl-session-head">
+        <span class="tl-session-status" id="tl-session-status">Connected</span>
+        <button id="tl-leave-btn" class="ghost-btn tl-leave">Leave table</button>
+      </div>
+      <p class="tl-feed-empty" id="tl-feed-empty">Waiting for your GM to share something.</p>
+      <div id="tl-feed" class="tl-feed"></div>
     </div>
 
   </section>

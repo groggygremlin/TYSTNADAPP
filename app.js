@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v50";
+const VERSION = "v51";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -100,6 +100,11 @@ const CONDITIONS = [
 ];
 
 const STORAGE_KEY = "tystnad-character";
+
+// ---------- Table Link (CAP-07) ----------
+// Single backend base. PROD go-live: swap to "https://playtystnad.com".
+const BACKEND_BASE = "https://staging.playtystnad.com";
+const TABLELINK_KEY = "tystnad-tablelink"; // stores ONLY the device token (the sole secret)
 
 const SKULL_IMG       = '<img class="verdict-skull" src="skull.webp" alt="Failure">';
 const SKULL_IMG_DEATH = '<img class="verdict-skull verdict-skull--death" src="skull.webp" alt="Death">';
@@ -1439,6 +1444,400 @@ function requireAbandon(action) {
   show($("overlay-confirm"));
 }
 
+/* ============================================================
+   Table Link (CAP-07): link a device, join a GM's table, poll,
+   and render pushed content. Fully additive; the solo/offline
+   core above never reads or writes any of this state.
+   ============================================================ */
+
+let tlDevice = null;   // { token, ownsTableLink } or null
+let tlSession = null;  // { sessionId, cursor, pollInterval } or null
+let tlPollTimer = null;
+let tlPolling = false;
+let tlBusy = false;
+
+// ---- Table Link persistence (the device token is the only stored secret) ----
+
+function tlLoad() {
+  try {
+    const raw = localStorage.getItem(TABLELINK_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (!d || typeof d.token !== "string" || !d.token) return null;
+    return { token: d.token, ownsTableLink: !!d.ownsTableLink };
+  } catch (e) {
+    return null;
+  }
+}
+
+function tlSave() {
+  try {
+    if (tlDevice && tlDevice.token) {
+      localStorage.setItem(TABLELINK_KEY, JSON.stringify({
+        token: tlDevice.token,
+        ownsTableLink: !!tlDevice.ownsTableLink
+      }));
+    } else {
+      localStorage.removeItem(TABLELINK_KEY);
+    }
+  } catch (e) { /* storage full or blocked: non-fatal */ }
+}
+
+// ---- Networking (cookieless bearer; one BACKEND_BASE) ----
+
+async function tlApi(path, opts) {
+  opts = opts || {};
+  const method = opts.method || "GET";
+  const auth = opts.auth !== false;
+  const headers = {};
+  if (opts.body) headers["Content-Type"] = "application/json";
+  if (auth && tlDevice) headers["Authorization"] = "Bearer " + tlDevice.token;
+  const res = await fetch(BACKEND_BASE + path, {
+    method,
+    headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { data = null; }
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ---- Small UI helpers ----
+
+function tlSetBanner(text) {
+  const b = $("tl-conn-banner");
+  if (b) { b.textContent = text; show(b); }
+}
+function tlClearBanner() {
+  const b = $("tl-conn-banner");
+  if (b) { hide(b); b.textContent = ""; }
+}
+function tlShowError(id, text) {
+  const e = $(id);
+  if (e) { e.textContent = text; show(e); }
+}
+function tlHideError(id) {
+  const e = $(id);
+  if (e) { hide(e); e.textContent = ""; }
+}
+function tlShowState(name) {
+  ["link", "lobby", "session"].forEach((s) => {
+    const el = $("tl-state-" + s);
+    if (el) (s === name ? show : hide)(el);
+  });
+}
+
+// ---- Screen enter / leave ----
+
+function openTableLink() {
+  hide($("screen-intro"));
+  show($("screen-table"));
+  tlClearBanner();
+  tlHideError("tl-link-error");
+  tlHideError("tl-join-error");
+  hide($("tl-buy-prompt"));
+  if (tlDevice) {
+    tlRenderEntitlement();
+    tlShowState("lobby");
+    tlRefreshStatus();
+  } else {
+    tlShowState("link");
+  }
+}
+
+function closeTableLink() {
+  tlStopPolling();
+  tlSession = null;
+  hide($("screen-table"));
+  renderIntro();
+  show($("screen-intro"));
+}
+
+function tlDropToLink() {
+  tlStopPolling();
+  tlSession = null;
+  tlDevice = null;
+  tlSave();
+  tlShowState("link");
+  tlShowError("tl-link-error", "This device is no longer linked. Link it again.");
+}
+
+// ---- Device status / entitlement ----
+
+async function tlRefreshStatus() {
+  if (!tlDevice) return;
+  try {
+    const r = await tlApi("/api/v1/devices/status", { method: "POST" });
+    if (r.status === 401) { tlDropToLink(); return; }
+    if (r.ok && r.data) {
+      tlDevice.ownsTableLink = !!r.data.ownsTableLink;
+      tlSave();
+      tlRenderEntitlement();
+    }
+    tlClearBanner();
+  } catch (e) {
+    tlSetBanner("You are offline. Connect to join a table.");
+  }
+}
+
+function tlRenderEntitlement() {
+  const el = $("tl-entitlement");
+  if (!el) return;
+  if (tlDevice && tlDevice.ownsTableLink) {
+    el.textContent = "Device linked. You own Table Link.";
+  } else {
+    el.textContent = "Device linked. Join a Full House GM's table, or get Table Link to host your own party.";
+  }
+}
+
+// ---- Link a device ----
+
+async function tlDoLink() {
+  const codeEl = $("tl-link-code");
+  const labelEl = $("tl-device-label");
+  const code = codeEl.value.trim();
+  const label = labelEl.value.trim();
+  tlHideError("tl-link-error");
+  if (!code) { tlShowError("tl-link-error", "Enter the link code from your account page."); return; }
+  if (tlBusy) return;
+  tlBusy = true;
+  const btn = $("tl-link-btn");
+  btn.disabled = true;
+  try {
+    const body = { linkCode: code };
+    if (label) body.deviceLabel = label.slice(0, 100);
+    const r = await tlApi("/api/v1/devices/link", { method: "POST", body, auth: false });
+    if (r.ok && r.data && r.data.deviceToken) {
+      tlDevice = { token: r.data.deviceToken, ownsTableLink: !!r.data.ownsTableLink };
+      tlSave();
+      codeEl.value = "";
+      labelEl.value = "";
+      tlRenderEntitlement();
+      tlShowState("lobby");
+      tlClearBanner();
+    } else {
+      tlShowError("tl-link-error", tlLinkErrorText(r));
+    }
+  } catch (e) {
+    tlShowError("tl-link-error", "Could not reach the server. Check your connection and try again.");
+  } finally {
+    tlBusy = false;
+    btn.disabled = false;
+  }
+}
+
+function tlLinkErrorText(r) {
+  const code = r.data && r.data.error;
+  if (r.status === 429 || code === "rate_limited") return "Too many attempts. Wait a while, then try again.";
+  if (code === "link_code_required") return "Enter the link code from your account page.";
+  if (code === "invalid_or_expired_code") return "That link code is unknown or has expired. Generate a fresh one on the site.";
+  return "That did not work. Check the code and try again.";
+}
+
+// ---- Join a table ----
+
+async function tlDoJoin() {
+  const codeEl = $("tl-join-code");
+  const nameEl = $("tl-display-name");
+  const code = codeEl.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const name = nameEl.value.trim();
+  tlHideError("tl-join-error");
+  hide($("tl-buy-prompt"));
+  if (!code) { tlShowError("tl-join-error", "Enter the join code your GM read out."); return; }
+  if (!name) { tlShowError("tl-join-error", "Enter a display name for the table."); return; }
+  if (tlBusy) return;
+  tlBusy = true;
+  const btn = $("tl-join-btn");
+  btn.disabled = true;
+  try {
+    const r = await tlApi("/api/v1/table-sessions/join", {
+      method: "POST",
+      body: { joinCode: code, displayName: name.slice(0, 50) }
+    });
+    if (r.status === 401) { tlDropToLink(); return; }
+    if (r.ok && r.data && r.data.sessionId) {
+      tlSession = { sessionId: r.data.sessionId, cursor: 0, pollInterval: 2 };
+      tlEnterSession();
+    } else if (r.status === 403) {
+      show($("tl-buy-prompt"));
+      tlShowError("tl-join-error", "You need Table Link to join this table.");
+    } else {
+      tlShowError("tl-join-error", tlJoinErrorText(r));
+    }
+  } catch (e) {
+    tlShowError("tl-join-error", "Could not reach the server. Check your connection and try again.");
+  } finally {
+    tlBusy = false;
+    btn.disabled = false;
+  }
+}
+
+function tlJoinErrorText(r) {
+  const code = r.data && r.data.error;
+  if (r.status === 429 || code === "rate_limited") return "Too many attempts. Wait a moment, then try again.";
+  if (code === "session_full") return "That table is full. It seats six. Ask your GM.";
+  if (code === "join_code_required") return "Enter the join code your GM read out.";
+  if (code === "invalid_or_expired_code") return "That join code is unknown or has expired. Check it with your GM.";
+  return "Could not join. Check the code and try again.";
+}
+
+// ---- In session ----
+
+function tlEnterSession() {
+  tlHideError("tl-join-error");
+  hide($("tl-buy-prompt"));
+  $("tl-feed").textContent = "";
+  show($("tl-feed-empty"));
+  $("tl-session-status").textContent = "Connected";
+  $("tl-leave-btn").textContent = "Leave table";
+  tlShowState("session");
+  tlStartPolling();
+}
+
+function tlLeaveSession() {
+  tlStopPolling();
+  tlSession = null;
+  tlRenderEntitlement();
+  tlShowState("lobby");
+}
+
+function tlEndSession(reason) {
+  tlStopPolling();
+  const statusEl = $("tl-session-status");
+  if (reason === 404 || reason === "closed") statusEl.textContent = "The table has closed.";
+  else if (reason === 403) statusEl.textContent = "The GM removed you from this table.";
+  else statusEl.textContent = "Disconnected from the table.";
+  $("tl-leave-btn").textContent = "Back to lobby";
+}
+
+function tlStartPolling() {
+  tlStopPolling();
+  tlPolling = true;
+  tlPoll();
+}
+
+function tlStopPolling() {
+  tlPolling = false;
+  if (tlPollTimer) { clearTimeout(tlPollTimer); tlPollTimer = null; }
+}
+
+function tlScheduleNextPoll() {
+  if (!tlPolling) return;
+  const secs = (tlSession && tlSession.pollInterval) || 2;
+  tlPollTimer = setTimeout(tlPoll, Math.max(1, secs) * 1000);
+}
+
+async function tlPoll() {
+  if (!tlPolling || !tlSession) return;
+  let reschedule = true;
+  try {
+    const r = await tlApi("/api/v1/table-sessions/" + encodeURIComponent(tlSession.sessionId) +
+                          "/messages?after=" + tlSession.cursor);
+    if (r.status === 401) { reschedule = false; tlStopPolling(); tlDropToLink(); return; }
+    if (r.status === 404) { reschedule = false; tlEndSession(404); return; }
+    if (r.status === 403) { reschedule = false; tlEndSession(403); return; }
+    if (r.status === 429) {
+      tlSetBanner("Slow down. Reconnecting shortly.");
+      tlSession.pollInterval = Math.min(15, (tlSession.pollInterval || 2) * 2);
+      return;
+    }
+    if (r.ok && r.data) {
+      tlClearBanner();
+      const sess = r.data.session;
+      if (typeof r.data.pollIntervalSeconds === "number" && r.data.pollIntervalSeconds > 0) {
+        tlSession.pollInterval = r.data.pollIntervalSeconds;
+      }
+      tlRenderMessages(r.data.messages);
+      if (typeof r.data.nextCursor === "number") tlSession.cursor = r.data.nextCursor;
+      if (sess && (sess.status === "closed" || sess.status === "expired")) {
+        reschedule = false;
+        tlEndSession("closed");
+        return;
+      }
+      $("tl-session-status").textContent = "Connected";
+    }
+  } catch (e) {
+    tlSetBanner("Reconnecting.");
+  } finally {
+    if (reschedule) tlScheduleNextPoll();
+  }
+}
+
+// ---- Render pushed messages (textContent only; newest on top) ----
+
+function tlRenderMessages(messages) {
+  if (!Array.isArray(messages) || !messages.length) return;
+  hide($("tl-feed-empty"));
+  const feed = $("tl-feed");
+  messages.forEach((m) => {
+    const card = tlBuildCard(m);
+    if (card) feed.insertBefore(card, feed.firstChild);
+  });
+}
+
+function tlBuildCard(m) {
+  const p = (m && m.payload) || {};
+  const card = document.createElement("div");
+  card.className = "tl-card tl-card--" + ((m && m.type) || "unknown");
+  if (m && m.type === "secret_text") {
+    const kind = document.createElement("p");
+    kind.className = "tl-card-kind";
+    kind.textContent = "Secret";
+    const body = document.createElement("p");
+    body.className = "tl-card-body";
+    body.textContent = p.text || "";
+    card.appendChild(kind);
+    card.appendChild(body);
+  } else if (m && m.type === "rule") {
+    const title = document.createElement("p");
+    title.className = "tl-card-title";
+    title.textContent = p.title || "Rule";
+    const body = document.createElement("p");
+    body.className = "tl-card-body";
+    body.textContent = p.body || "";
+    card.appendChild(title);
+    card.appendChild(body);
+  } else if (m && m.type === "image") {
+    const img = document.createElement("img");
+    img.className = "tl-card-img";
+    img.alt = p.caption || "Shared image";
+    img.src = BACKEND_BASE + (p.assetUrl || "");
+    card.appendChild(img);
+    if (p.caption) {
+      const cap = document.createElement("p");
+      cap.className = "tl-card-caption";
+      cap.textContent = p.caption;
+      card.appendChild(cap);
+    }
+  } else {
+    return null;
+  }
+  return card;
+}
+
+// ---- Unlink ----
+
+async function tlDoUnlink() {
+  if (!tlDevice || tlBusy) return;
+  tlBusy = true;
+  const btn = $("tl-unlink-btn");
+  btn.disabled = true;
+  try {
+    await tlApi("/api/v1/devices/unlink", { method: "POST" });
+  } catch (e) {
+    // Even if the call fails, clear locally: the token is this device's to drop.
+  }
+  tlStopPolling();
+  tlSession = null;
+  tlDevice = null;
+  tlSave();
+  tlHideError("tl-join-error");
+  hide($("tl-buy-prompt"));
+  tlShowState("link");
+  tlBusy = false;
+  btn.disabled = false;
+}
+
 // ---------- Wiring ----------
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1530,6 +1929,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!btn) return;
     switchTab(btn.dataset.tab);
   });
+
+  // Table Link (CAP-07)
+  $("btn-join-table").addEventListener("click", openTableLink);
+  $("tl-back").addEventListener("click", closeTableLink);
+  $("tl-link-btn").addEventListener("click", tlDoLink);
+  $("tl-join-btn").addEventListener("click", tlDoJoin);
+  $("tl-unlink-btn").addEventListener("click", tlDoUnlink);
+  $("tl-leave-btn").addEventListener("click", tlLeaveSession);
 
   // Confirm overlay (abandon)
   $("confirm-no").addEventListener("click", () => {
@@ -1724,6 +2131,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Boot
   character = load();
+  tlDevice = tlLoad();
   renderIntro();
   show($("screen-intro"));
 
