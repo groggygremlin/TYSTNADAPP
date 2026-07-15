@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v53";
+const VERSION = "v54";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -148,6 +148,8 @@ function save() {
   } catch (e) {
     console.error("Save failed:", e);
   }
+  // CAP-08: while joined to a table, report the character snapshot (debounced).
+  if (typeof tlSession !== "undefined" && tlSession) tlScheduleReport();
 }
 
 function load() {
@@ -1502,6 +1504,43 @@ async function tlApi(path, opts) {
   return { ok: res.ok, status: res.status, data };
 }
 
+// ---- Character reporting (CAP-08: Party HUD snapshot) ----
+// One read-only snapshot POSTed to the session on join and on any vital change
+// (debounced). The GM only views it; the app stays authoritative for the character.
+
+let tlReportTimer = null;
+
+function tlBuildSnapshot() {
+  const points = totalLP();
+  return {
+    name: character.name,
+    class: character.cls,
+    hp: { current: character.hpCur, max: character.hpMax },
+    conditions: CONDITIONS.filter((c) => character.conditions[c.id]).map((c) => c.name),
+    // roles[] is multi-select in-app; the HUD wants one. Send the first assigned (Tomas ruling), null if none.
+    role: (character.roles && character.roles.length) ? character.roles[0] : null,
+    initiativeMod: initContribution(),
+    load: { points: points, burdened: lpState(points) !== "unburdened" }
+  };
+}
+
+async function tlReportCharacter() {
+  if (!tlSession || !tlPolling || !tlDevice) return;
+  const sid = tlSession.sessionId;
+  try {
+    await tlApi("/api/v1/table-sessions/" + encodeURIComponent(sid) + "/character", {
+      method: "POST",
+      body: tlBuildSnapshot()
+    });
+    // Best-effort: any failure (403 after removal, offline) is non-fatal; the next change retries.
+  } catch (e) { /* swallow */ }
+}
+
+function tlScheduleReport() {
+  if (tlReportTimer) clearTimeout(tlReportTimer);
+  tlReportTimer = setTimeout(tlReportCharacter, 500);
+}
+
 // ---- Small UI helpers ----
 
 function tlSetBanner(text) {
@@ -1658,6 +1697,7 @@ async function tlDoJoin() {
     if (r.ok && r.data && r.data.sessionId) {
       tlSession = { sessionId: r.data.sessionId, cursor: 0, pollInterval: 2 };
       tlEnterSession();
+      tlReportCharacter(); // CAP-08: fill the GM's box immediately with the current snapshot
     } else if (r.status === 403) {
       show($("tl-buy-prompt"));
       tlShowError("tl-join-error", "You need Table Link to join this table.");
