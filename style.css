@@ -1518,9 +1518,52 @@ button.hp-max:active { color: var(--blood-bright); }
 }
 .tl-leave { flex-shrink: 0; }
 
-.tl-feed-empty { color: var(--ash); text-align: center; line-height: 1.5; margin: 24px 0; }
-
-.tl-feed { display: flex; flex-direction: column; gap: 14px; }
+/* Fire-and-forget push pop-up: overlays the whole app above the nav */
+.tl-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(12, 10, 11, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: tl-popup-in 0.18s ease-out;
+}
+@keyframes tl-popup-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .tl-popup { animation: none; }
+}
+.tl-popup-inner {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100% - 48px);
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--blood);
+  border-radius: 8px;
+  padding: 48px 20px 20px;
+}
+.tl-popup-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--blood-bright);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tl-popup-close:active { color: var(--bone); }
+/* The card renderers are reused inside the pop-up; the pop-up supplies the frame. */
+.tl-popup-body .tl-card { border: none; background: transparent; padding: 0; }
 
 .tl-card {
   border: 1px solid var(--line);

@@ -301,14 +301,20 @@
     <!-- STATE: in session -->
     <div id="tl-state-session" class="tl-state hidden">
       <div class="tl-session-head">
-        <span class="tl-session-status" id="tl-session-status">Connected</span>
+        <span class="tl-session-status" id="tl-session-status">At the table</span>
         <button id="tl-leave-btn" class="ghost-btn tl-leave">Leave table</button>
       </div>
-      <p class="tl-feed-empty" id="tl-feed-empty">Waiting for your GM to share something.</p>
-      <div id="tl-feed" class="tl-feed"></div>
     </div>
 
   </section>
+
+  <!-- Table Link push pop-up: each GM share appears here, dismissed with the × (fire-and-forget) -->
+  <div id="tl-popup" class="tl-popup hidden" role="dialog" aria-modal="true" aria-label="Shared by your GM">
+    <div class="tl-popup-inner">
+      <button id="tl-popup-close" class="tl-popup-close" aria-label="Dismiss">×</button>
+      <div id="tl-popup-body" class="tl-popup-body"></div>
+    </div>
+  </div>
 
   <!-- ============ DIFFICULTY OVERLAY (skills) ============ -->
   <div id="overlay-difficulty" class="overlay hidden">

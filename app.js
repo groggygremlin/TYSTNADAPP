@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v54";
+const VERSION = "v55";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1457,6 +1457,9 @@ let tlSession = null;  // { sessionId, cursor, pollInterval } or null
 let tlPollTimer = null;
 let tlPolling = false;
 let tlBusy = false;
+let tlQueue = [];            // pending pushed messages, shown one pop-up at a time (in-memory)
+let tlPopupOpen = false;     // a pop-up is currently displayed
+let tlPopupLastFocus = null; // element to restore focus to when the queue empties
 
 // ---- Table Link persistence (the device token is the only stored secret) ----
 
@@ -1726,9 +1729,8 @@ function tlJoinErrorText(r) {
 function tlEnterSession() {
   tlHideError("tl-join-error");
   hide($("tl-buy-prompt"));
-  $("tl-feed").textContent = "";
-  show($("tl-feed-empty"));
-  $("tl-session-status").textContent = "Connected";
+  tlClearPopups();
+  $("tl-session-status").textContent = "At the table";
   $("tl-leave-btn").textContent = "Leave table";
   tlShowState("session");
   tlStartPolling();
@@ -1736,6 +1738,7 @@ function tlEnterSession() {
 
 function tlLeaveSession() {
   tlStopPolling();
+  tlClearPopups();
   tlSession = null;
   tlClearBanner();
   tlRenderEntitlement();
@@ -1744,6 +1747,7 @@ function tlLeaveSession() {
 
 function tlEndSession(reason) {
   tlStopPolling();
+  tlClearPopups();
   const statusEl = $("tl-session-status");
   if (reason === 404 || reason === "closed") statusEl.textContent = "The table has closed.";
   else if (reason === 403) statusEl.textContent = "The GM removed you from this table.";
@@ -1809,16 +1813,67 @@ async function tlPoll() {
   }
 }
 
-// ---- Render pushed messages (textContent only; newest on top) ----
+// ---- Pushed messages: fire-and-forget pop-ups (textContent only; one at a time) ----
+//
+// The GM pushes and moves on. Each newly-polled message becomes a dismissible pop-up.
+// New arrivals queue behind the current one; dismissing the × reveals the next, so a
+// burst of shares never buries the phone in stacked modals. The server's after=cursor
+// already delivers each message once, and the cursor lives only in memory, so a dismissed
+// pop-up cannot reappear and no dismissed-id set is needed.
 
 function tlRenderMessages(messages) {
   if (!Array.isArray(messages) || !messages.length) return;
-  hide($("tl-feed-empty"));
-  const feed = $("tl-feed");
   messages.forEach((m) => {
-    const card = tlBuildCard(m);
-    if (card) feed.insertBefore(card, feed.firstChild);
+    if (m && (m.type === "secret_text" || m.type === "rule" || m.type === "image")) {
+      tlQueue.push(m);
+    }
   });
+  if (!tlPopupOpen) tlShowNextPopup();
+}
+
+function tlShowNextPopup() {
+  const m = tlQueue.shift();
+  if (!m) { tlHidePopup(); return; }
+  const card = tlBuildCard(m);
+  if (!card) { tlShowNextPopup(); return; }   // unknown type: skip, try the next
+  const body = $("tl-popup-body");
+  body.textContent = "";
+  body.appendChild(card);
+  if (!tlPopupOpen) {
+    tlPopupLastFocus = document.activeElement;
+    document.addEventListener("keydown", tlPopupKeydown, true);
+    show($("tl-popup"));
+    tlPopupOpen = true;
+  }
+  $("tl-popup-close").focus();
+}
+
+function tlDismissPopup() {
+  if (!tlPopupOpen) return;
+  if (tlQueue.length) tlShowNextPopup();   // reveal the next queued share
+  else tlHidePopup();
+}
+
+function tlHidePopup() {
+  hide($("tl-popup"));
+  $("tl-popup-body").textContent = "";
+  tlPopupOpen = false;
+  document.removeEventListener("keydown", tlPopupKeydown, true);
+  if (tlPopupLastFocus && typeof tlPopupLastFocus.focus === "function") tlPopupLastFocus.focus();
+  tlPopupLastFocus = null;
+}
+
+// Leaving, being removed, or the table closing clears everything pending and on screen.
+function tlClearPopups() {
+  tlQueue = [];
+  tlHidePopup();
+}
+
+// Dialog keyboard contract: Esc dismisses; Tab is trapped on the sole focusable control (×).
+function tlPopupKeydown(e) {
+  if (!tlPopupOpen) return;
+  if (e.key === "Escape") { e.preventDefault(); tlDismissPopup(); return; }
+  if (e.key === "Tab") { e.preventDefault(); $("tl-popup-close").focus(); }
 }
 
 function tlBuildCard(m) {
@@ -1847,6 +1902,9 @@ function tlBuildCard(m) {
     const img = document.createElement("img");
     img.className = "tl-card-img";
     img.alt = p.caption || "Shared image";
+    // A revoked asset 404s: dismiss this pop-up quietly, no error state shown to the player.
+    // Guard on isConnected so a late error from an already-dismissed image cannot close a later one.
+    img.onerror = () => { if (img.isConnected) tlDismissPopup(); };
     img.src = BACKEND_BASE + (p.assetUrl || "");
     card.appendChild(img);
     if (p.caption) {
@@ -1983,6 +2041,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("tl-join-btn").addEventListener("click", tlDoJoin);
   $("tl-unlink-btn").addEventListener("click", tlDoUnlink);
   $("tl-leave-btn").addEventListener("click", tlLeaveSession);
+  $("tl-popup-close").addEventListener("click", tlDismissPopup);
 
   // Confirm overlay (abandon)
   $("confirm-no").addEventListener("click", () => {
