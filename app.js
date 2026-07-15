@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v52";
+const VERSION = "v53";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -102,8 +102,8 @@ const CONDITIONS = [
 const STORAGE_KEY = "tystnad-character";
 
 // ---------- Table Link (CAP-07) ----------
-// Single backend base. v53 go-live: swap to "https://playtystnad.com".
-const BACKEND_BASE = "https://staging.playtystnad.com";
+// Single backend base (production). Dev/testing: swap to "https://staging.playtystnad.com".
+const BACKEND_BASE = "https://playtystnad.com";
 const TABLELINK_KEY = "tystnad-tablelink"; // stores ONLY the device token (the sole secret)
 
 const SKULL_IMG       = '<img class="verdict-skull" src="skull.webp" alt="Failure">';
