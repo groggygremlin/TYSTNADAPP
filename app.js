@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v51";
+const VERSION = "v52";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -102,7 +102,7 @@ const CONDITIONS = [
 const STORAGE_KEY = "tystnad-character";
 
 // ---------- Table Link (CAP-07) ----------
-// Single backend base. PROD go-live: swap to "https://playtystnad.com".
+// Single backend base. v53 go-live: swap to "https://playtystnad.com".
 const BACKEND_BASE = "https://staging.playtystnad.com";
 const TABLELINK_KEY = "tystnad-tablelink"; // stores ONLY the device token (the sole secret)
 
@@ -1697,6 +1697,7 @@ function tlEnterSession() {
 function tlLeaveSession() {
   tlStopPolling();
   tlSession = null;
+  tlClearBanner();
   tlRenderEntitlement();
   tlShowState("lobby");
 }
@@ -1729,10 +1730,15 @@ function tlScheduleNextPoll() {
 
 async function tlPoll() {
   if (!tlPolling || !tlSession) return;
+  const sid = tlSession.sessionId;
   let reschedule = true;
   try {
-    const r = await tlApi("/api/v1/table-sessions/" + encodeURIComponent(tlSession.sessionId) +
+    const r = await tlApi("/api/v1/table-sessions/" + encodeURIComponent(sid) +
                           "/messages?after=" + tlSession.cursor);
+    // The player may have left, unlinked, or joined a different session while this
+    // request was in flight. Drop the stale response so it cannot leak a banner into
+    // the lobby or contaminate a new session's feed/cursor.
+    if (!tlPolling || !tlSession || tlSession.sessionId !== sid) { reschedule = false; return; }
     if (r.status === 401) { reschedule = false; tlStopPolling(); tlDropToLink(); return; }
     if (r.status === 404) { reschedule = false; tlEndSession(404); return; }
     if (r.status === 403) { reschedule = false; tlEndSession(403); return; }
