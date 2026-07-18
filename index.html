@@ -101,6 +101,21 @@
       <p class="field-label">Conditions</p>
       <div class="cond-grid" id="condition-chips"></div>
       <div id="condition-effects" class="cond-effects hidden"></div>
+
+      <div class="edges-section">
+        <div class="level-row">
+          <p class="field-label">Level</p>
+          <div class="stepper">
+            <button class="step-btn" id="level-minus" aria-label="Lower level">&minus;</button>
+            <span class="step-value" id="level-value">1</span>
+            <button class="step-btn" id="level-plus" aria-label="Raise level">+</button>
+          </div>
+        </div>
+        <p class="field-label">Edges</p>
+        <button id="btn-roll-edge" class="primary-btn slim hidden">Roll an Edge</button>
+        <p class="edges-empty" id="edges-empty">Edges are gained at levels 5, 7, 8, 10, and 12.</p>
+        <div id="edges-list" class="edges-list"></div>
+      </div>
     </div>
 
     <!-- EXPEDITION TAB -->
@@ -169,14 +184,6 @@
 
     <!-- SORCERY TAB -->
     <div id="tab-sorcery" class="tab-panel hidden">
-      <div class="sorcery-level-row">
-        <span class="field-label">Level</span>
-        <div class="stepper">
-          <button class="step-btn" id="level-minus" aria-label="Lower level">&minus;</button>
-          <span class="step-value" id="level-value">1</span>
-          <button class="step-btn" id="level-plus" aria-label="Raise level">+</button>
-        </div>
-      </div>
       <div id="spell-list-sorcery"></div>
     </div>
 
@@ -386,6 +393,15 @@
     <p class="cast-warning hidden" id="spell-cast-warning"></p>
     <button id="spell-cast-btn" class="primary-btn slim">Cast</button>
     <button id="spell-cancel-btn" class="ghost-btn">Cancel</button>
+  </div>
+
+  <!-- ============ EDGE REVEAL OVERLAY ============ -->
+  <div id="overlay-edge" class="overlay hidden">
+    <p class="edge-reveal-kicker">The frontier has taught you</p>
+    <p class="overlay-skill" id="edge-reveal-name">Edge</p>
+    <p id="edge-reveal-desc" class="spell-desc"></p>
+    <p id="edge-reveal-bonus" class="edge-reveal-bonus hidden"></p>
+    <button id="edge-reveal-done" class="primary-btn slim">Done</button>
   </div>
 
   <!-- ============ DEATH ROLL OVERLAY ============ -->

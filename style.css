@@ -1521,6 +1521,50 @@ button.hp-max:active { color: var(--blood-bright); }
   padding-bottom: 16px;
 }
 
+/* ============ EDGES (advancement, v62) ============ */
+.edges-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.level-row { display: flex; align-items: center; gap: 16px; }
+.level-row .field-label { margin: 0; }
+#btn-roll-edge { align-self: flex-start; }
+.edges-empty { color: var(--ash); font-size: 0.82rem; line-height: 1.4; margin: 0; }
+.edges-list { display: flex; flex-direction: column; gap: 10px; }
+.edge-row {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.edge-name {
+  color: var(--blood-bright);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.edge-desc { color: var(--bone); font-size: 0.9rem; line-height: 1.45; margin: 0; }
+
+.edge-reveal-kicker {
+  color: var(--ash);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0;
+  text-align: center;
+}
+.edge-reveal-bonus { color: var(--bone); font-size: 1rem; text-align: center; margin: 0; }
+
 #level-value {
   font-family: var(--font-display);
   font-size: 1.4rem;

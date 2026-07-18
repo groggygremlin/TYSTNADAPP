@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v61";
+const VERSION = "v62";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -34,6 +34,35 @@ const IDENTITY_QS = [
   { key: "line",  q: "What line will you not cross, even to secure the frontier?" },
   { key: "kin",   q: "Who in Haven would miss you most?" }
 ];
+
+// Edges (PB v2.5 p.13): gained at levels 5, 7, 8, 10, 12; roll d20, reroll duplicates.
+// id = the d20 number. `auto` marks the ones the app applies to its own math (Heavy Hitter,
+// Vigilant, Armor Trained, Agile, and Hardened's one-time HP roll); the rest are display-only.
+const EDGE_LEVELS = [5, 7, 8, 10, 12];
+const EDGES = [
+  { id: 1,  name: "Heavy Hitter",     auto: true,  desc: "Any successful weapon attack deals a minimum of 2 damage." },
+  { id: 2,  name: "Iron Constitution", desc: "Your saves against disease are one tier easier." },
+  { id: 3,  name: "Poison-Hardened",   desc: "Your saves against poison are one tier easier." },
+  { id: 4,  name: "Vigilant",         auto: true,  desc: "Your Initiative contribution is increased by 1." },
+  { id: 5,  name: "Hardened",         auto: true,  desc: "Roll 1d4 as you gain this Edge and add the result to your maximum HP permanently." },
+  { id: 6,  name: "Samaritan",         desc: "Your First Aid heals 1d4+1 HP instead of 1d4." },
+  { id: 7,  name: "Cat's Landing",     desc: "Reduce falling damage by 2d6." },
+  { id: 8,  name: "Diplomat",          desc: "Your Presence checks to calm hostility are made at Easy." },
+  { id: 9,  name: "Field Medic",       desc: "Your First Aid takes a Main Action instead of a Full Action." },
+  { id: 10, name: "Unshaken",          desc: "Your saves against fear are one tier easier." },
+  { id: 11, name: "Pack Horse",        desc: "You ignore all Heavy Load penalties at 24 to 27 LP." },
+  { id: 12, name: "Armor Trained",    auto: true,  desc: "Heavy armor does not affect your Initiative contribution." },
+  { id: 13, name: "Nine Lives",        desc: "Once, ever, you may reroll a failed Death roll." },
+  { id: 14, name: "Blind Sight",       desc: "You no longer suffer penalties from the Blinded condition while in melee combat." },
+  { id: 15, name: "Mending Flesh",     desc: "Your Post-Combat Breather recovers 4 HP instead of 3." },
+  { id: 16, name: "Quick Feet",        desc: "Rising from Prone no longer costs a Quick Action." },
+  { id: 17, name: "Weapon Mastery",    desc: "When you use the Double Attack Full Action, the second attack uses your standard Combat die instead of one step lower." },
+  { id: 18, name: "Agile",            auto: true,  desc: "You no longer take +2 damage when unarmored." },
+  { id: 19, name: "Reactive",          desc: "Your Defense die against projectiles is increased by one step, maximum d12." },
+  { id: 20, name: "Precise Shot",      desc: "You no longer suffer range penalties when firing a bow or crossbow." }
+];
+function hasEdge(id) { return Array.isArray(character.edges) && character.edges.includes(id); }
+function edgesOwed() { return EDGE_LEVELS.filter((l) => l <= character.level).length; }
 
 
 const INIT_ARMOR  = { none: 2, light: 1, medium: 0, heavy: -1 };
@@ -260,6 +289,8 @@ function migrate(c) {
   ["drive", "hope", "line", "kin"].forEach((k) => {
     if (typeof c.identity[k] !== "string") c.identity[k] = "";
   });
+  // v62: Edges held (array of Edge ids 1-20)
+  if (!Array.isArray(c.edges)) c.edges = [];
   return c;
 }
 
@@ -566,6 +597,7 @@ function createCharacter() {
     supply: 0,
     level: 1,
     conditions: {},
+    edges: [],
     identity: {
       drive: s.identity.drive.trim(),
       hope: s.identity.hope.trim(),
@@ -607,7 +639,8 @@ function renderSheet() {
   const isSorcerer = character.cls === "Sorcerer";
   const sorceryTabBtn = document.querySelector(".sorcery-tab");
   if (sorceryTabBtn) isSorcerer ? show(sorceryTabBtn) : hide(sorceryTabBtn);
-renderConditions();
+  renderConditions();
+  renderEdges();
 }
 
 function switchTab(tab) {
@@ -812,7 +845,13 @@ function renderExpedition() {
 // ---------- Initiative contribution ----------
 
 function initContribution() {
-  return INIT_ARMOR[character.loadout.armor] + INIT_WEAPON[character.loadout.weapon];
+  let armorInit = INIT_ARMOR[character.loadout.armor];
+  // Armor Trained (Edge 12): heavy armor no longer costs Initiative.
+  if (character.loadout.armor === "heavy" && hasEdge(12)) armorInit = 0;
+  let total = armorInit + INIT_WEAPON[character.loadout.weapon];
+  // Vigilant (Edge 4): +1 Initiative contribution.
+  if (hasEdge(4)) total += 1;
+  return total;
 }
 
 function fmtSigned(n) {
@@ -1241,7 +1280,9 @@ function finalizeExplosionChain(verdictEl) {
   overlay.classList.remove("overlay--action");
   overlay.classList.add("overlay--act3");
   const { chain, momentum } = explosionState;
-  const total = chain.reduce((a, b) => a + b, 0) + momentum;
+  let total = chain.reduce((a, b) => a + b, 0) + momentum;
+  // Heavy Hitter (Edge 1): a successful weapon attack deals a minimum of 2 damage.
+  if (hasEdge(1)) total = Math.max(total, 2);
   verdictEl.innerHTML =
     '<div class="prompt-card">' +
     '<span class="prompt-success-text">' + randSuccessText() + "</span>" +
@@ -1447,16 +1488,71 @@ function castTier(tier) {
   }
 }
 
-// ---------- Sorcery tab ----------
+// ---------- Advancement: Level + Edges (all classes) ----------
 
 function adjustLevel(delta) {
   character.level = Math.min(Math.max(character.level + delta, 1), 20);
+  renderEdges();
   renderSorceryTab();
   save();
 }
 
-function renderSorceryTab() {
+// The Edges panel lives on HOME so every class can set Level and manage Edges.
+function renderEdges() {
   $("level-value").textContent = character.level;
+  const owed = edgesOwed();
+  const held = character.edges || [];
+  const available = Math.max(0, owed - held.length);
+  const rollBtn = $("btn-roll-edge");
+  if (available > 0) {
+    rollBtn.textContent = available === 1 ? "Roll an Edge" : "Roll an Edge (" + available + " available)";
+    show(rollBtn);
+  } else {
+    hide(rollBtn);
+  }
+  const list = $("edges-list");
+  list.innerHTML = "";
+  hide($("edges-empty"));
+  if (!held.length) { show($("edges-empty")); return; }
+  held.forEach((id) => {
+    const e = EDGES.find((x) => x.id === id);
+    if (!e) return;
+    const row = ce("div", "edge-row");
+    row.appendChild(ce("p", "edge-name", e.name));
+    row.appendChild(ce("p", "edge-desc", e.desc));
+    list.appendChild(row);
+  });
+}
+
+function rollEdge() {
+  const held = character.edges || (character.edges = []);
+  if (held.length >= edgesOwed()) return;              // not owed one
+  const pool = EDGES.map((e) => e.id).filter((id) => !held.includes(id));  // reroll-duplicates == pick from unheld
+  if (!pool.length) return;
+  const id = pool[Math.floor(Math.random() * pool.length)];
+  held.push(id);
+  let bonus = "";
+  if (id === 5) {                                       // Hardened: roll 1d4, raise max HP
+    const roll = Math.floor(Math.random() * 4) + 1;
+    character.hpMax += roll;
+    bonus = "Maximum HP increased by " + roll + ".";
+  }
+  save();
+  renderEdges();
+  renderHP();
+  showEdgeReveal(id, bonus);
+}
+
+function showEdgeReveal(id, bonus) {
+  const e = EDGES.find((x) => x.id === id);
+  $("edge-reveal-name").textContent = e.name;
+  $("edge-reveal-desc").textContent = e.desc;
+  const bonusEl = $("edge-reveal-bonus");
+  if (bonus) { bonusEl.textContent = bonus; show(bonusEl); } else { hide(bonusEl); }
+  show($("overlay-edge"));
+}
+
+function renderSorceryTab() {
   const list = $("spell-list-sorcery");
   list.innerHTML = "";
   const unlockLevel = { 1: 1, 2: 3, 3: 6 };
@@ -1691,7 +1787,8 @@ function performRollDefense(target) {
       verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
       document.querySelector(".result-dismiss").classList.remove("hidden");
     } else {
-      const noArmor = character.loadout.armor === "none" ? 2 : 0;
+      // Agile (Edge 18) removes the +2 unarmored penalty.
+      const noArmor = (character.loadout.armor === "none" && !hasEdge(18)) ? 2 : 0;
       pendingDefenseDamage = Math.max(0, (target - result) + bonus + noArmor);
       overlay.classList.add("overlay--action");
       verdictEl.innerHTML =
@@ -2504,9 +2601,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("attack-cancel").addEventListener("click", () => hide($("overlay-attack")));
 
-  // Sorcery tab
+  // Advancement: Level + Edges (HOME)
   $("level-minus").addEventListener("click", () => adjustLevel(-1));
   $("level-plus").addEventListener("click", () => adjustLevel(1));
+  $("btn-roll-edge").addEventListener("click", rollEdge);
+  $("edge-reveal-done").addEventListener("click", () => hide($("overlay-edge")));
   $("spell-list-sorcery").addEventListener("click", (e) => {
     const btn = e.target.closest(".spell-row");
     if (!btn || btn.disabled) return;
