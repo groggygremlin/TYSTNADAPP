@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v58";
+const VERSION = "v59";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -42,6 +42,68 @@ const CAST_TIERS = {
 };
 
 const EXPEDITION_ROLES = ["Pathfinder", "Scout", "Quartermaster"];
+
+// Booklet equipment list (PB v2.5 p.14): name + Load Points only, for the inventory
+// picker. Armor uses its WORN LP (the common case); the player edits the LP for a
+// carried set. "Supply" is omitted here (it has its own Supply counter). Ruled into the
+// public app by Tomas, same as the SPELLS list (v27 ruling).
+const GEAR_ITEMS = [
+  // Weapons
+  { name: "Dagger", lp: 1 },
+  { name: "Shortsword", lp: 2 },
+  { name: "Hand Axe", lp: 2 },
+  { name: "Club", lp: 2 },
+  { name: "Staff", lp: 2 },
+  { name: "Throwing Axe", lp: 3 },
+  { name: "Longsword", lp: 3 },
+  { name: "Battleaxe", lp: 3 },
+  { name: "Mace", lp: 3 },
+  { name: "Spear", lp: 3 },
+  { name: "Shortbow", lp: 3 },
+  { name: "Crossbow", lp: 4 },
+  { name: "Greatsword", lp: 5 },
+  { name: "Greataxe", lp: 5 },
+  { name: "Warhammer", lp: 5 },
+  { name: "Halberd", lp: 5 },
+  { name: "Longbow", lp: 4 },
+  // Ammunition
+  { name: "Arrow Bundle", lp: 2 },
+  { name: "Bolt Bundle", lp: 2 },
+  // Armor (worn LP)
+  { name: "Leather Armor", lp: 2 },
+  { name: "Padded Armor", lp: 2 },
+  { name: "Chainmail", lp: 4 },
+  { name: "Scale Armor", lp: 4 },
+  { name: "Studded Leather", lp: 4 },
+  { name: "Plate Armor", lp: 6 },
+  { name: "Half-Plate", lp: 6 },
+  { name: "Banded Mail", lp: 6 },
+  { name: "Shield", lp: 2 },
+  // Adventuring gear
+  { name: "Rope (50 ft)", lp: 4 },
+  { name: "Torch (bundle of 5)", lp: 2 },
+  { name: "Lantern", lp: 2 },
+  { name: "Oil Flask", lp: 1 },
+  { name: "Bedroll", lp: 3 },
+  { name: "Bandages (5 uses)", lp: 1 },
+  { name: "Climbing Kit", lp: 4 },
+  { name: "Lockpicks", lp: 1 },
+  { name: "Tent (2-person)", lp: 5 },
+  { name: "Backpack", lp: 1 },
+  { name: "Healer's Kit", lp: 3 },
+  { name: "Grappling Hook", lp: 2 },
+  { name: "Crowbar", lp: 3 },
+  { name: "Chalk (10 pieces)", lp: 1 },
+  { name: "Iron Spikes (bundle of 10)", lp: 2 },
+  // Miscellaneous
+  { name: "Tinderbox", lp: 1 },
+  { name: "Steel Mirror", lp: 1 },
+  { name: "Ink and Quill", lp: 1 },
+  { name: "Parchment (10 sheets)", lp: 1 },
+  { name: "Blank Map", lp: 1 },
+  { name: "Fishing Tackle", lp: 2 },
+  { name: "Manacles", lp: 3 }
+];
 
 const SPELLS = [
   { id: "soul-spark",         tier: 1, name: "Soul Spark",         desc: "A creature you can see within 30 feet takes 1d6 damage. At Sorcerer level 3 and beyond, this increases to 1d8." },
@@ -667,8 +729,49 @@ function addItem() {
   character.items.push({ name: name, lp: Math.min(lp, 30) });
   $("inv-name").value = "";
   $("inv-lp-in").value = "";
+  hideGearSuggest();
   renderInventory();
   save();
+}
+
+// ---- Inventory item picker: a scrollable booklet-item dropdown over the Item field.
+// The field stays free-text (manual entry still works); picking an item fills its name
+// and auto-fills the LP. Filtered live by what is typed. ----
+
+function renderGearSuggest(filter) {
+  const panel = $("inv-suggest");
+  const q = (filter || "").trim().toLowerCase();
+  const matches = q ? GEAR_ITEMS.filter((it) => it.name.toLowerCase().includes(q)) : GEAR_ITEMS;
+  panel.textContent = "";
+  if (!matches.length) { hideGearSuggest(); return; }
+  matches.forEach((it) => {
+    const row = document.createElement("div");
+    row.className = "inv-suggest-item";
+    row.setAttribute("role", "option");
+    const nm = document.createElement("span");
+    nm.className = "inv-suggest-name";
+    nm.textContent = it.name;
+    const lp = document.createElement("span");
+    lp.className = "inv-suggest-lp";
+    lp.textContent = it.lp + " LP";
+    row.appendChild(nm);
+    row.appendChild(lp);
+    // mousedown (not click) so the pick lands before the input's blur closes the panel.
+    row.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      $("inv-name").value = it.name;
+      $("inv-lp-in").value = it.lp;
+      hideGearSuggest();
+    });
+    panel.appendChild(row);
+  });
+  show(panel);
+  $("inv-name").setAttribute("aria-expanded", "true");
+}
+
+function hideGearSuggest() {
+  hide($("inv-suggest"));
+  $("inv-name").setAttribute("aria-expanded", "false");
 }
 
 function setCoins(raw) {
@@ -2139,6 +2242,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Inventory
   $("inv-add-btn").addEventListener("click", addItem);
+  // Item picker dropdown: open on focus, filter on input, close on blur/Escape.
+  $("inv-name").addEventListener("focus", (e) => renderGearSuggest(e.target.value));
+  $("inv-name").addEventListener("input", (e) => renderGearSuggest(e.target.value));
+  $("inv-name").addEventListener("blur", () => hideGearSuggest());
+  $("inv-name").addEventListener("keydown", (e) => { if (e.key === "Escape") hideGearSuggest(); });
   $("inv-coins-in").addEventListener("input", (e) => setCoins(e.target.value));
 
   // Expedition roles

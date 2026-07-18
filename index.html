@@ -187,10 +187,12 @@
         </div>
         <div id="inv-list"></div>
         <div class="inv-add">
-          <input id="inv-name" type="text" maxlength="24" autocomplete="off" placeholder="Item">
+          <input id="inv-name" type="text" maxlength="30" autocomplete="off" placeholder="Item"
+                 role="combobox" aria-expanded="false" aria-controls="inv-suggest" aria-autocomplete="list">
           <input id="inv-lp-in" type="number" inputmode="numeric" min="0" max="30" placeholder="LP">
           <button id="inv-add-btn" aria-label="Add item">+</button>
         </div>
+        <div id="inv-suggest" class="inv-suggest hidden" role="listbox" aria-label="Booklet items"></div>
         <div class="inv-coins">
           <span class="inv-coins-label">Copper (CP)</span>
           <input id="inv-coins-in" type="number" inputmode="numeric" min="0" placeholder="0">

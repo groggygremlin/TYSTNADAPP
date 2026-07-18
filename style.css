@@ -597,6 +597,36 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .inv-add { display: flex; gap: 8px; }
 
+/* In-flow list (expands the card downward). Absolute positioning would be clipped by
+   the .inv-section chamfer clip-path, so the picker pushes the coins row down instead. */
+.inv-suggest {
+  margin-top: 6px;
+  max-height: 236px;
+  overflow-y: auto;
+  background: var(--panel-hi);
+  border: 1px solid var(--blood);
+  border-radius: 6px;
+}
+.inv-suggest-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+}
+.inv-suggest-item:last-child { border-bottom: none; }
+.inv-suggest-item:active { background: var(--panel-hi); }
+.inv-suggest-name { color: var(--bone); font-size: 0.9rem; }
+.inv-suggest-lp {
+  color: var(--bone);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
 .inv-add input[type="text"] { flex: 1; padding: 10px 12px; font-size: 1rem; }
 
 .inv-add input[type="number"] { width: 70px; padding: 10px 8px; font-size: 1rem; text-align: center; }
