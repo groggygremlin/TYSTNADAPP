@@ -1579,6 +1579,17 @@ button.hp-max:active { color: var(--blood-bright); }
 .ability-locked .ability-name { color: var(--ash); }
 .ability-locked .ability-desc { color: var(--ash); font-style: italic; }
 
+/* Identity panel (v65): read-only display of the narrative answers */
+.identity-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.identity-list { display: flex; flex-direction: column; gap: 12px; }
+.identity-qa { display: flex; flex-direction: column; gap: 3px; }
+.identity-q { color: var(--ash); font-size: 0.82rem; line-height: 1.35; margin: 0; }
+.identity-a { color: var(--bone); font-size: 0.95rem; line-height: 1.45; margin: 0; }
+
 .edge-reveal-kicker {
   color: var(--ash);
   font-size: 0.75rem;

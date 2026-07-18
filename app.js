@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v64";
+const VERSION = "v65";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -671,6 +671,7 @@ function renderSheet() {
   renderConditions();
   renderAbilities();
   renderEdges();
+  renderIdentity();
 }
 
 function switchTab(tab) {
@@ -1613,6 +1614,25 @@ function showEdgeReveal(id, bonus) {
   const bonusEl = $("edge-reveal-bonus");
   if (bonus) { bonusEl.textContent = bonus; show(bonusEl); } else { hide(bonusEl); }
   show($("overlay-edge"));
+}
+
+// Identity: read-only display of the four narrative answers (name is in the header).
+// Hidden entirely when none are set (older/imported saves).
+function renderIdentity() {
+  const id = character.identity || {};
+  const list = $("identity-list");
+  list.innerHTML = "";
+  let any = false;
+  IDENTITY_QS.forEach((it) => {
+    const val = (id[it.key] || "").trim();
+    if (!val) return;
+    any = true;
+    const qa = ce("div", "identity-qa");
+    qa.appendChild(ce("p", "identity-q", it.q));
+    qa.appendChild(ce("p", "identity-a", val));
+    list.appendChild(qa);
+  });
+  $("identity-section").classList.toggle("hidden", !any);
 }
 
 // Class abilities: display the character's four, unlocked by level (locked ones note when).
