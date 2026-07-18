@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v59";
+const VERSION = "v60";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1296,12 +1296,7 @@ function renderSorceryTab() {
 }
 
 function openSpell(spell) {
-  $("spell-name-display").firstChild.textContent = spell.name + " ";
-  $("spell-tier-badge").textContent = "Tier " + spell.tier;
-  const t = CAST_TIERS[spell.tier];
-  const effective = wearyShift(t.target);
-  $("spell-cost-display").textContent = t.cost + " HP · " + effective + "+" +
-    (effective !== t.target ? " (Weary)" : "") + " · Sorcery " + character.skills["Sorcery"];
+  $("spell-name-display").textContent = spell.name;
   $("spell-desc-display").textContent = spell.desc;
   const warn = $("spell-cast-warning");
   const state = lpState(totalLP());

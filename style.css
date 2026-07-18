@@ -1444,16 +1444,9 @@ button.hp-max:active { color: var(--blood-bright); }
 
 /* ============ SPELL DETAIL OVERLAY (v27) ============ */
 
-.spell-cost-line {
-  color: var(--bone);
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  margin: 0;
-}
-
 .spell-desc {
   color: var(--bone);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.55;
   max-width: 320px;
   text-align: center;
