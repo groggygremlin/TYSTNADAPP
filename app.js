@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v69";
+const VERSION = "v70";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -97,7 +97,8 @@ const CLASS_ABILITIES = {
 // "How to Play" is the first. Content is distilled from the Player Booklet, house voice.
 const HANDBOOK_SECTIONS = [
   { id: "howto", label: "How to Play" },
-  { id: "rules", label: "Rules Reference" }
+  { id: "rules", label: "Rules Reference" },
+  { id: "world", label: "World" }
 ];
 const HOWTO_SECTIONS = [
   { h: "The Roll", p: "When an outcome is in doubt, the GM sets a difficulty: Easy 4+, Normal 5+, or Hard 6+. You roll the die for the skill in play and meet or beat that number to succeed. Anything easier than Easy simply works. Anything harder than Hard is beyond reach until you change your approach." },
@@ -111,6 +112,19 @@ const HOWTO_SECTIONS = [
   { h: "The Expedition", p: "Beyond Haven you Travel to cross ground, Explore to uncover it, Forage to feed the party, and Camp to hold through the night. Your expedition role shapes which of these you lead." },
   { h: "Load", p: "You carry up to 30 Load Points. Past 23 you are Heavy, past 27 Overloaded. The app warns you, and the table rules on what it means." },
   { h: "Advancement", p: "You grow on two rhythms. At each session's end, every skill you used well rolls to improve. And as the party's discoveries raise Haven's level, everyone gains HP, class abilities, and Edges together." }
+];
+
+// World (v70): the setting, distilled from the booklet (p4-7), house voice, read top to bottom.
+const WORLD_SECTIONS = [
+  { h: "The Silence", p: "Two hundred and fifty years ago, the world went silent. Caravans crossing the borders never came back. Pilgrims vanished beyond the hills. Messengers rode out and no answer followed. The sky did not burn and the crops still grew; the absence was human. Those who left to understand it never returned, and monster activity near the outer settlements rose each time someone tried. Departure beyond Haven's borders was banned, and Haven survived by staying put." },
+  { h: "Haven", p: "Haven is two towns, six villages, four farms, and a misty lake, some six thousand people living within fifty kilometers, ringed by mountains, forest, and swamp. Lake Stillwater gives fish year-round and the farms bring surplus in good years. Neighbors know each other's names, and their parents' names before them. It is a good life, and the Explorers who leave for the frontier are not fleeing misery. They are leaving something they love and mean to protect." },
+  { h: "What Haven Fears", p: "Children learn early never to pass the markers at the field's edge. Nobody calls it fear; those are simply the rules, and they have always been the rules. Someone is always awake at the frontier's edge, and dogs sleep lightly near the treeline. Every family carries a quiet story: a fishing crew that came back one fewer and would not say why. It is not one threat. It is the pattern beneath them all, and the pattern is what wakes people at three in the morning." },
+  { h: "The Explorer Initiative", p: "Three months ago the Council voted, narrowly, to authorize the Explorer Initiative, and granted it twelve months to prove its worth. You are among the very first Explorers Haven has ever sanctioned. There is no tradition to follow, no veterans to consult, and no maps of what lies beyond. Your work will either justify exploration or confirm that the ban should never have been lifted." },
+  { h: "Brume", p: "Brume is a fishing town built low and close to the water, its rooftops always faintly damp. Its people work hard without ever calling it hard work, and they are quiet, though never unfriendly. Brume deeply distrusts the Initiative. The lake provides, Haven has survived ten generations by staying close to what works, and until change proves itself good, caution is held to be the wiser position." },
+  { h: "Aldenmere", p: "Aldenmere is where Haven thinks out loud. Its market runs three days a week, and its civic hall holds Haven's official memory: Council decisions, settlement reports, and incident logs going back to the first years after the Silence. The archivist, Dessa, has held her post for thirty years and will find you anything in a heartbeat, though she will not tell you what it means. The Explorer Initiative's office is a single room on the hall's east side, and its door is always open." },
+  { h: "The Villages and Farms", p: "The villages sit between Haven's heart and its edges, each built around a single purpose the rest depends on: timber, stone, the roads and crossings. Those closest to the frontier have the sharpest eyes and the fewest illusions. And there are four farms, four families, two hundred and fifty years of the same names on the same land, and Haven eats because of them. They hold no Council seat, but when a farm family speaks, the Council listens." },
+  { h: "The Council of Three", p: "Haven is governed by three neighbors, elected by every citizen over twenty-five, serving five-year terms and ruling by majority. Their authority comes from reputation and judgment, not inheritance or influence. The vote for the Initiative passed two to one, and the dissenting Elder has not softened. He attends every debrief as the Explorers return, asking precise questions and recording each answer. Both sides read every expedition as proof of their own case." },
+  { h: "The Present", p: "Along the edges of settled land, the wild has grown bolder. Wolves and giant spiders in ruins sealed generations ago, goblin bands taking chickens in the night. Each event alone is containable; together they trace a clear pattern of exposure. Something may be pushing them Haven's way, too deliberate for hunger and too patient for coincidence. Whatever is behind it has not shown itself. The perimeter tightens." }
 ];
 
 // Rules Reference (v69): the booklet's mechanics, tightened for the app, as collapsible topics.
@@ -1793,8 +1807,9 @@ function renderHandbook(section) {
   });
   const body = $("handbook-body");
   body.textContent = "";
-  if (section === "howto") {
-    HOWTO_SECTIONS.forEach((sec) => {
+  if (section === "howto" || section === "world") {
+    const sections = section === "howto" ? HOWTO_SECTIONS : WORLD_SECTIONS;
+    sections.forEach((sec) => {
       body.appendChild(ce("h3", "howto-h", sec.h));
       body.appendChild(ce("p", "howto-p", sec.p));
     });
