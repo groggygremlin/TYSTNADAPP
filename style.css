@@ -1554,6 +1554,29 @@ button.hp-max:active { color: var(--blood-bright); }
 }
 .edge-desc { color: var(--bone); font-size: 0.9rem; line-height: 1.45; margin: 0; }
 
+/* Class abilities: same card language; locked ones dim via ash (no opacity, keeps text legible) */
+.abilities-list { display: flex; flex-direction: column; gap: 10px; }
+.ability-row {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ability-name {
+  color: var(--blood-bright);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.ability-desc { color: var(--bone); font-size: 0.9rem; line-height: 1.45; margin: 0; }
+.ability-locked .ability-name { color: var(--ash); }
+.ability-locked .ability-desc { color: var(--ash); font-style: italic; }
+
 .edge-reveal-kicker {
   color: var(--ash);
   font-size: 0.75rem;

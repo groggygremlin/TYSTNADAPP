@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v62";
+const VERSION = "v63";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -63,6 +63,35 @@ const EDGES = [
 ];
 function hasEdge(id) { return Array.isArray(character.edges) && character.edges.includes(id); }
 function edgesOwed() { return EDGE_LEVELS.filter((l) => l <= character.level).length; }
+
+// Class abilities (PB v2.5 p.12-13): four per class, unlocked at levels 3, 6, 9, 11.
+// Pure display, derived from class + level -- no roll, no stored state.
+const CLASS_ABILITIES = {
+  Warrior: [
+    { level: 3,  name: "Hold the Line", desc: "Once per combat, if an enemy tries to move past you, you may make an immediate free attack against that enemy." },
+    { level: 6,  name: "Bloodied but Standing", desc: "When you drop below half HP, you deal +1 damage on all successful attacks until the end of combat." },
+    { level: 9,  name: "Fear Us", desc: "Once per turn, any kill you make triggers a free attack against an enemy in weapon range." },
+    { level: 11, name: "Not Yet", desc: "Once per session, when making a Death Roll, you may roll twice and keep the better result." }
+  ],
+  Rogue: [
+    { level: 3,  name: "Ghost Step", desc: "Once per combat, on your turn, you may move up to 15 feet without spending any action." },
+    { level: 6,  name: "Reading the Room", desc: "At the start of combat, choose one enemy to study. As long as you keep him in sight, your Defense rolls against him are Easy, regardless of his threat level." },
+    { level: 9,  name: "Exploited Opening", desc: "When an ally's attack succeeds against a target within your reach, you may immediately make a free attack against that same target." },
+    { level: 11, name: "Vanish", desc: "Once per session, you fade from enemy focus entirely. For 2 rounds, no enemy may target you with an attack. The moment you attack, the effect ends." }
+  ],
+  Scholar: [
+    { level: 3,  name: "Studied", desc: "When encountering a creature, trap, or ruin for the first time, you may ask the GM one honest question about it." },
+    { level: 6,  name: "Healing Hands", desc: "Your First Aid always heals +1 HP on a successful attempt." },
+    { level: 9,  name: "Field Knowledge", desc: "You can identify any poison, substance, potion, gas, or inedible plant on sight or by examination. You never consume something dangerous by accident and may warn your companions before they touch something harmful." },
+    { level: 11, name: "Institutional Memory", desc: "Three times per expedition, when the party makes a Travel, Explore, Forage, or Camp check, you may declare it an automatic success." }
+  ],
+  Sorcerer: [
+    { level: 3,  name: "Sacrifice", desc: "Once per session, you may cast one Tier 1 or Tier 2 spell without paying its HP cost." },
+    { level: 6,  name: "Unravel", desc: "Once per session, you may cast any spell as a Main Action instead of a Full Action." },
+    { level: 9,  name: "Siphon", desc: "When an enemy creature dies within 30 feet, you immediately recover 1 HP." },
+    { level: 11, name: "Spell Shield", desc: "Once per combat, you may reroll any failed save against magic." }
+  ]
+};
 
 
 const INIT_ARMOR  = { none: 2, light: 1, medium: 0, heavy: -1 };
@@ -640,6 +669,7 @@ function renderSheet() {
   const sorceryTabBtn = document.querySelector(".sorcery-tab");
   if (sorceryTabBtn) isSorcerer ? show(sorceryTabBtn) : hide(sorceryTabBtn);
   renderConditions();
+  renderAbilities();
   renderEdges();
 }
 
@@ -1492,6 +1522,7 @@ function castTier(tier) {
 
 function adjustLevel(delta) {
   character.level = Math.min(Math.max(character.level + delta, 1), 20);
+  renderAbilities();
   renderEdges();
   renderSorceryTab();
   save();
@@ -1550,6 +1581,20 @@ function showEdgeReveal(id, bonus) {
   const bonusEl = $("edge-reveal-bonus");
   if (bonus) { bonusEl.textContent = bonus; show(bonusEl); } else { hide(bonusEl); }
   show($("overlay-edge"));
+}
+
+// Class abilities: display the character's four, unlocked by level (locked ones note when).
+function renderAbilities() {
+  const list = $("abilities-list");
+  list.innerHTML = "";
+  const abilities = CLASS_ABILITIES[character.cls] || [];
+  abilities.forEach((a) => {
+    const unlocked = character.level >= a.level;
+    const row = ce("div", "ability-row" + (unlocked ? "" : " ability-locked"));
+    row.appendChild(ce("p", "ability-name", "Level " + a.level + " · " + a.name));
+    row.appendChild(ce("p", "ability-desc", unlocked ? a.desc : "Unlocks at level " + a.level + "."));
+    list.appendChild(row);
+  });
 }
 
 function renderSorceryTab() {
