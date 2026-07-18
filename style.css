@@ -613,7 +613,7 @@ button.hp-max:active { color: var(--blood-bright); }
   font-variant-numeric: tabular-nums;
 }
 
-.skill-row .skill-die.core { color: var(--blood-bright); }
+.skill-row .skill-die.core { color: var(--bone); }
 
 .foot-note { text-align: center; font-size: 0.75rem; color: var(--ash); letter-spacing: 0.06em; }
 
@@ -661,7 +661,9 @@ button.hp-max:active { color: var(--blood-bright); }
   gap: 10px;
 }
 
-.inv-head { display: flex; align-items: center; gap: 10px; }
+/* Title takes its own line so the LP total + burden badge never clip at 375px */
+.inv-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.inv-head .field-label { flex: 1 1 100%; }
 
 .inv-total {
   margin-left: auto;
@@ -877,7 +879,7 @@ button.hp-max:active { color: var(--blood-bright); }
   text-transform: uppercase;
 }
 
-.overlay-skill span { color: var(--blood-bright); margin-left: 8px; }
+.overlay-skill span { color: var(--bone); margin-left: 8px; }
 
 .overlay-hint { max-width: 260px; text-align: center; }
 
@@ -923,7 +925,7 @@ button.hp-max:active { color: var(--blood-bright); }
   justify-content: space-between;
 }
 
-.diff-btn span { color: var(--blood-bright); font-variant-numeric: tabular-nums; }
+.diff-btn span { color: var(--bone); font-variant-numeric: tabular-nums; }
 
 .diff-btn:active { background: var(--panel-hi); border-color: var(--blood); }
 
@@ -1321,12 +1323,12 @@ button.hp-max:active { color: var(--blood-bright); }
   background: transparent;
   border: 1px solid var(--ash);
   border-radius: 6px;
-  color: var(--ash);
+  color: var(--bone);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   min-height: 44px;
   padding: 0 14px;
   text-transform: uppercase;
@@ -1335,7 +1337,7 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .role-chip.active {
   border-color: var(--blood);
-  color: var(--bone);
+  color: var(--blood-bright);
 }
 
 .role-chip:active { background: var(--panel-hi); }
