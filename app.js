@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v66";
+const VERSION = "v67";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -773,8 +773,8 @@ function renderSkillList() {
   });
 
   const anyTick = Object.keys(character.skillTicks).some((k) => character.skillTicks[k]);
-  const clearBtn = $("btn-clear-ticks");
-  if (clearBtn) { anyTick ? show(clearBtn) : hide(clearBtn); }
+  const impBtn = $("btn-improve-skills");
+  if (impBtn) { anyTick ? show(impBtn) : hide(impBtn); }
 }
 
 // ---------- Skill ticks ----------
@@ -787,15 +787,65 @@ function tickSkill(name) {
   }
 }
 
-function openClearTicks() {
-  show($("overlay-clear-ticks"));
+// Skill improvement (PB v2.5 p.8): at session end, each ticked skill rolls the next die up
+// and advances on a threshold. Non-class skills cap at d12; the class (core) skill reaches d20.
+const IMPROVE = {
+  d6:  { die: "d8",  need: 6 },
+  d8:  { die: "d10", need: 8 },
+  d10: { die: "d12", need: 10 },
+  d12: { die: "d20", need: 15 }   // class (core) skill only
+};
+let improveQueue = [];
+
+function improveSkills() {
+  const core = CLASSES[character.cls] ? CLASSES[character.cls].core : null;
+  improveQueue = SKILLS.filter((s) => character.skillTicks[s]).map((s) => {
+    const cur = character.skills[s];
+    const step = IMPROVE[cur];
+    if (!step) return null;                        // already d20 (mastered core)
+    if (cur === "d12" && s !== core) return null;  // non-core caps at d12
+    return { skill: s, cur: cur, next: step.die, need: step.need };
+  }).filter(Boolean);
+  if (!improveQueue.length) {                      // ticks exist but nothing rollable: just clear
+    character.skillTicks = {};
+    renderSkillList();
+    save();
+    return;
+  }
+  improveNext();
 }
 
-function confirmClearTicks() {
-  character.skillTicks = {};
-  renderSkillList();
-  save();
-  hide($("overlay-clear-ticks"));
+function improveNext() {
+  const overlay = $("overlay-improve");
+  if (!improveQueue.length) {                      // sequence done: clear all ticks
+    character.skillTicks = {};
+    renderSkillList();
+    save();
+    hide(overlay);
+    return;
+  }
+  const item = improveQueue.shift();
+  $("improve-context").textContent = item.skill + "  " + item.cur + " → " + item.next;
+  const numEl = $("improve-number");
+  const verdictEl = $("improve-verdict");
+  verdictEl.textContent = "";
+  hide($("improve-continue"));
+  show(overlay);
+  const sides = dieSides(item.next);
+  runFlicker(numEl, sides, () => {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    numEl.textContent = roll;
+    if (roll >= item.need) {
+      character.skills[item.skill] = item.next;
+      renderSkillList();
+      save();
+      verdictEl.appendChild(ce("span", "improve-up", "Advanced to " + item.next));
+      if (navigator.vibrate) navigator.vibrate(30);
+    } else {
+      verdictEl.appendChild(ce("span", "improve-stay", "Holds at " + item.cur));
+    }
+    show($("improve-continue"));
+  });
 }
 
 // ---------- Conditions ----------
@@ -2679,9 +2729,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Clear ticks
-  $("btn-clear-ticks").addEventListener("click", openClearTicks);
-  $("clear-ticks-yes").addEventListener("click", confirmClearTicks);
-  $("clear-ticks-no").addEventListener("click", () => hide($("overlay-clear-ticks")));
+  $("btn-improve-skills").addEventListener("click", improveSkills);
+  $("improve-continue").addEventListener("click", improveNext);
 
   // Attack overlay
   $("btn-attack").addEventListener("click", openAttack);
