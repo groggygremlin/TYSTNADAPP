@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v63";
+const VERSION = "v64";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1528,9 +1528,41 @@ function adjustLevel(delta) {
   save();
 }
 
+// Level Up (PB v2.5 p.12): advance one level and roll 1d4 into max HP (twice at levels 2
+// and 4). Warrior treats a rolled 1 as 2. Current HP is unchanged. Deliberate action,
+// separate from the free Level stepper.
+function levelUp() {
+  if (character.level >= 20) return;
+  const newLevel = character.level + 1;
+  const count = (newLevel === 2 || newLevel === 4) ? 2 : 1;
+  const applied = [];
+  for (let i = 0; i < count; i++) {
+    let roll = Math.floor(Math.random() * 4) + 1;
+    if (character.cls === "Warrior" && roll === 1) roll = 2;
+    applied.push(roll);
+  }
+  const gain = applied.reduce((a, b) => a + b, 0);
+  character.hpMax += gain;
+  character.level = newLevel;
+  save();
+  renderHP();
+  renderAbilities();
+  renderEdges();
+  renderSorceryTab();
+  showLevelUpReveal(newLevel, applied, gain);
+}
+
+function showLevelUpReveal(level, applied, gain) {
+  $("levelup-title").textContent = "Level " + level;
+  $("levelup-dice").textContent = "Rolled " + applied.join(" and ");
+  $("levelup-gain").textContent = "Maximum HP increased by " + gain + ".";
+  show($("overlay-levelup"));
+}
+
 // The Edges panel lives on HOME so every class can set Level and manage Edges.
 function renderEdges() {
   $("level-value").textContent = character.level;
+  $("btn-level-up").classList.toggle("hidden", character.level >= 20);
   const owed = edgesOwed();
   const held = character.edges || [];
   const available = Math.max(0, owed - held.length);
@@ -2651,6 +2683,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("level-plus").addEventListener("click", () => adjustLevel(1));
   $("btn-roll-edge").addEventListener("click", rollEdge);
   $("edge-reveal-done").addEventListener("click", () => hide($("overlay-edge")));
+  $("btn-level-up").addEventListener("click", levelUp);
+  $("levelup-done").addEventListener("click", () => hide($("overlay-levelup")));
   $("spell-list-sorcery").addEventListener("click", (e) => {
     const btn = e.target.closest(".spell-row");
     if (!btn || btn.disabled) return;

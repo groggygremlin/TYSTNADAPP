@@ -1532,6 +1532,8 @@ button.hp-max:active { color: var(--blood-bright); }
 }
 .level-row { display: flex; align-items: center; gap: 16px; }
 .level-row .field-label { margin: 0; }
+.level-up-btn { align-self: flex-start; }
+.levelup-dice { color: var(--bone); font-size: 1rem; text-align: center; margin: 0; }
 #btn-roll-edge { align-self: flex-start; }
 .edges-empty { color: var(--ash); font-size: 0.82rem; line-height: 1.4; margin: 0; }
 .edges-list { display: flex; flex-direction: column; gap: 10px; }

@@ -111,6 +111,7 @@
             <button class="step-btn" id="level-plus" aria-label="Raise level">+</button>
           </div>
         </div>
+        <button id="btn-level-up" class="primary-btn slim level-up-btn">Level Up</button>
         <p class="field-label">Class Abilities</p>
         <div id="abilities-list" class="abilities-list"></div>
         <p class="field-label">Edges</p>
@@ -404,6 +405,15 @@
     <p id="edge-reveal-desc" class="spell-desc"></p>
     <p id="edge-reveal-bonus" class="edge-reveal-bonus hidden"></p>
     <button id="edge-reveal-done" class="primary-btn slim">Done</button>
+  </div>
+
+  <!-- ============ LEVEL UP OVERLAY ============ -->
+  <div id="overlay-levelup" class="overlay hidden">
+    <p class="edge-reveal-kicker">You grow stronger</p>
+    <p class="overlay-skill" id="levelup-title">Level 2</p>
+    <p id="levelup-dice" class="levelup-dice"></p>
+    <p id="levelup-gain" class="edge-reveal-bonus"></p>
+    <button id="levelup-done" class="primary-btn slim">Done</button>
   </div>
 
   <!-- ============ DEATH ROLL OVERLAY ============ -->
