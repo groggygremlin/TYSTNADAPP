@@ -51,48 +51,13 @@
       <p class="brand-sub">Companion</p>
     </div>
 
-    <div class="create-intro">
-      <p>Haven has sanctioned you. Record who you are before you cross the border.</p>
+    <p class="wizard-progress" id="wizard-progress">Step 1 of 5</p>
+    <div id="wizard-body" class="wizard-body"></div>
+
+    <div class="wizard-nav">
+      <button id="wiz-back" class="ghost-btn hidden">Back</button>
+      <button id="wiz-next" class="primary-btn" disabled>Next</button>
     </div>
-
-    <label class="field">
-      <span class="field-label">Name</span>
-      <input id="in-name" type="text" maxlength="24" autocomplete="off" placeholder="Your Explorer">
-    </label>
-
-    <div class="field">
-      <span class="field-label">Class</span>
-      <div class="class-grid" id="class-grid">
-        <button class="class-btn" data-class="Warrior">Warrior</button>
-        <button class="class-btn" data-class="Rogue">Rogue</button>
-        <button class="class-btn" data-class="Scholar">Scholar</button>
-        <button class="class-btn" data-class="Sorcerer">Sorcerer</button>
-      </div>
-    </div>
-
-    <div class="field">
-      <span class="field-label">Skills</span>
-      <p class="field-hint" id="skill-hint">Choose a class to set starting dice. Adjust freely for a leveled Explorer.</p>
-      <div id="skill-editors"></div>
-    </div>
-
-    <div class="row-2">
-      <label class="field">
-        <span class="field-label">Max HP</span>
-        <input id="in-hp" type="number" inputmode="numeric" min="1" max="99" placeholder="12">
-      </label>
-      <div class="field">
-        <span class="field-label">Defense Die</span>
-        <div class="stepper" id="def-stepper">
-          <button class="step-btn" data-dir="-1" aria-label="Lower Defense die">&minus;</button>
-          <span class="step-value" id="def-value">d8</span>
-          <button class="step-btn" data-dir="1" aria-label="Raise Defense die">+</button>
-        </div>
-        <p class="field-hint">Base die plus armor.</p>
-      </div>
-    </div>
-
-    <button id="btn-create" class="primary-btn" disabled>Begin the Expedition</button>
   </section>
 
   <!-- ============ SHELL SCREEN ============ -->

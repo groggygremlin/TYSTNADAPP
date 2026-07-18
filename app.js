@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v60";
+const VERSION = "v61";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -17,12 +17,23 @@ const DICE = ["d6", "d8", "d10", "d12", "d20"];
 // Extended ladder for Forage Rough die step-down; d4 is the floor (PB v2.5 Hexploration)
 const FORAGE_DICE = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
+// Per class (PB v2.5 p.12): core skill (d20-capable), starting HP, Defense die, the three
+// d8 skills (all others d6), starting loadout tier, whether a shield is granted, and which
+// weapon weights the class may take at creation. desc = the booklet's one-line pitch.
 const CLASSES = {
-  Warrior:  { hp: 12, defense: "d8", core: "Combat",  d8: ["Combat", "Athletics", "Presence"],  loadout: { armor: "medium", weapon: "standard" } },
-  Rogue:    { hp: 11, defense: "d8", core: "Finesse", d8: ["Finesse", "Awareness", "Athletics"], loadout: { armor: "light",  weapon: "light"    } },
-  Scholar:  { hp: 10, defense: "d6", core: "Lore",    d8: ["Lore", "Combat", "Ingenuity"],       loadout: { armor: "medium", weapon: "standard" } },
-  Sorcerer: { hp: 9,  defense: "d6", core: "Sorcery", d8: ["Sorcery", "Presence", "Lore"],       loadout: { armor: "none",   weapon: "light"    } }
+  Warrior:  { hp: 12, defense: "d8", core: "Combat",  d8: ["Combat", "Athletics", "Presence"],  loadout: { armor: "medium", weapon: "standard" }, shield: true,  weapons: ["light", "standard", "heavy"], desc: "Grit and steel. You fight on the front line and hold it." },
+  Rogue:    { hp: 11, defense: "d8", core: "Finesse", d8: ["Finesse", "Awareness", "Athletics"], loadout: { armor: "light",  weapon: "light"    }, shield: false, weapons: ["light"],                     desc: "Precision and perception. You move unseen and bring back what others did not live to report." },
+  Scholar:  { hp: 10, defense: "d6", core: "Lore",    d8: ["Lore", "Combat", "Ingenuity"],       loadout: { armor: "medium", weapon: "standard" }, shield: true,  weapons: ["light", "standard"],         desc: "Knowledge and versatility. You turn what others miss into survival." },
+  Sorcerer: { hp: 9,  defense: "d6", core: "Sorcery", d8: ["Sorcery", "Presence", "Lore"],       loadout: { armor: "none",   weapon: "light"    }, shield: false, weapons: ["light"],                     desc: "Magical power at physical cost. Every spell is a calculated risk." }
 };
+
+// The five identity questions (PB v2.5 p.11 step 3). Name is asked separately as the first.
+const IDENTITY_QS = [
+  { key: "drive", q: "What drove you to become an Explorer?" },
+  { key: "hope",  q: "What do you hope to find beyond Haven's borders?" },
+  { key: "line",  q: "What line will you not cross, even to secure the frontier?" },
+  { key: "kin",   q: "Who in Haven would miss you most?" }
+];
 
 
 const INIT_ARMOR  = { none: 2, light: 1, medium: 0, heavy: -1 };
@@ -48,36 +59,36 @@ const EXPEDITION_ROLES = ["Pathfinder", "Scout", "Quartermaster"];
 // carried set. "Supply" is omitted here (it has its own Supply counter). Ruled into the
 // public app by Tomas, same as the SPELLS list (v27 ruling).
 const GEAR_ITEMS = [
-  // Weapons
-  { name: "Dagger", lp: 1 },
-  { name: "Shortsword", lp: 2 },
-  { name: "Hand Axe", lp: 2 },
-  { name: "Club", lp: 2 },
-  { name: "Staff", lp: 2 },
-  { name: "Throwing Axe", lp: 3 },
-  { name: "Longsword", lp: 3 },
-  { name: "Battleaxe", lp: 3 },
-  { name: "Mace", lp: 3 },
-  { name: "Spear", lp: 3 },
-  { name: "Shortbow", lp: 3 },
-  { name: "Crossbow", lp: 4 },
-  { name: "Greatsword", lp: 5 },
-  { name: "Greataxe", lp: 5 },
-  { name: "Warhammer", lp: 5 },
-  { name: "Halberd", lp: 5 },
-  { name: "Longbow", lp: 4 },
+  // Weapons (weight = combat/damage tier: light 1d6, standard 1d8, heavy 1d10)
+  { name: "Dagger", lp: 1, weight: "light" },
+  { name: "Shortsword", lp: 2, weight: "light" },
+  { name: "Hand Axe", lp: 2, weight: "light" },
+  { name: "Club", lp: 2, weight: "light" },
+  { name: "Staff", lp: 2, weight: "light" },
+  { name: "Throwing Axe", lp: 3, weight: "standard" },
+  { name: "Longsword", lp: 3, weight: "standard" },
+  { name: "Battleaxe", lp: 3, weight: "standard" },
+  { name: "Mace", lp: 3, weight: "standard" },
+  { name: "Spear", lp: 3, weight: "standard" },
+  { name: "Shortbow", lp: 3, weight: "standard" },
+  { name: "Crossbow", lp: 4, weight: "standard" },
+  { name: "Greatsword", lp: 5, weight: "heavy" },
+  { name: "Greataxe", lp: 5, weight: "heavy" },
+  { name: "Warhammer", lp: 5, weight: "heavy" },
+  { name: "Halberd", lp: 5, weight: "heavy" },
+  { name: "Longbow", lp: 4, weight: "heavy" },
   // Ammunition
   { name: "Arrow Bundle", lp: 2 },
   { name: "Bolt Bundle", lp: 2 },
-  // Armor (worn LP)
-  { name: "Leather Armor", lp: 2 },
-  { name: "Padded Armor", lp: 2 },
-  { name: "Chainmail", lp: 4 },
-  { name: "Scale Armor", lp: 4 },
-  { name: "Studded Leather", lp: 4 },
-  { name: "Plate Armor", lp: 6 },
-  { name: "Half-Plate", lp: 6 },
-  { name: "Banded Mail", lp: 6 },
+  // Armor (worn LP; armor = Defense tier)
+  { name: "Leather Armor", lp: 2, armor: "light" },
+  { name: "Padded Armor", lp: 2, armor: "light" },
+  { name: "Chainmail", lp: 4, armor: "medium" },
+  { name: "Scale Armor", lp: 4, armor: "medium" },
+  { name: "Studded Leather", lp: 4, armor: "medium" },
+  { name: "Plate Armor", lp: 6, armor: "heavy" },
+  { name: "Half-Plate", lp: 6, armor: "heavy" },
+  { name: "Banded Mail", lp: 6, armor: "heavy" },
   { name: "Shield", lp: 2 },
   // Adventuring gear
   { name: "Rope (50 ft)", lp: 4 },
@@ -244,6 +255,11 @@ function migrate(c) {
   if (typeof c.supply !== "number" || isNaN(c.supply) || c.supply < 0) c.supply = 0;
   if (!Number.isInteger(c.level) || c.level < 1 || c.level > 20) c.level = 1;
   if (!c.conditions || typeof c.conditions !== "object" || Array.isArray(c.conditions)) c.conditions = {};
+  // v61: Explorer identity answers (name lives at top level; these are the four narrative ones)
+  if (!c.identity || typeof c.identity !== "object" || Array.isArray(c.identity)) c.identity = {};
+  ["drive", "hope", "line", "kin"].forEach((k) => {
+    if (typeof c.identity[k] !== "string") c.identity[k] = "";
+  });
   return c;
 }
 
@@ -270,116 +286,292 @@ function forageStepDown(die) {
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
 
+// Small DOM builder (textContent only; never innerHTML for dynamic text).
+function ce(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
 function damageDieForWeapon() {
   return WEAPON_DAMAGE[character.loadout.weapon] || "d8";
 }
 
 // ---------- Creation screen ----------
 
+// ---- Creation wizard (v61): mandatory step-by-step, level-1 canonical Explorer ----
+// Steps: class -> identity -> equipment -> wealth -> confirm. Next is gated per step.
+// Leveled Explorers are still entered via Import.
+
+const WIZ_STEPS = ["class", "identity", "equipment", "wealth", "confirm"];
+
 const createState = {
+  step: 0,
   cls: null,
-  skills: {},
-  defense: "d8"
+  name: "",
+  identity: { drive: "", hope: "", line: "", kin: "" },
+  armor: null,       // chosen armor item name, or "none" when the class wears none
+  weapon: null,      // chosen weapon item name
+  wealth: null,      // rolled starting Copper (null until rolled)
+  wealthDice: null   // the three d4 results, for display
 };
 
 function initCreateScreen() {
-  SKILLS.forEach((s) => { createState.skills[s] = "d6"; });
+  createState.step = 0;
   createState.cls = null;
-  createState.defense = "d8";
-  $("in-name").value = "";
-  $("in-hp").value = "";
-  renderSkillEditors();
-  renderDefense();
-  document.querySelectorAll("#class-grid .class-btn").forEach((b) => b.classList.remove("selected"));
-  validateCreate();
+  createState.name = "";
+  createState.identity = { drive: "", hope: "", line: "", kin: "" };
+  createState.armor = null;
+  createState.weapon = null;
+  createState.wealth = null;
+  createState.wealthDice = null;
+  renderWizard();
 }
 
-function renderSkillEditors() {
-  const wrap = $("skill-editors");
-  wrap.innerHTML = "";
-  SKILLS.forEach((skill) => {
-    const row = document.createElement("div");
-    row.className = "skill-editor";
+function gearByName(name) { return GEAR_ITEMS.find((it) => it.name === name) || null; }
+function armorsForClass(cls) {
+  const tier = CLASSES[cls].loadout.armor;
+  return tier === "none" ? [] : GEAR_ITEMS.filter((it) => it.armor === tier);
+}
+function weaponsForClass(cls) {
+  const allowed = CLASSES[cls].weapons;
+  return GEAR_ITEMS.filter((it) => it.weight && allowed.includes(it.weight));
+}
 
-    const name = document.createElement("span");
-    name.className = "skill-editor-name";
-    name.textContent = skill;
+function wizardStepComplete() {
+  const s = createState;
+  switch (WIZ_STEPS[s.step]) {
+    case "class": return s.cls !== null;
+    case "identity":
+      return s.name.trim().length > 0 &&
+        IDENTITY_QS.every((it) => (s.identity[it.key] || "").trim().length > 0);
+    case "equipment": {
+      const needArmor = CLASSES[s.cls].loadout.armor !== "none";
+      return (!needArmor || s.armor !== null) && s.weapon !== null;
+    }
+    case "wealth": return s.wealth !== null;
+    case "confirm": return true;
+    default: return false;
+  }
+}
 
-    const stepper = document.createElement("div");
-    stepper.className = "stepper";
+function updateWizardNext() {
+  $("wiz-next").disabled = !wizardStepComplete();
+}
 
-    const minus = document.createElement("button");
-    minus.className = "step-btn";
-    minus.textContent = "−";
-    minus.setAttribute("aria-label", "Lower " + skill);
-    minus.addEventListener("click", () => {
-      createState.skills[skill] = stepDie(createState.skills[skill], -1);
-      value.textContent = createState.skills[skill];
+function renderWizard() {
+  const body = $("wizard-body");
+  body.innerHTML = "";
+  const step = createState.step;
+  $("wizard-progress").textContent = "Step " + (step + 1) + " of " + WIZ_STEPS.length;
+  [buildClassStep, buildIdentityStep, buildEquipmentStep, buildWealthStep, buildConfirmStep][step](body);
+  $("wiz-back").classList.toggle("hidden", step === 0);
+  $("wiz-next").textContent = step === WIZ_STEPS.length - 1 ? "Create Explorer" : "Next";
+  updateWizardNext();
+}
+
+function buildClassStep(body) {
+  body.appendChild(ce("h2", "wiz-title", "Choose Your Class"));
+  body.appendChild(ce("p", "wiz-lead", "Your class sets your starting HP, Defense, and skills, and which skill can reach legendary mastery (d20)."));
+  const grid = ce("div", "wiz-class-grid");
+  Object.keys(CLASSES).forEach((cls) => {
+    const card = ce("button", "wiz-class-card");
+    if (createState.cls === cls) card.classList.add("selected");
+    card.appendChild(ce("span", "wiz-class-name", cls));
+    card.appendChild(ce("span", "wiz-class-desc", CLASSES[cls].desc));
+    card.addEventListener("click", () => {
+      createState.cls = cls;
+      createState.armor = null;   // dependent picks reset when the class changes
+      createState.weapon = null;
+      renderWizard();
     });
-
-    const value = document.createElement("span");
-    value.className = "step-value";
-    value.textContent = createState.skills[skill];
-
-    const plus = document.createElement("button");
-    plus.className = "step-btn";
-    plus.textContent = "+";
-    plus.setAttribute("aria-label", "Raise " + skill);
-    plus.addEventListener("click", () => {
-      createState.skills[skill] = stepDie(createState.skills[skill], 1);
-      value.textContent = createState.skills[skill];
-    });
-
-    stepper.appendChild(minus);
-    stepper.appendChild(value);
-    stepper.appendChild(plus);
-    row.appendChild(name);
-    row.appendChild(stepper);
-    wrap.appendChild(row);
+    grid.appendChild(card);
   });
+  body.appendChild(grid);
+  if (createState.cls) body.appendChild(buildClassStats(createState.cls));
 }
 
-function renderDefense() {
-  $("def-value").textContent = createState.defense;
-}
-
-function applyClassDefaults(cls) {
-  createState.cls = cls;
+function buildClassStats(cls) {
   const def = CLASSES[cls];
+  const panel = ce("div", "wiz-stats");
+  panel.appendChild(ce("p", "wiz-stats-line", "Starting HP " + def.hp + "  ·  Defense " + def.defense + "  ·  Core skill " + def.core + " (reaches d20)"));
+  const skills = ce("div", "wiz-stats-skills");
   SKILLS.forEach((s) => {
-    createState.skills[s] = def.d8.includes(s) ? "d8" : "d6";
+    const chip = ce("span", "wiz-skill-chip", s + " " + (def.d8.includes(s) ? "d8" : "d6"));
+    if (s === def.core) chip.classList.add("core");
+    skills.appendChild(chip);
   });
-  createState.defense = def.defense;
-  $("in-hp").value = def.hp;
-  renderSkillEditors();
-  renderDefense();
-  validateCreate();
+  panel.appendChild(skills);
+  return panel;
 }
 
-function validateCreate() {
-  const nameOk = $("in-name").value.trim().length > 0;
-  const hpOk = parseInt($("in-hp").value, 10) > 0;
-  const clsOk = createState.cls !== null;
-  $("btn-create").disabled = !(nameOk && hpOk && clsOk);
+function buildTextField(label, value, onInput, maxlen) {
+  const wrap = ce("label", "wiz-field");
+  wrap.appendChild(ce("span", "wiz-field-label", label));
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "wiz-input";
+  input.maxLength = maxlen;
+  input.value = value || "";
+  input.autocomplete = "off";
+  input.addEventListener("input", (e) => onInput(e.target.value));
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function buildIdentityStep(body) {
+  body.appendChild(ce("h2", "wiz-title", "Establish Your Identity"));
+  body.appendChild(ce("p", "wiz-lead", "Answer who you are in Haven. Every question is required."));
+  body.appendChild(buildTextField("What is your name?", createState.name,
+    (v) => { createState.name = v; updateWizardNext(); }, 24));
+  IDENTITY_QS.forEach((it) => {
+    body.appendChild(buildTextField(it.q, createState.identity[it.key],
+      (v) => { createState.identity[it.key] = v; updateWizardNext(); }, 120));
+  });
+}
+
+function buildEquipmentStep(body) {
+  const cls = createState.cls;
+  const def = CLASSES[cls];
+  body.appendChild(ce("h2", "wiz-title", "Starting Equipment"));
+  body.appendChild(ce("p", "wiz-lead", "Choose your armor and weapon. Your class decides what you may carry" +
+    (def.shield ? "; you also carry a shield." : ".")));
+
+  body.appendChild(ce("p", "wiz-section-label", "Armor"));
+  const armors = armorsForClass(cls);
+  if (!armors.length) {
+    createState.armor = "none";
+    body.appendChild(ce("p", "wiz-note", "Sorcerers wear no armor."));
+  } else {
+    const ag = ce("div", "wiz-opt-grid");
+    armors.forEach((it) => {
+      const b = ce("button", "wiz-opt", it.name + " · " + it.lp + " LP");
+      if (createState.armor === it.name) b.classList.add("selected");
+      b.addEventListener("click", () => { createState.armor = it.name; renderWizard(); });
+      ag.appendChild(b);
+    });
+    body.appendChild(ag);
+  }
+
+  body.appendChild(ce("p", "wiz-section-label", "Weapon"));
+  const wg = ce("div", "wiz-opt-grid");
+  weaponsForClass(cls).forEach((it) => {
+    const b = ce("button", "wiz-opt", it.name + " · " + it.lp + " LP");
+    if (createState.weapon === it.name) b.classList.add("selected");
+    b.addEventListener("click", () => { createState.weapon = it.name; renderWizard(); });
+    wg.appendChild(b);
+  });
+  body.appendChild(wg);
+}
+
+function buildWealthStep(body) {
+  body.appendChild(ce("h2", "wiz-title", "Determine Starting Wealth"));
+  body.appendChild(ce("p", "wiz-lead", "Roll 3d4 and multiply by 100. This is your starting Copper."));
+  const rollBtn = ce("button", "primary-btn slim wiz-roll-btn", createState.wealth === null ? "Roll 3d4" : "Rolled");
+  rollBtn.disabled = createState.wealth !== null;
+  const result = ce("p", "wiz-wealth-result");
+  if (createState.wealth !== null) {
+    const d = createState.wealthDice;
+    result.textContent = d[0] + " + " + d[1] + " + " + d[2] + " = " + (d[0] + d[1] + d[2]) + " × 100 = " + createState.wealth + " Copper";
+  }
+  rollBtn.addEventListener("click", () => {
+    const d = [rollD4(), rollD4(), rollD4()];
+    createState.wealthDice = d;
+    createState.wealth = (d[0] + d[1] + d[2]) * 100;
+    renderWizard();
+  });
+  body.appendChild(rollBtn);
+  body.appendChild(result);
+}
+
+function rollD4() { return Math.floor(Math.random() * 4) + 1; }
+
+function addSummary(wrap, label, value) {
+  const row = ce("div", "wiz-sum-row");
+  row.appendChild(ce("span", "wiz-sum-label", label));
+  row.appendChild(ce("span", "wiz-sum-value", value));
+  wrap.appendChild(row);
+}
+
+function buildConfirmStep(body) {
+  const s = createState;
+  const def = CLASSES[s.cls];
+  body.appendChild(ce("h2", "wiz-title", "Confirm"));
+  body.appendChild(ce("p", "wiz-lead", "Review your Explorer. Haven needs you."));
+  const sum = ce("div", "wiz-summary");
+  addSummary(sum, "Name", s.name.trim());
+  addSummary(sum, "Class", s.cls);
+  addSummary(sum, "HP", String(def.hp));
+  addSummary(sum, "Defense", def.defense);
+  addSummary(sum, "Core skill", def.core + " (d20)");
+  addSummary(sum, "Armor", s.armor === "none" ? "None" : s.armor);
+  if (def.shield) addSummary(sum, "Shield", "Yes");
+  addSummary(sum, "Weapon", s.weapon);
+  addSummary(sum, "Starting Copper", String(s.wealth));
+  // Identity answers stack (question over answer) so long text stays readable.
+  IDENTITY_QS.forEach((it) => {
+    const qa = ce("div", "wiz-sum-qa");
+    qa.appendChild(ce("span", "wiz-sum-q", it.q));
+    qa.appendChild(ce("span", "wiz-sum-a", s.identity[it.key].trim()));
+    sum.appendChild(qa);
+  });
+  body.appendChild(sum);
+}
+
+function wizardNext() {
+  if (!wizardStepComplete()) return;
+  if (createState.step === WIZ_STEPS.length - 1) { createCharacter(); return; }
+  createState.step++;
+  renderWizard();
+}
+
+function wizardBack() {
+  if (createState.step > 0) { createState.step--; renderWizard(); }
 }
 
 function createCharacter() {
-  const hpMax = parseInt($("in-hp").value, 10);
+  const s = createState;
+  const def = CLASSES[s.cls];
+  const skills = {};
+  SKILLS.forEach((sk) => { skills[sk] = def.d8.includes(sk) ? "d8" : "d6"; });
+
+  // Starting gear -> inventory items; the loadout tiers derive from the picks.
+  const items = [];
+  let armorTier = "none";
+  if (s.armor && s.armor !== "none") {
+    const a = gearByName(s.armor);
+    if (a) { items.push({ name: a.name, lp: a.lp }); armorTier = a.armor; }
+  }
+  if (def.shield) {
+    const sh = gearByName("Shield");
+    if (sh) items.push({ name: sh.name, lp: sh.lp });
+  }
+  let weaponWeight = "light";
+  const w = gearByName(s.weapon);
+  if (w) { items.push({ name: w.name, lp: w.lp }); weaponWeight = w.weight; }
+
   character = {
-    name: $("in-name").value.trim(),
-    cls: createState.cls,
-    skills: Object.assign({}, createState.skills),
-    hpMax: hpMax,
-    hpCur: hpMax,
-    defense: createState.defense,
-    loadout: Object.assign({}, CLASSES[createState.cls].loadout),
-    items: [],
-    coins: 0,
+    name: s.name.trim(),
+    cls: s.cls,
+    skills: skills,
+    hpMax: def.hp,
+    hpCur: def.hp,
+    defense: def.defense,
+    loadout: { armor: armorTier, weapon: weaponWeight },
+    items: items,
+    coins: s.wealth || 0,
     roles: [],
     skillTicks: {},
     supply: 0,
     level: 1,
-    conditions: {}
+    conditions: {},
+    identity: {
+      drive: s.identity.drive.trim(),
+      hope: s.identity.hope.trim(),
+      line: s.identity.line.trim(),
+      kin: s.identity.kin.trim()
+    }
   };
   save();
   renderSheet();
@@ -2057,27 +2249,9 @@ async function tlDoUnlink() {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Creation
-  $("class-grid").addEventListener("click", (e) => {
-    const btn = e.target.closest(".class-btn");
-    if (!btn) return;
-    document.querySelectorAll("#class-grid .class-btn").forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    applyClassDefaults(btn.dataset.class);
-  });
-
-  $("def-stepper").addEventListener("click", (e) => {
-    const btn = e.target.closest(".step-btn");
-    if (!btn) return;
-    const dir = parseInt(btn.dataset.dir, 10);
-    const next = stepDie(createState.defense, dir);
-    createState.defense = next === "d20" ? "d12" : next;
-    renderDefense();
-  });
-
-  $("in-name").addEventListener("input", validateCreate);
-  $("in-hp").addEventListener("input", validateCreate);
-  $("btn-create").addEventListener("click", createCharacter);
+  // Creation wizard nav
+  $("wiz-next").addEventListener("click", wizardNext);
+  $("wiz-back").addEventListener("click", wizardBack);
 
   // Export
   $("btn-export").addEventListener("click", exportCharacter);
