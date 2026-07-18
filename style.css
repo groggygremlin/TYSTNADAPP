@@ -799,7 +799,7 @@ button.hp-max:active { color: var(--blood-bright); }
   gap: 12px;
 }
 
-.verdict-skull { display: block; height: 45vh; max-width: 90vw; width: auto; }
+.verdict-skull { display: block; height: 22vh; max-width: 90vw; width: auto; }
 .verdict-skull--death { height: 60vh; }
 
 .success-text {

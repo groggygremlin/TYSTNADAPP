@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v56";
+const VERSION = "v57";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1014,6 +1014,7 @@ function performRollExplore(die, target, wearyActive) {
       verdictEl.innerHTML =
         '<span class="verdict-success">SUCCEEDED BY ' + margin + "</span>";
     } else {
+      hideRollReadout();
       verdictEl.innerHTML = SKULL_IMG;
       if (navigator.vibrate) navigator.vibrate(40);
     }
@@ -1063,6 +1064,7 @@ function performRollForage(die) {
     } else if (result >= 4) {
       verdictEl.innerHTML = '<span class="effort-result-label">+1 SUPPLY</span>';
     } else {
+      hideRollReadout();
       verdictEl.innerHTML = SKULL_IMG;
       if (navigator.vibrate) navigator.vibrate(40);
     }
@@ -1116,6 +1118,7 @@ function performRollCamp(die, target, wearyActive) {
         verdictEl.innerHTML = '<span class="effort-result-label">STABLE</span>';
       }
     } else {
+      hideRollReadout();
       verdictEl.innerHTML =
         '<div class="verdict-fail">' + SKULL_IMG +
         '<span class="fail-by">EXPOSED</span></div>';
@@ -1339,11 +1342,13 @@ function performRoll(die, target, context, opts) {
         '<span class="verdict-death">DEATH</span></div>';
       if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
     } else if (opts.shortfall) {
+      hideRollReadout();
       verdictEl.innerHTML =
         '<div class="verdict-fail">' + SKULL_IMG +
         '<span class="fail-by">Failed by ' + (target - result) + '</span></div>';
       if (navigator.vibrate) navigator.vibrate(40);
     } else {
+      hideRollReadout();
       verdictEl.innerHTML = SKULL_IMG;
       if (navigator.vibrate) navigator.vibrate(40);
     }
@@ -1409,6 +1414,14 @@ function performRollDefense(target) {
     }
     rollLocked = false;
   });
+}
+
+// On a failed roll the rolled number and the context line are noise: the skull says "you failed".
+// Hide both so only the skull (plus any mechanical readout) and TAP TO CONTINUE remain.
+// closeResultOverlay() unhides them again for the next roll.
+function hideRollReadout() {
+  $("result-number").classList.add("hidden");
+  $("result-context").classList.add("hidden");
 }
 
 function closeResultOverlay() {
