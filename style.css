@@ -1592,6 +1592,64 @@ button.hp-max:active { color: var(--blood-bright); }
 .identity-q { color: var(--ash); font-size: 0.82rem; line-height: 1.35; margin: 0; }
 .identity-a { color: var(--bone); font-size: 0.95rem; line-height: 1.45; margin: 0; }
 
+/* ============ HANDBOOK (v68) ============ */
+.handbook-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.handbook-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--blood-bright);
+  margin: 0;
+}
+.handbook-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.handbook-nav-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.handbook-nav-btn.active { border-color: var(--blood-bright); color: var(--blood-bright); background: var(--panel-hi); }
+.handbook-body { display: flex; flex-direction: column; gap: 4px; padding-bottom: 40px; }
+.howto-h {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--blood-bright);
+  margin: 16px 0 2px;
+}
+.howto-p { color: var(--bone); font-size: 0.95rem; line-height: 1.55; margin: 0; }
+
+.sheet-head-right { display: flex; align-items: center; gap: 8px; }
+.head-icon-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  font-size: 1rem;
+  font-weight: 800;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.head-icon-btn:active { background: var(--panel-hi); border-color: var(--blood); }
+
 .edge-reveal-kicker {
   color: var(--ash);
   font-size: 0.75rem;

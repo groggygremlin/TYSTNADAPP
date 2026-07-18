@@ -28,6 +28,7 @@
         <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
         <button id="btn-import-toggle" class="ghost-btn">Import</button>
         <button id="btn-join-table" class="ghost-btn">Join a table</button>
+        <button id="btn-how-to-play" class="ghost-btn">How to Play</button>
       </div>
       <p class="version-note" id="intro-version-note"></p>
     </div>
@@ -71,7 +72,10 @@
           <p class="sheet-class" id="sheet-class">Warrior</p>
         </div>
       </div>
-      <button id="btn-export" class="ghost-btn">Backup</button>
+      <div class="sheet-head-right">
+        <button id="btn-handbook" class="head-icon-btn" aria-label="How to play">?</button>
+        <button id="btn-export" class="ghost-btn">Backup</button>
+      </div>
     </header>
 
     <div class="hp-compact-strip">
@@ -297,6 +301,16 @@
       <div id="tl-popup-body" class="tl-popup-body"></div>
     </div>
   </div>
+
+  <!-- ============ HANDBOOK SCREEN ============ -->
+  <section id="screen-handbook" class="screen hidden">
+    <header class="handbook-head">
+      <button id="handbook-back" class="back-btn" aria-label="Back">&#8249;</button>
+      <p class="handbook-title">Handbook</p>
+    </header>
+    <div id="handbook-nav" class="handbook-nav"></div>
+    <div id="handbook-body" class="handbook-body"></div>
+  </section>
 
   <!-- ============ DIFFICULTY OVERLAY (skills) ============ -->
   <div id="overlay-difficulty" class="overlay hidden">

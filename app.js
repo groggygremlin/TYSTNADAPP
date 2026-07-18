@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v67";
+const VERSION = "v68";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -92,6 +92,25 @@ const CLASS_ABILITIES = {
     { level: 11, name: "Spell Shield", desc: "Once per combat, you may reroll any failed save against magic." }
   ]
 };
+
+// Handbook (v68): a second surface for teaching + reference. Sections grow over time;
+// "How to Play" is the first. Content is distilled from the Player Booklet, house voice.
+const HANDBOOK_SECTIONS = [
+  { id: "howto", label: "How to Play" }
+];
+const HOWTO_SECTIONS = [
+  { h: "The Roll", p: "When an outcome is in doubt, the GM sets a difficulty: Easy 4+, Normal 5+, or Hard 6+. You roll the die for the skill in play and meet or beat that number to succeed. Anything easier than Easy simply works. Anything harder than Hard is beyond reach until you change your approach." },
+  { h: "Your Dice", p: "Your level in a skill is a die: d6 for the untrained, up through d8, d10, and d12, to d20 for true mastery. Skills cap at d12. Only your class skill can reach d20." },
+  { h: "The Eight Skills", p: "Athletics is body and endurance. Awareness notices what is hidden. Combat strikes. Finesse is precision and stealth. Ingenuity solves. Lore remembers. Presence sways. Sorcery casts, for Sorcerers alone." },
+  { h: "Hit Points and Death", p: "Hit Points measure what you can take before you fall. At 0 or below you make a Death Roll: d20 at 0, stepping down to d6 at -4 or worse, and you need 5 or higher to survive. Survive and you drop unconscious for 1d6 rounds, then wake at 1 HP. Fail and your Explorer is gone." },
+  { h: "Saves", p: "When you must resist an effect, the GM calls for a Save: Body with Athletics, Mind with Awareness, or Spirit with Presence. Succeed and you shrug the effect off or soften it." },
+  { h: "Conditions", p: "The GM applies conditions like Poisoned, Frightened, or Weary as the frontier earns them, and you track them on your sheet. Weary is the one the app enforces: it shifts every roll target up one step." },
+  { h: "Combat", p: "You give the GM your Initiative contribution and he rolls the party's order. On your turn you Attack against the enemy's threat tier, or you Defend by rolling your Defense die when a blow lands on you." },
+  { h: "Sorcery", p: "A Sorcerer trades health for power. Every spell costs HP, paid whether the casting succeeds or fails. Spend past 0 and the Death Roll comes for you." },
+  { h: "The Expedition", p: "Beyond Haven you Travel to cross ground, Explore to uncover it, Forage to feed the party, and Camp to hold through the night. Your expedition role shapes which of these you lead." },
+  { h: "Load", p: "You carry up to 30 Load Points. Past 23 you are Heavy, past 27 Overloaded. The app warns you, and the table rules on what it means." },
+  { h: "Advancement", p: "You grow on two rhythms. At each session's end, every skill you used well rolls to improve. And as the party's discoveries raise Haven's level, everyone gains HP, class abilities, and Edges together." }
+];
 
 
 const INIT_ARMOR  = { none: 2, light: 1, medium: 0, heavy: -1 };
@@ -1685,6 +1704,41 @@ function renderIdentity() {
   $("identity-section").classList.toggle("hidden", !any);
 }
 
+// ---------- Handbook (teaching + reference) ----------
+
+let handbookFrom = "screen-intro";
+
+function openHandbook(fromId) {
+  handbookFrom = fromId;
+  hide($(fromId));
+  renderHandbook("howto");
+  show($("screen-handbook"));
+  window.scrollTo(0, 0);
+}
+
+function closeHandbook() {
+  hide($("screen-handbook"));
+  show($(handbookFrom));
+}
+
+function renderHandbook(section) {
+  const nav = $("handbook-nav");
+  nav.textContent = "";
+  HANDBOOK_SECTIONS.forEach((s) => {
+    const b = ce("button", "handbook-nav-btn" + (s.id === section ? " active" : ""), s.label);
+    b.addEventListener("click", () => renderHandbook(s.id));
+    nav.appendChild(b);
+  });
+  const body = $("handbook-body");
+  body.textContent = "";
+  if (section === "howto") {
+    HOWTO_SECTIONS.forEach((sec) => {
+      body.appendChild(ce("h3", "howto-h", sec.h));
+      body.appendChild(ce("p", "howto-p", sec.p));
+    });
+  }
+}
+
 // Class abilities: display the character's four, unlocked by level (locked ones note when).
 function renderAbilities() {
   const list = $("abilities-list");
@@ -2555,6 +2609,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const sec = $("intro-import-section");
     if (sec.classList.contains("hidden")) { show(sec); } else { hide(sec); }
   });
+  $("btn-how-to-play").addEventListener("click", () => openHandbook("screen-intro"));
+  $("btn-handbook").addEventListener("click", () => openHandbook("screen-shell"));
+  $("handbook-back").addEventListener("click", closeHandbook);
 
   // Tab bar
   document.querySelector(".tab-bar").addEventListener("click", (e) => {
