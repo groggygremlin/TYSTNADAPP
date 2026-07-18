@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v68";
+const VERSION = "v69";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -96,7 +96,8 @@ const CLASS_ABILITIES = {
 // Handbook (v68): a second surface for teaching + reference. Sections grow over time;
 // "How to Play" is the first. Content is distilled from the Player Booklet, house voice.
 const HANDBOOK_SECTIONS = [
-  { id: "howto", label: "How to Play" }
+  { id: "howto", label: "How to Play" },
+  { id: "rules", label: "Rules Reference" }
 ];
 const HOWTO_SECTIONS = [
   { h: "The Roll", p: "When an outcome is in doubt, the GM sets a difficulty: Easy 4+, Normal 5+, or Hard 6+. You roll the die for the skill in play and meet or beat that number to succeed. Anything easier than Easy simply works. Anything harder than Hard is beyond reach until you change your approach." },
@@ -110,6 +111,67 @@ const HOWTO_SECTIONS = [
   { h: "The Expedition", p: "Beyond Haven you Travel to cross ground, Explore to uncover it, Forage to feed the party, and Camp to hold through the night. Your expedition role shapes which of these you lead." },
   { h: "Load", p: "You carry up to 30 Load Points. Past 23 you are Heavy, past 27 Overloaded. The app warns you, and the table rules on what it means." },
   { h: "Advancement", p: "You grow on two rhythms. At each session's end, every skill you used well rolls to improve. And as the party's discoveries raise Haven's level, everyone gains HP, class abilities, and Edges together." }
+];
+
+// Rules Reference (v69): the booklet's mechanics, tightened for the app, as collapsible topics.
+const RULES_TOPICS = [
+  { title: "Making Rolls", paras: [
+    "When an outcome is in doubt, the GM sets the difficulty: Easy 4+, Normal 5+, or Hard 6+. You roll the die for the skill in play and meet or beat that number to succeed.",
+    "Do not roll when you do not need to. Anything easier than Easy succeeds on its own. Anything harder than Hard is impossible as attempted, until you change your approach or find another way."
+  ] },
+  { title: "Skills", paras: [
+    "Your level in a skill is a die: d6 for the untrained, then d8, d10, d12, and d20 for true mastery. Skills cap at d12. Only your class skill can reach d20.",
+    "The eight skills: Athletics (body, endurance, force), Awareness (notice, spot, track), Combat (strike), Finesse (precision, stealth, sleight), Ingenuity (invent, solve), Lore (recall, read, identify), Presence (persuade, intimidate, deceive), and Sorcery (cast, Sorcerers only).",
+    "Skill improvement: at the end of a session, every skill you used successfully rolls to advance. Roll the next die up and meet the threshold: d6 to d8 on 6+, d8 to d10 on 8+, d10 to d12 on 10+, d12 to d20 on 15+ (class skill only)."
+  ] },
+  { title: "Saves", paras: [
+    "When you must resist an effect, the GM sets a difficulty and calls for a Save: Body with Athletics (poison, disease, force, paralysis), Mind with Awareness (illusions, deception, traps), or Spirit with Presence (fear, charm, compulsion). Succeed and you resist or reduce the effect."
+  ] },
+  { title: "Hit Points, Death and Recovery", paras: [
+    "Hit Points measure what you absorb before you fall. Everyone starts at 8 HP plus a class bonus: Warrior +4 (12), Rogue +3 (11), Scholar +2 (10), Sorcerer +1 (9).",
+    "Death Roll: at 0 HP you roll a d20, stepping down to d6 at -4 or worse, and you need 5 or higher. Survive and you fall unconscious for 1d6 rounds, then wake at 1 HP. While unconscious you cannot act or defend, and any further damage kills you outright. Fail the Death Roll and your Explorer is dead.",
+    "First Aid heals 1d4 HP to a willing or unconscious target and needs a Healer's Kit. It works once after damage is taken, and new damage allows another attempt. It does not wake the unconscious.",
+    "Resting: a Post-Combat Breather (5 minutes, 1 bandage) recovers 3 HP. Light activity recovers 1 HP every two hours. A proper rest recovers 1 HP per hour and needs 1 bandage per rest."
+  ] },
+  { title: "Advancement", paras: [
+    "You grow on two rhythms. Skills improve session by session through use. Levels advance for the whole party as Haven grows.",
+    "Discovery Points (DP) are earned for outcomes brought home: secured assets, neutralized threats, mapped hexes, recovered insights. They are awarded when you return to Haven and report. Reach a threshold and Haven levels, and the entire party gains one level together.",
+    "Haven Level thresholds (DP): 1 to 2 is 20, 2 to 3 is 25, 3 to 4 is 30, 4 to 5 is 40, 5 to 6 is 50, 6 to 7 is 70, 7 to 8 is 90, 8 to 9 is 110, 9 to 10 is 140, 10 to 11 is 170, 11 to 12 is 200. DP reset each level.",
+    "On level up you gain HP (roll 1d4, twice at levels 2 and 4), a class ability at levels 3, 6, 9, and 11, and an Edge at levels 5, 7, 8, 10, and 12."
+  ] },
+  { title: "Combat", paras: [
+    "Surprise: a surprising side acts alone for one round, then Initiative is rolled as normal.",
+    "Initiative: roll once at the start of combat and it lasts the whole fight. Roll d20, add the Party Bonus and the GM's Preparation modifier (Attentive +1, Neutral 0, Distracted -1), and compare to the opposition target (small or quick 12, standard 10, large or slow 8). Meet or beat it and the party acts first, completing all its actions before the other side.",
+    "Party Bonus: each Explorer contributes from his loadout (no armor +2, light +1, heavy -1; light weapon or unarmed +1, heavy weapon -1), summed across the party.",
+    "Momentum: the Initiative winner's margin grants bonus damage. Margin 3 to 4 is +1 damage for 1 round. Margin 5 or more is +2 for 2 rounds.",
+    "Actions per turn: one Quick Action and two Main Actions, or convert both Main Actions into one Full Action. Quick: Half-Move, Interact, Drop or Stand, Consume, Signal. Main: Attack (once per turn), Move, Simple Skill, Ready, Help. Full: Cast Spell, Complex Skill, Full Move, First Aid, Double Attack (the second attack one die step lower).",
+    "Attacking: the GM sets the difficulty, and you roll your Combat skill and your weapon damage die. On a hit, deal the damage. If the damage die rolls its maximum, roll again and add it, repeating until it is not maximum (exploding damage).",
+    "Defending: when a monster strikes you, roll your Defense die against its threat (Weak 4+, Standard 5+, Strong 6+). Success takes no damage. Failure takes the target minus your roll, plus the monster's damage bonus.",
+    "The Defense die is set by class (Warrior and Rogue d8, Scholar and Sorcerer d6) and raised only by armor: light no change, medium one step up, heavy two steps up. With no armor you use the base die but take +2 extra damage on a failed Defense. A shield lets you reroll one failed Defense per combat.",
+    "Ranged: bows and crossbows need ammunition, tracked in bundles. Range and cover shift the difficulty, as the GM rules."
+  ] },
+  { title: "Hexploration", paras: [
+    "The frontier is a grid of hexes, each 24 miles of wilderness. You cross them, explore them, map them, and mark them. The farther from Haven, the greater the danger and the greater the reward.",
+    "A field day is 24 hours and holds up to three efforts of about 8 hours each: Travel, Explore, Forage, and Camp. One must be Camp or the party gains Weariness. At day's end, deduct 1 Supply.",
+    "Efforts are led by roles: the Pathfinder leads Travel (Lore), the Scout leads Explore and judges Camp safety (Awareness), and the Quartermaster leads Forage (Athletics).",
+    "Terrain sets the effort difficulty and how far a Travel effort carries you (Easy 4+, Standard 5+, Rough 6+). A hex is Mapped after three successful Explores, after which Travel in it is Easy.",
+    "Supply: deduct 1 per day, or 2 under strain (two Travels, severe weather, two combats, hauling a companion). With no Supply, Starvation sets in. Forage results: 1 to 3 nothing, 4 to 5 gain 1 Supply, 6 or more gain 2.",
+    "Camp safety: the Scout rolls Awareness against the terrain's difficulty. Exposed (a failed roll) offers no safety and Weariness cannot clear. Stable (meets it) rests normally. Defensible (beats it by 2 or more) rests normally and cannot be surprised in the night.",
+    "Returning to Haven: report your findings to claim Discovery Points, then resupply and rest before the next expedition."
+  ] },
+  { title: "Conditions", paras: [
+    "Conditions are applied by the GM and tracked on your sheet. Weary is the one the app enforces: it shifts every roll target up one step (Easy becomes Normal, Normal becomes Hard, Hard stays Hard), and it does not touch the Death Roll.",
+    "The ten conditions: Weary, Poisoned, Lethal Poison, Diseased, Frightened, Prone, Shocked, Burning, Immolation, and Blinded. Toggle one on your sheet to read its full effect."
+  ] },
+  { title: "Equipment and Load", paras: [
+    "You carry up to 30 Load Points. Every carried item costs at least 1 LP, and worn clothing does not count. Worn armor uses its normal Load; carried armor counts double. Every 100 coins, or part thereof, is 1 LP.",
+    "Load thresholds: 0 to 23 Unburdened (act normally); 24 to 27 Heavy (you cannot convert two Main Actions into a Full Action, and Sorcerers cannot cast); 28 to 30 Overloaded (one Main Action only, no Full Actions, and Sorcerers cannot cast).",
+    "Weapons come in three weights: Light (1d6 damage), Standard (1d8), and Heavy (1d10). Armor comes in Light, Medium, and Heavy, and it sets both your Defense die step and your Initiative contribution."
+  ] },
+  { title: "Sorcery", paras: [
+    "Only Sorcerers cast, and casting is a Full Action. Every spell costs HP, paid whether it succeeds or fails. If the cost drops you to 0 or below, you skip the Sorcery roll and go straight to a Death Roll.",
+    "Spells sit in three tiers by cost and Sorcery target: Tier 1 costs 1 HP at 4+, Tier 2 costs 2 HP at 5+, Tier 3 costs 3 HP at 6+. Higher tiers unlock as you level. Sorcery never heals."
+  ] }
 ];
 
 
@@ -1735,6 +1797,24 @@ function renderHandbook(section) {
     HOWTO_SECTIONS.forEach((sec) => {
       body.appendChild(ce("h3", "howto-h", sec.h));
       body.appendChild(ce("p", "howto-p", sec.p));
+    });
+  } else if (section === "rules") {
+    RULES_TOPICS.forEach((t) => {
+      const topic = ce("div", "rules-topic");
+      const head = ce("button", "rules-topic-head");
+      head.setAttribute("aria-expanded", "false");
+      head.appendChild(ce("span", "rules-topic-title", t.title));
+      head.appendChild(ce("span", "rules-topic-caret", "›"));
+      const bodyEl = ce("div", "rules-topic-body hidden");
+      t.paras.forEach((p) => bodyEl.appendChild(ce("p", "rules-p", p)));
+      head.addEventListener("click", () => {
+        const nowOpen = bodyEl.classList.toggle("hidden") === false;
+        head.classList.toggle("open", nowOpen);
+        head.setAttribute("aria-expanded", nowOpen ? "true" : "false");
+      });
+      topic.appendChild(head);
+      topic.appendChild(bodyEl);
+      body.appendChild(topic);
     });
   }
 }
