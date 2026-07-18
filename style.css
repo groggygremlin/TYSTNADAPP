@@ -727,6 +727,30 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .overlay-hint { max-width: 260px; text-align: center; }
 
+/* Loadout overlay (Initiative): top instruction + bottom contribution line */
+.overlay-lead {
+  color: var(--bone);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 300px;
+}
+.init-contrib {
+  color: var(--bone);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.init-contrib #init-preview {
+  color: var(--bone);
+  font-weight: 800;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  margin-left: 6px;
+}
+
 .diff-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
 
 .diff-btn {
