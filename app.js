@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v75";
+const VERSION = "v76";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -388,6 +388,8 @@ let pendingConfirmAction = null;
 let attackMomentum = 0;
 let defenseBonus = 0;
 let pendingDefenseDamage = 0;
+// v76: the last Defense roll's target/die/bonus, so a shield reroll can repeat it exactly.
+let pendingDefense = null;
 let forageRough = false;
 let explosionState = null;
 let hitState = null;
@@ -451,6 +453,8 @@ function migrate(c) {
   if (!Array.isArray(c.edges)) c.edges = [];
   // v73: Discovery Points toward the next Haven Level
   if (typeof c.dp !== "number" || isNaN(c.dp) || c.dp < 0) c.dp = 0;
+  // v76: shield reroll spent this combat. Persisted so a reload mid-fight cannot re-arm it.
+  if (typeof c.shieldUsed !== "boolean") c.shieldUsed = false;
   return c;
 }
 
@@ -775,6 +779,7 @@ function createCharacter() {
     supply: 0,
     level: 1,
     dp: 0,
+    shieldUsed: false,
     conditions: {},
     edges: [],
     identity: {
@@ -1219,6 +1224,9 @@ function renderInventory() {
 
   const cLP = coinLP();
   $("coin-lp").textContent = cLP > 0 ? "+" + cLP + " LP" : "";
+
+  // Losing or selling the Shield takes its reroll with it.
+  renderShieldState();
 
   const hint = $("inv-hint");
   if (state === "heavy") {
@@ -2240,6 +2248,55 @@ function effectiveDefense() {
   return die;
 }
 
+// ---------- Shields (PB v2.5 p.21, p.24) ----------
+
+// Like ammunition Bundles, the Shield is an inventory row, so selling or losing it
+// takes the reroll with it. Whether it is worn or stowed is the table's ruling.
+function hasShield() {
+  return character.items.some((it) => it.name === "Shield");
+}
+
+function shieldRerollAvailable() {
+  return hasShield() && !character.shieldUsed;
+}
+
+// Canon p24: reroll a failed Defense once per combat and KEEP THE NEW RESULT, even
+// when it is worse. The app never compares the two rolls.
+function shieldReroll(btn) {
+  if (btn) btn.disabled = true;
+  if (!shieldRerollAvailable() || !pendingDefense) return;
+  character.shieldUsed = true;
+  save();
+  renderShieldState();
+  const p = pendingDefense;
+  rollLocked = false;
+  defenseBonus = p.bonus;
+  performRollDefense(p.target, p.die, true);
+}
+
+// Re-arms the reroll for the next fight. Deliberately the only thing this touches.
+function newCombat() {
+  character.shieldUsed = false;
+  save();
+  renderShieldState();
+}
+
+function renderShieldState() {
+  const btn = $("btn-new-combat");
+  const note = $("shield-state");
+  if (!hasShield()) {
+    hide(btn);
+    hide(note);
+    return;
+  }
+  show(btn);
+  show(note);
+  note.textContent = character.shieldUsed
+    ? "Shield reroll spent. Tap New Combat when the next fight starts."
+    : "Shield reroll ready.";
+  note.classList.toggle("shield-spent", character.shieldUsed);
+}
+
 function renderDefenseNote() {
   const armor = character.loadout.armor;
   const base = character.defense;
@@ -2418,12 +2475,14 @@ function rollDefense(target) {
   performRollDefense(effective, die);
 }
 
-function performRollDefense(target, rollDie) {
+function performRollDefense(target, rollDie, isReroll) {
   if (rollLocked) return;
   rollLocked = true;
 
   const bonus = defenseBonus;
   const die = rollDie || effectiveDefense();
+  // Remembered so the shield reroll repeats the same roll, range and cover included.
+  pendingDefense = { target: target, die: die, bonus: bonus };
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
@@ -2451,10 +2510,17 @@ function performRollDefense(target, rollDie) {
       const noArmor = (character.loadout.armor === "none" && !hasEdge(18)) ? 2 : 0;
       pendingDefenseDamage = Math.max(0, (target - result) + bonus + noArmor);
       overlay.classList.add("overlay--action");
+      // The shield reroll is offered once per combat, and only on a first roll: canon
+      // gives one reroll, not a chain, so a rerolled failure shows no button.
+      const shieldBtn = (!isReroll && shieldRerollAvailable())
+        ? '<button class="def-shield-btn" onclick="shieldReroll(this)">Shield Reroll</button>' +
+          '<span class="shield-note">The new roll stands, better or worse.</span>'
+        : "";
       verdictEl.innerHTML =
-        '<div class="verdict-fail">' + SKULL_IMG +
+        '<div class="verdict-fail' + (shieldBtn ? " has-shield" : "") + '">' + SKULL_IMG +
         '<span class="def-damage">Take ' + pendingDefenseDamage + ' Damage</span>' +
         '<button class="roll-damage-btn def-take-btn" onclick="takeDefenseDamage(this)">Take It</button>' +
+        shieldBtn +
         '<button class="def-dismiss-btn" onclick="closeDefenseFailure()">Dismiss</button>' +
         '</div>';
       if (navigator.vibrate) navigator.vibrate(40);
@@ -3322,6 +3388,9 @@ document.addEventListener("DOMContentLoaded", () => {
     atkIntoMelee = !atkIntoMelee;
     renderAttackRanged();
   });
+
+  // Shields (v76)
+  $("btn-new-combat").addEventListener("click", newCombat);
 
   // Ammunition (v75)
   $("btn-ammo").addEventListener("click", openAmmo);

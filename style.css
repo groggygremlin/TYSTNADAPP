@@ -1428,6 +1428,63 @@ button.hp-max:active { color: var(--blood-bright); }
   right: 24px;
 }
 
+/* ============ SHIELD REROLL (v76) ============ */
+
+/* Outlined, so it never competes with the solid TAKE IT fill below it. */
+.def-shield-btn {
+  width: 100%;
+  min-height: 44px;
+  background: none;
+  border: 1px solid var(--blood);
+  color: var(--bone);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.shield-note {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--bone);
+  text-align: center;
+}
+
+#overlay-result.overlay--action .def-shield-btn {
+  position: absolute;
+  bottom: 136px;
+  left: 24px;
+  right: 24px;
+  width: auto;
+}
+
+#overlay-result.overlay--action .shield-note {
+  position: absolute;
+  bottom: 186px;
+  left: 24px;
+  right: 24px;
+}
+
+/* DISMISS clears the shield button and its note when both are present. */
+#overlay-result.overlay--action .verdict-fail.has-shield .def-dismiss-btn {
+  bottom: 210px;
+}
+
+/* COMBAT tab readiness line. Ember marks the spent state, matching the HP threshold cue. */
+.shield-state {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--bone);
+  text-align: center;
+  margin: 2px 0 0;
+}
+
+.shield-state.shield-spent { color: var(--ember-light); }
+
 /* ============ EXPEDITION SECTION ============ */
 
 .expedition-section {
