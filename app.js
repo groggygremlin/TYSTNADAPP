@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v74";
+const VERSION = "v75";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1414,6 +1414,93 @@ function importFromPaste() {
   }
 }
 
+// ---------- Ammunition (PB v2.5 p.14) ----------
+
+// Bundles are ordinary inventory rows, so canon's "track each Bundle separately" and
+// "as many as your Load allows" both come free. No separate counter to fall out of sync.
+const AMMO_BUNDLES = ["Arrow Bundle", "Bolt Bundle"];
+
+function bundleCount(name) {
+  return character.items.filter((it) => it.name === name).length;
+}
+
+function totalBundles() {
+  return AMMO_BUNDLES.reduce((n, name) => n + bundleCount(name), 0);
+}
+
+// Removes one Bundle row. Returns true when one was actually spent.
+function spendBundle(name) {
+  const i = character.items.findIndex((it) => it.name === name);
+  if (i === -1) return false;
+  character.items.splice(i, 1);
+  renderInventory();
+  save();
+  return true;
+}
+
+function bundleSummary() {
+  return AMMO_BUNDLES
+    .map((name) => ({ name: name, n: bundleCount(name) }))
+    .filter((b) => b.n > 0)
+    .map((b) => b.n + " " + b.name + (b.n > 1 ? "s" : ""))
+    .join(", ");
+}
+
+// What the overlay header states you are carrying.
+function carriedLine() {
+  return bundleSummary() || "No Bundles carried.";
+}
+
+// What a result line states you have left.
+function remainingLine() {
+  const s = bundleSummary();
+  return s ? "You carry " + s + "." : "No Bundles left.";
+}
+
+function openAmmo() {
+  const r = $("ammo-result");
+  r.textContent = "";
+  hide(r);
+  hide($("ammo-choice"));
+  show($("ammo-roll"));
+  $("ammo-carried").textContent = carriedLine();
+  show($("overlay-ammo"));
+}
+
+function rollAmmo() {
+  const roll = Math.floor(Math.random() * 6) + 1;
+  const r = $("ammo-result");
+  show(r);
+  if (roll !== 1) {
+    r.textContent = "Rolled " + roll + ". Your ammunition holds.";
+    return;
+  }
+  // A 1 spends one Bundle. The app cannot know which weapon you fired, so it asks
+  // whenever both kinds are carried.
+  const carried = AMMO_BUNDLES.filter((name) => bundleCount(name) > 0);
+  if (carried.length === 0) {
+    r.textContent = "Rolled 1, and you carry no Bundles to spend.";
+    return;
+  }
+  if (carried.length === 1) {
+    spendBundle(carried[0]);
+    r.textContent = "Rolled 1. One " + carried[0] + " is spent. " + remainingLine();
+    $("ammo-carried").textContent = carriedLine();
+    return;
+  }
+  r.textContent = "Rolled 1. One Bundle is spent. Which did you fire?";
+  hide($("ammo-roll"));
+  show($("ammo-choice"));
+}
+
+function pickAmmoBundle(name) {
+  spendBundle(name);
+  hide($("ammo-choice"));
+  show($("ammo-roll"));
+  $("ammo-carried").textContent = carriedLine();
+  $("ammo-result").textContent = "One " + name + " is spent. " + remainingLine();
+}
+
 // ---------- Attack ----------
 
 function openAttack() {
@@ -1466,6 +1553,16 @@ function renderAttackRanged() {
     }
   } else {
     line.textContent = "";
+  }
+
+  // Out of Bundles the app warns and stays out of the way. Inventory goes stale at the
+  // table and the GM may have ruled you scavenged, so this never blocks the roll.
+  const warn = $("atk-ammo-warn");
+  if (ranged && totalBundles() === 0) {
+    warn.textContent = "You carry no ammunition Bundles. Bows and crossbows need them.";
+    show(warn);
+  } else {
+    hide(warn);
   }
 
   // Firing into melee is always a Hard check, so the softer tiers come off the table.
@@ -3224,6 +3321,14 @@ document.addEventListener("DOMContentLoaded", () => {
   $("atk-into-melee").addEventListener("click", () => {
     atkIntoMelee = !atkIntoMelee;
     renderAttackRanged();
+  });
+
+  // Ammunition (v75)
+  $("btn-ammo").addEventListener("click", openAmmo);
+  $("ammo-roll").addEventListener("click", rollAmmo);
+  $("ammo-done").addEventListener("click", () => hide($("overlay-ammo")));
+  document.querySelectorAll(".ammo-pick").forEach((btn) => {
+    btn.addEventListener("click", () => pickAmmoBundle(btn.dataset.bundle));
   });
 
   // Advancement: Level + Edges (HOME)

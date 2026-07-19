@@ -1260,6 +1260,28 @@ button.hp-max:active { color: var(--blood-bright); }
   cursor: default;
 }
 
+/* ============ AMMUNITION (v75) ============ */
+
+/* Warning, so it follows the .cast-warning precedent rather than the bone data rule. */
+.ammo-warn {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--blood-bright);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 2px 0 0;
+}
+
+/* Bundle counts are data, so bone per Law 1. */
+.ammo-carried {
+  font-size: 0.95rem;
+  color: var(--bone);
+  text-align: center;
+  margin: 4px 0 10px;
+}
+
 /* ============ ATTACK RESULT DISPLAY ============ */
 
 .attack-result {
