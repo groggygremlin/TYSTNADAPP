@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v80";
+const VERSION = "v81";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -194,6 +194,12 @@ const RULES_TOPICS = [
   { title: "Conditions", paras: [
     "Conditions are applied by the GM and tracked on your sheet. Weary is the one the app enforces: it shifts every roll target up one step (Easy becomes Normal, Normal becomes Hard, Hard stays Hard), and it does not touch the Death Roll.",
     "The ten conditions: Weary, Poisoned, Lethal Poison, Diseased, Frightened, Prone, Shocked, Burning, Immolation, and Blinded. Toggle one on your sheet to read its full effect."
+  ] },
+  { title: "Languages", paras: [
+    "Everyone in Haven speaks the same tongue. Beyond the borders the world is older and more populated than Haven remembers, and an intelligent frontier creature may not speak it at all.",
+    "Before the Silence, trade moved freely and a rough common language grew between humans and the intelligent races of the frontier. Scholars call it the Old Tongue. Nobody speaks it fluently anymore, but it survived in Haven's archives and in degraded form among the creatures who never stopped using it.",
+    "Three levels of communication are possible. Basic intent needs no shared language at all, because threat, submission, trade and warning read the same everywhere, and a successful Presence check usually gets the point across. Simple communication is a Lore check at Normal 5+, open to any Explorer, and success means the exchange lands imperfectly but well enough. Full conversation belongs to Scholars, who speak with any creature that knows the Old Tongue and roll nothing.",
+    "Not every creature speaks the Old Tongue. Some are too far degraded and some never used it. The GM decides what is possible before any roll is made."
   ] },
   { title: "Equipment and Load", paras: [
     "You carry up to 30 Load Points. Every carried item costs at least 1 LP, and worn clothing does not count. Worn armor uses its normal Load; carried armor counts double. Every 100 coins, or part thereof, is 1 LP.",
