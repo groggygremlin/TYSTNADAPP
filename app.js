@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v81";
+const VERSION = "v82";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -112,9 +112,23 @@ const CLASS_ABILITIES = {
 // Handbook (v68): a second surface for teaching + reference. Sections grow over time;
 // "How to Play" is the first. Content is distilled from the Player Booklet, house voice.
 const HANDBOOK_SECTIONS = [
+  { id: "table", label: "At the Table" },
   { id: "howto", label: "How to Play" },
   { id: "rules", label: "Rules Reference" },
   { id: "world", label: "World" }
+];
+
+// v82: table culture, adapted from PB v2.5 p.3-4 rather than transcribed. The booklet
+// speaks of printing sheets and consulting a separate book, which reads oddly inside the
+// app that IS the sheet. The warmth is the point of that chapter and is kept.
+const TABLE_SECTIONS = [
+  { h: "At the Table", p: "TYSTNAD was made for a physical table, for friends, drinks, laughter and the moment everyone leans in. It runs perfectly well on any virtual platform, and that choice is yours." },
+  { h: "Why the Rules Are Short", p: "Nobody remembers mechanics. You remember what was at stake when the dice hit the table. The rules exist to make that moment real, and then to get out of the way. Learn them well, then forget you are following them, and think about the frontier instead of the procedure." },
+  { h: "What You Need", p: "One GM and two to four players. A set of polyhedral dice, or this app in their place. Something to keep each Explorer on, which is what you are holding. Then a direction, and a reason to walk in it." },
+  { h: "What This Game Is About", p: "Survival, fellowship, hard choices, discovery, and the true value of knowledge that cost something to bring home. Haven has been cut off for ten generations and nobody knows what lies beyond its borders. You are among the first sanctioned to look." },
+  { h: "Roleplaying", p: "One player is the Game Master. He describes the world, plays everyone in it, sets the difficulty and rules what happens next. Everyone else plays a single Explorer of his own. No board, no screen, no controller. The game lives in shared imagination, conversation, a set of rules, and dice. The GM describes a situation, the players say what their Explorers do, and the dice speak when the outcome is uncertain. That is the whole game. Nobody wins and nobody loses. The goal is a good evening together, one session at a time." },
+  { h: "Playing Your Explorer", p: "Your Explorer is not you. He is a living person in another world, with ambitions, motives and fears of his own, and the choices you made at creation exist to make him real at the table. When you declare an action, think about what he would do rather than what you know to be optimal. A seasoned Warrior charges. A cautious Scholar hesitates. A Rogue finds the exit before he commits. Or none of that, because he is yours to make. You do not need to speak in character to play well. \"I try to intimidate the guard\" works as well as acting it out, so find what keeps your table leaning forward. And failure is not losing. It means the situation was harder than it looked, or the luck ran thin, or another approach fits better. Some of the best nights at any table come from things going badly wrong." },
+  { h: "Table Etiquette", p: "Learn the rules, pay attention, and share the spotlight. Side conversations and too much joking slow the game down. Stay engaged when the turn is not yours, because Explorers succeed as a team and fall as one. If something at the table is not working, say so calmly at a break or between sessions, since problems raised early rarely grow. Trust your GM. He is holding a living world together and some rulings will be imperfect. Accept them and move on, because consistency matters more than perfection." }
 ];
 const HOWTO_SECTIONS = [
   { h: "The Roll", p: "When an outcome is in doubt, the GM sets a difficulty: Easy 4+, Normal 5+, or Hard 6+. You roll the die for the skill in play and meet or beat that number to succeed. Anything easier than Easy simply works. Anything harder than Hard is beyond reach until you change your approach." },
@@ -2233,7 +2247,7 @@ let handbookFrom = "screen-intro";
 function openHandbook(fromId) {
   handbookFrom = fromId;
   hide($(fromId));
-  renderHandbook("howto");
+  renderHandbook(HANDBOOK_SECTIONS[0].id);
   show($("screen-handbook"));
   window.scrollTo(0, 0);
 }
@@ -2253,9 +2267,9 @@ function renderHandbook(section) {
   });
   const body = $("handbook-body");
   body.textContent = "";
-  if (section === "howto" || section === "world") {
-    const sections = section === "howto" ? HOWTO_SECTIONS : WORLD_SECTIONS;
-    sections.forEach((sec) => {
+  const SCROLLING = { table: TABLE_SECTIONS, howto: HOWTO_SECTIONS, world: WORLD_SECTIONS };
+  if (SCROLLING[section]) {
+    SCROLLING[section].forEach((sec) => {
       body.appendChild(ce("h3", "howto-h", sec.h));
       body.appendChild(ce("p", "howto-p", sec.p));
     });
