@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v78";
+const VERSION = "v79";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1462,8 +1462,17 @@ function importFromPaste() {
 // "as many as your Load allows" both come free. No separate counter to fall out of sync.
 const AMMO_BUNDLES = ["Arrow Bundle", "Bolt Bundle"];
 
+// v79: mechanical items are found by name, so matching forgives case and stray spaces.
+// A hand-typed "shield" or "arrow bundle" now counts the same as the catalog entry the
+// suggestion list inserts. Display still shows exactly what the player typed; only the
+// lookup is lenient. This stays an equality test, not a substring one, so "Wooden Shield"
+// is still a different item.
+function sameItemName(a, b) {
+  return String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+}
+
 function bundleCount(name) {
-  return character.items.filter((it) => it.name === name).length;
+  return character.items.filter((it) => sameItemName(it.name, name)).length;
 }
 
 function totalBundles() {
@@ -1472,7 +1481,7 @@ function totalBundles() {
 
 // Removes one Bundle row. Returns true when one was actually spent.
 function spendBundle(name) {
-  const i = character.items.findIndex((it) => it.name === name);
+  const i = character.items.findIndex((it) => sameItemName(it.name, name));
   if (i === -1) return false;
   character.items.splice(i, 1);
   renderInventory();
@@ -2405,7 +2414,7 @@ function effectiveDefense() {
 // Like ammunition Bundles, the Shield is an inventory row, so selling or losing it
 // takes the reroll with it. Whether it is worn or stowed is the table's ruling.
 function hasShield() {
-  return character.items.some((it) => it.name === "Shield");
+  return character.items.some((it) => sameItemName(it.name, "Shield"));
 }
 
 function shieldRerollAvailable() {
