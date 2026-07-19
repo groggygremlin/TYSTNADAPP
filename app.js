@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v82";
+const VERSION = "v83";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -442,6 +442,17 @@ let pendingDefense = null;
 let forageRough = false;
 let explosionState = null;
 let hitState = null;
+
+/* v83: dice history. Session only and in memory, by Tomas's ruling, so it never enters
+   the save or the export wire format. A log records what already happened and rules
+   nothing, which is why it sits inside the doctrine. Newest first, capped. */
+const ROLL_LOG_MAX = 30;
+let rollLog = [];
+
+function logRoll(line, result, outcome) {
+  rollLog.unshift({ line: line, result: result, outcome: outcome });
+  if (rollLog.length > ROLL_LOG_MAX) rollLog.length = ROLL_LOG_MAX;
+}
 // v74: ranged combat selections. Transient, reset every time the overlay opens.
 let atkMode = "melee";
 let atkRangeSteps = 0;
@@ -1476,6 +1487,31 @@ function importFromPaste() {
   }
 }
 
+// ---------- Dice history (v83) ----------
+
+function openHistory() {
+  renderHistory();
+  show($("overlay-history"));
+}
+
+function renderHistory() {
+  const list = $("history-list");
+  list.textContent = "";
+  if (rollLog.length === 0) {
+    list.appendChild(ce("p", "history-empty", "No rolls yet this session."));
+    return;
+  }
+  rollLog.forEach((r) => {
+    const row = ce("div", "history-row");
+    const left = ce("div", "history-left");
+    left.appendChild(ce("span", "history-line", r.line));
+    row.appendChild(left);
+    row.appendChild(ce("span", "history-result", String(r.result)));
+    row.appendChild(ce("span", "history-outcome", r.outcome));
+    list.appendChild(row);
+  });
+}
+
 // ---------- Ammunition (PB v2.5 p.14) ----------
 
 // Bundles are ordinary inventory rows, so canon's "track each Bundle separately" and
@@ -1747,6 +1783,9 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote, in
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
 
+  logRoll("Attack " + combatDie + " vs " + target + "+" + (wearyNote || ""), result,
+    success ? "HIT" : "MISS");
+
   if (success) tickSkill("Combat");
 
   const overlay = $("overlay-result");
@@ -1922,6 +1961,9 @@ function performRollExplore(die, target, wearyActive) {
 
   if (success) tickSkill("Awareness");
 
+  logRoll("Explore " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : ""), result,
+    success ? "SUCCESS" : "FAIL");
+
   $("result-context").textContent = "Explore " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : "");
 
   const overlay = $("overlay-result");
@@ -1972,6 +2014,9 @@ function performRollForage(die) {
   const gained = result >= 6 ? 2 : result >= 4 ? 1 : 0;
   if (gained > 0) { character.supply += gained; save(); renderInventory(); }
 
+  logRoll("Forage " + die + (forageRough ? " (Rough)" : ""), result,
+    gained > 0 ? "+" + gained + " SUPPLY" : "NOTHING");
+
   $("result-context").textContent = "Forage " + die + (forageRough ? " (Rough)" : "");
 
   const overlay = $("overlay-result");
@@ -2018,6 +2063,9 @@ function performRollCamp(die, target, wearyActive) {
   const success = result >= target;
 
   if (success) tickSkill("Awareness");
+
+  logRoll("Camp " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : ""), result,
+    success ? (result - target >= 2 ? "DEFENSIBLE" : "STABLE") : "EXPOSED");
 
   $("result-context").textContent = "Camp " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : "");
 
@@ -2581,6 +2629,9 @@ function performRoll(die, target, context, opts) {
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
 
+  logRoll(context, result,
+    opts.death ? (success ? "SURVIVED" : "DEATH") : (success ? "SUCCESS" : "FAIL"));
+
   // Apply persistent effects immediately; animation is purely visual
   if (success && opts.tickSkill) tickSkill(opts.tickSkill);
 
@@ -2664,6 +2715,7 @@ function performRollDefense(target, rollDie, isReroll) {
   const die = rollDie || effectiveDefense();
   // Remembered so the shield reroll repeats the same roll, range and cover included.
   pendingDefense = { target: target, die: die, bonus: bonus };
+  const logLine = (isReroll ? "Defense reroll " : "Defense ") + die + " vs " + target + "+";
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
@@ -2684,12 +2736,14 @@ function performRollDefense(target, rollDie, isReroll) {
     numEl.textContent = "";
     if (success) {
       overlay.classList.add("overlay--act3");
+      logRoll(logLine, result, "UNTOUCHED");
       verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
       document.querySelector(".result-dismiss").classList.remove("hidden");
     } else {
       // Agile (Edge 18) removes the +2 unarmored penalty.
       const noArmor = (character.loadout.armor === "none" && !hasEdge(18)) ? 2 : 0;
       pendingDefenseDamage = Math.max(0, (target - result) + bonus + noArmor);
+      logRoll(logLine, result, "TAKE " + pendingDefenseDamage);
       overlay.classList.add("overlay--action");
       // The shield reroll is offered once per combat, and only on a first roll: canon
       // gives one reroll, not a chain, so a rerolled failure shows no button.
@@ -3576,6 +3630,10 @@ document.addEventListener("DOMContentLoaded", () => {
     atkDouble = !atkDouble;
     renderDoubleAttack();
   });
+
+  // Dice history (v83)
+  $("btn-history").addEventListener("click", openHistory);
+  $("history-done").addEventListener("click", () => hide($("overlay-history")));
 
   // Shields (v76)
   $("btn-new-combat").addEventListener("click", newCombat);
