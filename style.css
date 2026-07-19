@@ -1428,6 +1428,43 @@ button.hp-max:active { color: var(--blood-bright); }
   right: 24px;
 }
 
+/* ============ UPDATE BANNER (v85) ============ */
+
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--blood);
+}
+
+.update-banner-text {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--bone);
+}
+
+.update-reload-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  background: var(--blood);
+  color: var(--bone);
+  border: none;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
 /* ============ DICE HISTORY (v83) ============ */
 
 .history-list {

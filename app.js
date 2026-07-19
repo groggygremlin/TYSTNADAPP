@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v84";
+const VERSION = "v85";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3698,7 +3698,16 @@ document.addEventListener("DOMContentLoaded", () => {
   renderIntro();
   show($("screen-intro"));
 
+  /* v85: a waiting update announces itself instead of reloading the window underneath the
+     player. Reloading mid-action destroyed transient state, and character creation is the
+     sharp case: createState is memory-only, so a deploy landing mid-wizard wiped the whole
+     Explorer being made. The banner lets him finish the roll, then update. */
+  $("update-reload").addEventListener("click", () => location.reload());
+
   if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "tystnad-update-ready") show($("update-banner"));
+    });
     navigator.serviceWorker.register("sw.js").catch((e) => {
       console.error("Service worker registration failed:", e);
     });
