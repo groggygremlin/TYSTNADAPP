@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v85";
+const VERSION = "v86";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -2960,6 +2960,10 @@ function openTableLink() {
   tlClearBanner();
   tlHideError("tl-link-error");
   tlHideError("tl-join-error");
+  // v85: a failed revoke must not leave its error and escape hatch on screen next visit.
+  tlHideError("tl-unlink-error");
+  hide($("tl-forget-btn"));
+  hide($("tl-forget-note"));
   hide($("tl-buy-prompt"));
   if (tlDevice) {
     tlRenderEntitlement();
@@ -3304,25 +3308,66 @@ function tlBuildCard(m) {
 
 // ---- Unlink ----
 
-async function tlDoUnlink() {
-  if (!tlDevice || tlBusy) return;
-  tlBusy = true;
-  const btn = $("tl-unlink-btn");
-  btn.disabled = true;
-  try {
-    await tlApi("/api/v1/devices/unlink", { method: "POST" });
-  } catch (e) {
-    // Even if the call fails, clear locally: the token is this device's to drop.
-  }
+/* v85: drop the local token and return to the link screen. Used once the server has
+   confirmed the revocation, and by the explicit local-only escape hatch. */
+function tlClearDeviceLocally() {
   tlStopPolling();
   tlSession = null;
   tlDevice = null;
   tlSave();
   tlHideError("tl-join-error");
+  tlHideError("tl-unlink-error");
+  hide($("tl-forget-btn"));
+  hide($("tl-forget-note"));
   hide($("tl-buy-prompt"));
   tlShowState("link");
+}
+
+/* v85, from the peer review: unlink used to clear the local token no matter what, so a
+   failed revocation left the UI saying "unlinked" while the server token stayed valid and
+   the app had thrown away its only means of retrying. Worse than the review described,
+   because tlApi RESOLVES on a non-2xx rather than throwing, so the old catch only ever saw
+   network failures and a clean 500 was silently treated as success.
+
+   Now the local token is dropped only when the server is known to have revoked it, or when
+   it is known to be dead already (401/403). Anything else keeps the token so the player can
+   retry, and offers an explicit local-only forget that states what it does not do. */
+async function tlDoUnlink() {
+  if (!tlDevice || tlBusy) return;
+  tlBusy = true;
+  const btn = $("tl-unlink-btn");
+  btn.disabled = true;
+  tlHideError("tl-unlink-error");
+
+  let res = null;
+  try {
+    res = await tlApi("/api/v1/devices/unlink", { method: "POST" });
+  } catch (e) {
+    res = null; // network failure: the server was never reached
+  }
+
+  if (res && res.ok) {
+    tlClearDeviceLocally();                       // confirmed revoked
+  } else if (res && (res.status === 401 || res.status === 403)) {
+    tlClearDeviceLocally();                       // already invalid server-side
+  } else {
+    // Server refused or was unreachable. Keep the token: it is still the only handle
+    // on a credential that is still live.
+    tlShowError("tl-unlink-error", res
+      ? "Could not revoke this device. Try again in a moment."
+      : "Could not revoke this device. Try again when online.");
+    show($("tl-forget-btn"));
+    show($("tl-forget-note"));
+  }
+
   tlBusy = false;
   btn.disabled = false;
+}
+
+// The escape hatch, deliberately separate and deliberately blunt about its limits.
+function tlForgetLocally() {
+  if (!tlDevice || tlBusy) return;
+  tlClearDeviceLocally();
 }
 
 // ---------- Wiring ----------
@@ -3408,6 +3453,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("tl-link-btn").addEventListener("click", tlDoLink);
   $("tl-join-btn").addEventListener("click", tlDoJoin);
   $("tl-unlink-btn").addEventListener("click", tlDoUnlink);
+  $("tl-forget-btn").addEventListener("click", tlForgetLocally);
   $("tl-leave-btn").addEventListener("click", tlLeaveSession);
   $("tl-popup-close").addEventListener("click", tlDismissPopup);
 
