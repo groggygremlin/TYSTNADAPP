@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v73";
+const VERSION = "v74";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -178,7 +178,9 @@ const RULES_TOPICS = [
     "Attacking: the GM sets the difficulty, and you roll your Combat skill and your weapon damage die. On a hit, deal the damage. If the damage die rolls its maximum, roll again and add it, repeating until it is not maximum (exploding damage).",
     "Defending: when a monster strikes you, roll your Defense die against its threat (Weak 4+, Standard 5+, Strong 6+). Success takes no damage. Failure takes the target minus your roll, plus the monster's damage bonus.",
     "The Defense die is set by class (Warrior and Rogue d8, Scholar and Sorcerer d6) and raised only by armor: light no change, medium one step up, heavy two steps up. With no armor you use the base die but take +2 extra damage on a failed Defense. A shield lets you reroll one failed Defense per combat.",
-    "Ranged: bows and crossbows need ammunition, tracked in bundles. Range and cover shift the difficulty, as the GM rules."
+    "Ranged: range and cover shift your die by steps, not the difficulty. Shooting, each steps your Combat die down (short 0, medium 1, long 2; partial cover 1, significant cover 2), and the two stack. Full cover, or a die that falls below d6, means you cannot take the shot. Firing into melee is always Hard, and a 1 on your Combat die hits a creature adjacent to your target.",
+    "Defending at range: the target number is still the monster's threat, and range and cover step your Defense die up by the same amounts, stacking to d12. Past d12, or behind full cover, the shot cannot reach you.",
+    "Bows and crossbows need ammunition, tracked in bundles."
   ] },
   { title: "Hexploration", paras: [
     "The frontier is a grid of hexes, each 24 miles of wilderness. You cross them, explore them, map them, and mark them. The farther from Haven, the greater the danger and the greater the reward.",
@@ -389,6 +391,14 @@ let pendingDefenseDamage = 0;
 let forageRough = false;
 let explosionState = null;
 let hitState = null;
+// v74: ranged combat selections. Transient, reset every time the overlay opens.
+let atkMode = "melee";
+let atkRangeSteps = 0;
+let atkCoverSteps = 0;
+let atkIntoMelee = false;
+let defMode = "melee";
+let defRangeSteps = 0;
+let defCoverSteps = 0;
 
 // ---------- Persistence ----------
 
@@ -456,6 +466,24 @@ function stepDie(die, dir) {
   const i = DICE.indexOf(die);
   const next = Math.min(Math.max(i + dir, 0), DICE.length - 1);
   return DICE[next];
+}
+
+// Ranged combat (PB v2.5 p.22). Range and cover each shift the die by steps and the two
+// stack. Full cover is marked with RANGED_BLOCKED. A null return means no roll is made.
+const RANGED_BLOCKED = 99;
+
+// Shooting: the steps come off your Combat die. Below d6 you cannot take the shot.
+function rangedAttackDie(base, rangeSteps, coverSteps) {
+  if (rangeSteps === RANGED_BLOCKED || coverSteps === RANGED_BLOCKED) return null;
+  const i = DICE.indexOf(base) - (rangeSteps + coverSteps);
+  return i < 0 ? null : DICE[i];
+}
+
+// Being shot at: the steps go onto your Defense die, up to d12. Past d12 the shot cannot reach.
+function rangedDefenseDie(base, rangeSteps, coverSteps) {
+  if (rangeSteps === RANGED_BLOCKED || coverSteps === RANGED_BLOCKED) return null;
+  const i = DICE.indexOf(base) + (rangeSteps + coverSteps);
+  return i > DICE.indexOf("d12") ? null : DICE[i];
 }
 
 function forageStepDown(die) {
@@ -1393,19 +1421,73 @@ function openAttack() {
   document.querySelectorAll(".momentum-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.momentum, 10) === 0);
   });
+  atkMode = "melee";
+  atkRangeSteps = 0;
+  atkCoverSteps = 0;
+  atkIntoMelee = false;
+  selectByData(".mode-btn", "mode", "melee");
+  selectByData(".range-btn", "steps", "0");
+  selectByData(".cover-btn", "steps", "0");
+  renderAttackRanged();
   refreshWearyOverlay("overlay-attack");
   show($("overlay-attack"));
 }
 
+// Marks the one button in a group whose data attribute matches, clearing the rest.
+function selectByData(selector, key, value) {
+  document.querySelectorAll(selector).forEach((b) => {
+    b.classList.toggle("selected", b.dataset[key] === value);
+  });
+}
+
+// The Combat die you actually roll this attack, or null when canon forbids the shot.
+function attackRollDie() {
+  const base = character.skills["Combat"];
+  if (atkMode !== "ranged") return base;
+  return rangedAttackDie(base, atkRangeSteps, atkCoverSteps);
+}
+
+function renderAttackRanged() {
+  const ranged = atkMode === "ranged";
+  const block = $("atk-ranged-block");
+  ranged ? show(block) : hide(block);
+  $("atk-into-melee").classList.toggle("selected", atkIntoMelee);
+
+  const line = $("atk-die-line");
+  if (ranged) {
+    const base = character.skills["Combat"];
+    const die = attackRollDie();
+    if (!die) {
+      line.textContent = atkCoverSteps === RANGED_BLOCKED
+        ? "Full cover. You cannot take the shot."
+        : "Combat " + base + " falls below d6. You cannot take the shot.";
+    } else {
+      line.textContent = die === base ? "Combat " + base : "Combat " + base + " to " + die;
+    }
+  } else {
+    line.textContent = "";
+  }
+
+  // Firing into melee is always a Hard check, so the softer tiers come off the table.
+  const lockHard = ranged && atkIntoMelee;
+  const noShot = ranged && !attackRollDie();
+  document.querySelectorAll("#attack-diff-buttons .diff-btn").forEach((btn) => {
+    const off = noShot || (lockHard && parseInt(btn.dataset.target, 10) !== 6);
+    btn.classList.toggle("locked-out", off);
+    btn.disabled = off;
+  });
+}
 
 function rollAttack(target) {
+  const combatDie = attackRollDie();
+  if (!combatDie) return; // the overlay already states why, and no roll is made
+  const intoMelee = atkMode === "ranged" && atkIntoMelee;
   const momentum = attackMomentum;
   const effective = wearyShift(target);
   hide($("overlay-attack"));
-  const combatDie = character.skills["Combat"];
   const damageDie = damageDieForWeapon();
   performRollAttack(combatDie, damageDie, effective, momentum,
-    effective !== target ? " (Weary)" : "");
+    effective !== target ? " (Weary)" : "", intoMelee);
 }
 
 function runFlicker(numEl, sides, onDone) {
@@ -1422,7 +1504,7 @@ function runFlicker(numEl, sides, onDone) {
   }, 60);
 }
 
-function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
+function performRollAttack(combatDie, damageDie, target, momentum, wearyNote, intoMelee) {
   if (rollLocked) return;
   rollLocked = true;
 
@@ -1446,6 +1528,11 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote) {
   runFlicker(numEl, sides, () => {
     numEl.classList.add("hidden");
     numEl.textContent = "";
+    // Firing into melee: a 1 on the Combat die hits someone next to your target instead.
+    if (intoMelee && result === 1) {
+      ctxEl.textContent = "You hit a creature adjacent to your target. The GM decides which.";
+      ctxEl.classList.remove("hidden");
+    }
     if (success) {
       const dmgSides = dieSides(damageDie);
       hitState = { sides: dmgSides, momentum };
@@ -2077,10 +2164,51 @@ function openDefense() {
   document.querySelectorAll(".bonus-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.bonus, 10) === 0);
   });
+  defMode = "melee";
+  defRangeSteps = 0;
+  defCoverSteps = 0;
+  selectByData(".def-mode-btn", "mode", "melee");
+  selectByData(".def-range-btn", "steps", "0");
+  selectByData(".def-cover-btn", "steps", "0");
   $("def-edit-value").textContent = effectiveDefense();
   renderDefenseNote();
+  renderDefenseRanged();
   refreshWearyOverlay("overlay-defense");
   show($("overlay-defense"));
+}
+
+// The Defense die you actually roll, or null when the shot cannot reach you at all.
+function defenseRollDie() {
+  const base = effectiveDefense();
+  if (defMode !== "ranged") return base;
+  return rangedDefenseDie(base, defRangeSteps, defCoverSteps);
+}
+
+function renderDefenseRanged() {
+  const ranged = defMode === "ranged";
+  const block = $("def-ranged-block");
+  ranged ? show(block) : hide(block);
+
+  const line = $("def-ranged-line");
+  if (ranged) {
+    const base = effectiveDefense();
+    const die = defenseRollDie();
+    if (!die) {
+      line.textContent = defCoverSteps === RANGED_BLOCKED
+        ? "Full cover. The shot cannot reach you."
+        : "Defense " + base + " rises past d12. The shot cannot reach you.";
+    } else {
+      line.textContent = die === base ? "Defense " + base : "Defense " + base + " to " + die;
+    }
+  } else {
+    line.textContent = "";
+  }
+
+  const noRoll = ranged && !defenseRollDie();
+  document.querySelectorAll("#threat-buttons .diff-btn").forEach((btn) => {
+    btn.classList.toggle("locked-out", noRoll);
+    btn.disabled = noRoll;
+  });
 }
 
 // ---------- Death Roll ----------
@@ -2186,17 +2314,19 @@ function rollSkill(target) {
 }
 
 function rollDefense(target) {
+  const die = defenseRollDie();
+  if (!die) return; // the overlay already states why, and no roll is made
   const effective = wearyShift(target);
   hide($("overlay-defense"));
-  performRollDefense(effective);
+  performRollDefense(effective, die);
 }
 
-function performRollDefense(target) {
+function performRollDefense(target, rollDie) {
   if (rollLocked) return;
   rollLocked = true;
 
   const bonus = defenseBonus;
-  const die = effectiveDefense();
+  const die = rollDie || effectiveDefense();
   const sides = dieSides(die);
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
@@ -2920,6 +3050,30 @@ document.addEventListener("DOMContentLoaded", () => {
     save();
     $("def-edit-value").textContent = effectiveDefense();
     renderDefenseNote();
+    renderDefenseRanged();
+  });
+
+  // Defense ranged selectors (v74)
+  document.querySelectorAll(".def-mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      defMode = btn.dataset.mode;
+      selectByData(".def-mode-btn", "mode", defMode);
+      renderDefenseRanged();
+    });
+  });
+  document.querySelectorAll(".def-range-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      defRangeSteps = parseInt(btn.dataset.steps, 10);
+      selectByData(".def-range-btn", "steps", btn.dataset.steps);
+      renderDefenseRanged();
+    });
+  });
+  document.querySelectorAll(".def-cover-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      defCoverSteps = parseInt(btn.dataset.steps, 10);
+      selectByData(".def-cover-btn", "steps", btn.dataset.steps);
+      renderDefenseRanged();
+    });
   });
 
   // Death Roll (single button in shell)
@@ -3044,6 +3198,33 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => rollAttack(parseInt(btn.dataset.target, 10)));
   });
   $("attack-cancel").addEventListener("click", () => hide($("overlay-attack")));
+
+  // Attack ranged selectors (v74)
+  document.querySelectorAll(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      atkMode = btn.dataset.mode;
+      selectByData(".mode-btn", "mode", atkMode);
+      renderAttackRanged();
+    });
+  });
+  document.querySelectorAll(".range-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      atkRangeSteps = parseInt(btn.dataset.steps, 10);
+      selectByData(".range-btn", "steps", btn.dataset.steps);
+      renderAttackRanged();
+    });
+  });
+  document.querySelectorAll(".cover-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      atkCoverSteps = parseInt(btn.dataset.steps, 10);
+      selectByData(".cover-btn", "steps", btn.dataset.steps);
+      renderAttackRanged();
+    });
+  });
+  $("atk-into-melee").addEventListener("click", () => {
+    atkIntoMelee = !atkIntoMelee;
+    renderAttackRanged();
+  });
 
   // Advancement: Level + Edges (HOME)
   $("level-minus").addEventListener("click", () => adjustLevel(-1));

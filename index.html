@@ -349,6 +349,27 @@
       <button class="step-btn" data-dir="1" aria-label="Raise Defense die">+</button>
     </div>
     <p id="def-armor-note" class="def-armor-note"></p>
+    <p class="atk-section-label">Attack Mode</p>
+    <div class="mode-grid" id="def-mode-grid">
+      <button class="def-mode-btn class-btn selected" data-mode="melee">Melee</button>
+      <button class="def-mode-btn class-btn" data-mode="ranged">Ranged</button>
+    </div>
+    <div id="def-ranged-block" class="ranged-block hidden">
+      <p class="atk-section-label">Range</p>
+      <div class="mode-grid" id="def-range-grid">
+        <button class="def-range-btn class-btn selected" data-steps="0">Short</button>
+        <button class="def-range-btn class-btn" data-steps="1">Medium</button>
+        <button class="def-range-btn class-btn" data-steps="2">Long</button>
+      </div>
+      <p class="atk-section-label">Your Cover</p>
+      <div class="mode-grid" id="def-cover-grid">
+        <button class="def-cover-btn class-btn selected" data-steps="0">None</button>
+        <button class="def-cover-btn class-btn" data-steps="1">Partial</button>
+        <button class="def-cover-btn class-btn" data-steps="2">Significant</button>
+        <button class="def-cover-btn class-btn" data-steps="99">Full</button>
+      </div>
+      <p class="ranged-line" id="def-ranged-line"></p>
+    </div>
     <p class="atk-section-label">Enemy Damage Bonus</p>
     <div class="bonus-grid" id="def-bonus-grid">
       <button class="bonus-btn class-btn selected" data-bonus="0">+0</button>
@@ -421,6 +442,28 @@
 
   <!-- ============ ATTACK OVERLAY ============ -->
   <div id="overlay-attack" class="overlay hidden">
+    <p class="atk-section-label">Attack Mode</p>
+    <div class="mode-grid" id="atk-mode-grid">
+      <button class="mode-btn class-btn selected" data-mode="melee">Melee</button>
+      <button class="mode-btn class-btn" data-mode="ranged">Ranged</button>
+    </div>
+    <div id="atk-ranged-block" class="ranged-block hidden">
+      <p class="atk-section-label">Range</p>
+      <div class="mode-grid" id="atk-range-grid">
+        <button class="range-btn class-btn selected" data-steps="0">Short</button>
+        <button class="range-btn class-btn" data-steps="1">Medium</button>
+        <button class="range-btn class-btn" data-steps="2">Long</button>
+      </div>
+      <p class="atk-section-label">Cover</p>
+      <div class="mode-grid" id="atk-cover-grid">
+        <button class="cover-btn class-btn selected" data-steps="0">None</button>
+        <button class="cover-btn class-btn" data-steps="1">Partial</button>
+        <button class="cover-btn class-btn" data-steps="2">Significant</button>
+        <button class="cover-btn class-btn" data-steps="99">Full</button>
+      </div>
+      <button class="melee-toggle class-btn" id="atk-into-melee">Firing Into Melee</button>
+      <p class="ranged-line" id="atk-die-line"></p>
+    </div>
     <p class="atk-section-label">Momentum</p>
     <div class="momentum-grid">
       <button class="momentum-btn class-btn selected" data-momentum="0">None</button>

@@ -1210,6 +1210,56 @@ button.hp-max:active { color: var(--blood-bright); }
   max-width: 320px;
 }
 
+/* ============ RANGED COMBAT (v74) ============ */
+
+.mode-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.mode-grid .class-btn {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  padding: 14px 4px;
+  min-height: 44px;
+}
+
+.ranged-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.melee-toggle {
+  width: 100%;
+  max-width: 320px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  padding: 14px 8px;
+  min-height: 44px;
+}
+
+.ranged-line {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-align: center;
+  margin: 2px 0 0;
+}
+
+.diff-btn.locked-out {
+  opacity: 0.35;
+  cursor: default;
+}
+
 /* ============ ATTACK RESULT DISPLAY ============ */
 
 .attack-result {
