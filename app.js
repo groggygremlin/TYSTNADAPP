@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v86";
+const VERSION = "v87";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -478,15 +478,32 @@ function save() {
   if (typeof tlSession !== "undefined" && tlSession) tlScheduleReport();
 }
 
+/* v87: stored characters go through the same shaping as imported ones, so invalid data
+   can no longer enter from localStorage while being refused at import.
+
+   The two paths deliberately FAIL DIFFERENTLY. An import that fails is refused loudly and
+   costs nothing, because the player still holds the file. A stored character that failed
+   the same way would be somebody's Explorer, so storage REPAIRS rather than rejects:
+   migrate fills gaps, canonicalCharacter clamps and drops the unknown. Only data that is
+   not recognisably a character at all is set aside, and set aside is the operative word:
+   the raw text is preserved under a quarantine key instead of being destroyed. */
+const QUARANTINE_KEY = "tystnad-character-unreadable";
+
 function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
     const data = JSON.parse(raw);
-    if (!data || typeof data !== "object" || !data.skills) return null;
-    return migrate(data);
+    if (!data || typeof data !== "object" || !data.skills || !CLASSES[data.cls]) {
+      throw new Error("unrecognisable");
+    }
+    migrate(data);
+    return canonicalCharacter(data);
   } catch (e) {
     console.error("Load failed:", e);
+    // Keep the original bytes. A character that cannot be read is not a character that
+    // should be thrown away; it may still be recoverable by hand.
+    try { localStorage.setItem(QUARANTINE_KEY, raw); } catch (_) {}
     return null;
   }
 }
@@ -1411,7 +1428,110 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+/* ---------- Import bounds and canonical shape (peer review, v87) ----------
+
+   Three findings, one boundary. Before v87 the app would read a file of any size, keep
+   every unknown property an importer sent, and apply none of that scrutiny to what came
+   back out of localStorage.
+
+   Bounds are generous: they exist to stop a file freezing the app or a character growing
+   without limit, not to police play. The server, when there is one, must enforce its own.
+   Client validation is never a server security boundary. */
+const IMPORT_LIMITS = {
+  bytes: 256 * 1024,   // a real Explorer is a few KB; this is a wide margin
+  name: 80,
+  identity: 1000,      // per answer
+  items: 100,          // rows
+  itemName: 100,
+  lp: 30,              // one item can never exceed the total carry limit
+  coins: 1000000,
+  supply: 999,
+  dp: 9999
+};
+
+function boundedText(v, max) {
+  return typeof v === "string" ? v.slice(0, max) : "";
+}
+
+function boundedInt(v, min, max, fallback) {
+  if (!Number.isInteger(v)) return fallback;
+  return Math.min(Math.max(v, min), max);
+}
+
+/* Builds a FRESH character containing only fields the app knows. Anything an importer
+   invented is dropped here rather than living on in localStorage and every later export.
+   This normalises; it never throws. Rejection is the validator's job, above. */
+function canonicalCharacter(d) {
+  const skills = {};
+  SKILLS.forEach((s) => {
+    skills[s] = DICE.includes(d.skills && d.skills[s]) ? d.skills[s] : "d6";
+  });
+
+  const skillTicks = {};
+  SKILLS.forEach((s) => {
+    if (d.skillTicks && d.skillTicks[s]) skillTicks[s] = true;
+  });
+
+  const conditions = {};
+  CONDITIONS.forEach((c) => {
+    if (d.conditions && d.conditions[c.id] === true) conditions[c.id] = true;
+  });
+
+  const roles = [];
+  (Array.isArray(d.roles) ? d.roles : []).forEach((r) => {
+    if (EXPEDITION_ROLES.includes(r) && !roles.includes(r)) roles.push(r);
+  });
+
+  const edges = [];
+  (Array.isArray(d.edges) ? d.edges : []).forEach((id) => {
+    if (Number.isInteger(id) && id >= 1 && id <= EDGES.length && !edges.includes(id)) edges.push(id);
+  });
+
+  const items = [];
+  (Array.isArray(d.items) ? d.items : []).slice(0, IMPORT_LIMITS.items).forEach((it) => {
+    if (!it || typeof it !== "object") return;
+    items.push({
+      name: boundedText(it.name, IMPORT_LIMITS.itemName),
+      lp: boundedInt(Math.round(it.lp), 0, IMPORT_LIMITS.lp, 0)
+    });
+  });
+
+  const identity = {};
+  ["drive", "hope", "line", "kin"].forEach((k) => {
+    identity[k] = boundedText(d.identity && d.identity[k], IMPORT_LIMITS.identity);
+  });
+
+  const hpMax = boundedInt(d.hpMax, 1, 99, 10);
+  const armor = INIT_ARMOR.hasOwnProperty(d.loadout && d.loadout.armor) ? d.loadout.armor : "medium";
+  const weapon = INIT_WEAPON.hasOwnProperty(d.loadout && d.loadout.weapon) ? d.loadout.weapon : "standard";
+
+  return {
+    name: boundedText(d.name, IMPORT_LIMITS.name).trim(),
+    cls: CLASSES[d.cls] ? d.cls : "Warrior",
+    skills: skills,
+    hpMax: hpMax,
+    hpCur: boundedInt(d.hpCur, -99, hpMax, hpMax),
+    defense: ["d6", "d8", "d10", "d12"].includes(d.defense) ? d.defense : "d6",
+    loadout: { armor: armor, weapon: weapon },
+    items: items,
+    coins: boundedInt(d.coins, 0, IMPORT_LIMITS.coins, 0),
+    roles: roles,
+    skillTicks: skillTicks,
+    supply: boundedInt(d.supply, 0, IMPORT_LIMITS.supply, 0),
+    level: boundedInt(d.level, 1, 20, 1),
+    dp: boundedInt(d.dp, 0, IMPORT_LIMITS.dp, 0),
+    shieldUsed: d.shieldUsed === true,
+    conditions: conditions,
+    identity: identity,
+    edges: edges
+  };
+}
+
 function parseCharacterJSON(jsonString) {
+  // Bound the text before parsing: a huge string costs memory whatever it contains.
+  if (typeof jsonString !== "string" || jsonString.length > IMPORT_LIMITS.bytes) {
+    throw new Error("invalid");
+  }
   let data;
   try { data = JSON.parse(jsonString); } catch (_) { throw new Error("invalid"); }
   if (!data || typeof data !== "object") throw new Error("invalid");
@@ -1452,7 +1572,9 @@ function parseCharacterJSON(jsonString) {
   for (const k of Object.keys(data.skillTicks)) {
     if (!SKILLS.includes(k)) throw new Error("invalid");
   }
-  return data;
+  // Never hand back the object the importer sent: unknown properties would otherwise
+  // persist into localStorage and into every export after it.
+  return canonicalCharacter(data);
 }
 
 function applyImport(data) {
@@ -1465,6 +1587,11 @@ function applyImport(data) {
 }
 
 function importCharacter(file) {
+  // Refuse oversized files BEFORE readAsText pulls them into memory.
+  if (!file || file.size > IMPORT_LIMITS.bytes) {
+    show($("import-error"));
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
