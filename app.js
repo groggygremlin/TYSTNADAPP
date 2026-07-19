@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v83";
+const VERSION = "v84";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1761,18 +1761,25 @@ function skipSecondAttack() {
   closeResultOverlay();
 }
 
+// v84: the running flicker is tracked so closing the result overlay can cancel it.
+// Without the handle, a late callback would write its verdict into an overlay that has
+// already been dismissed, or into the next roll's.
+let activeFlicker = null;
+
 function runFlicker(numEl, sides, onDone) {
   numEl.classList.add("rolling");
   let ticks = 0;
-  const flicker = setInterval(() => {
+  const id = setInterval(() => {
     numEl.textContent = Math.floor(Math.random() * sides) + 1;
     ticks++;
     if (ticks >= 8) {
-      clearInterval(flicker);
+      clearInterval(id);
+      if (activeFlicker === id) activeFlicker = null;
       numEl.classList.remove("rolling");
       onDone();
     }
   }, 60);
+  activeFlicker = id;
 }
 
 function performRollAttack(combatDie, damageDie, target, momentum, wearyNote, intoMelee) {
@@ -2772,9 +2779,24 @@ function hideRollReadout() {
   $("result-context").classList.add("hidden");
 }
 
+/* v84: closing the result overlay ABORTS the ceremony rather than merely hiding it.
+   Cancelling the flicker first matters: releasing the lock on its own would let the next
+   roll start while an old callback was still pending, and that callback would then write
+   its verdict into the new roll's overlay. With the timer cancelled, clearing the lock is
+   safe, and rollLocked can no longer strand and silently block all rolling. */
 function closeResultOverlay() {
   const overlay = $("overlay-result");
-  $("result-number").classList.remove("hidden");
+  const numEl = $("result-number");
+  if (activeFlicker !== null) {
+    clearInterval(activeFlicker);
+    activeFlicker = null;
+    numEl.classList.remove("rolling");
+  }
+  rollLocked = false;
+  hitState = null;
+  explosionState = null;
+  pendingDouble = null;
+  numEl.classList.remove("hidden");
   $("result-context").classList.remove("hidden");
   overlay.classList.remove("overlay--action", "overlay--act3", "death-flood");
   hide(overlay);
