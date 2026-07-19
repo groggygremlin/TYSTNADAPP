@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v77";
+const VERSION = "v78";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -214,6 +214,35 @@ const INIT_WEAPON = { light: 1, standard: 0, heavy: -1 };
    Light 1d6, Standard 1d8, Heavy 1d10.
    Unarmed maps to the light bucket; separate ruling awaited. */
 const WEAPON_DAMAGE = { light: "d6", standard: "d8", heavy: "d10" };
+
+// Action economy (PB v2.5 p.20-21). PURE REFERENCE. The app displays this and tracks
+// nothing: spending and greying out action slots would make it a referee. The table
+// counts actions, as it always has.
+const COMBAT_ACTIONS = [
+  { tier: "Quick Actions", rule: "Choose 1 per turn.", items: [
+    { name: "Half-Move", desc: "Move up to 15 ft." },
+    { name: "Interact", desc: "Draw or stow a weapon or item, pull a lever, open a door, or grab a nearby object." },
+    { name: "Drop or Stand", desc: "Fall prone or rise from prone." },
+    { name: "Consume", desc: "Drink a potion." },
+    { name: "Signal", desc: "Shout a warning or make a hand gesture." }
+  ] },
+  { tier: "Main Actions", rule: "Choose 2 per turn, or convert both into 1 Full Action.", items: [
+    { name: "Attack", desc: "Roll Combat and deal damage on a hit. You may take the Attack action only once per turn unless an ability says otherwise." },
+    { name: "Move", desc: "Move up to 30 ft." },
+    { name: "Simple Skill", desc: "Attempt any non-complex skill check." },
+    { name: "Ready", desc: "Declare a trigger that activates a Quick or Main Action. If the trigger happens before your next turn you may perform it, and otherwise the Ready action is lost." },
+    { name: "Help", desc: "Declare before an adjacent ally rolls. Grant him one die step increase on his next Skill or Combat roll this round. The Help is lost if his skill is already at its maximum die or he does not roll before the round ends." }
+  ] },
+  { tier: "Full Actions", rule: "Requires both Main Actions.", items: [
+    { name: "Cast Spell", desc: "Perform spellcasting. Sorcerers only." },
+    { name: "Complex Skill", desc: "Extended effort requiring total concentration." },
+    { name: "Full Move", desc: "Move up to 60 ft." },
+    { name: "First Aid", desc: "Heal a willing or unconscious target for 1d4 HP. Requires a Healer's Kit. Limited to once after taking damage, and new damage allows another attempt." },
+    { name: "Double Attack", desc: "Make two attacks against one or two adjacent targets. The second attack is made at one die step lower." }
+  ] }
+];
+
+const IMPROVISED_NOTE = "Improvised actions: the GM assigns the closest tier so play keeps moving. Quick Actions are fast and need no concentration. Main Actions take focus and a few seconds. Full Actions demand a solid effort.";
 
 /* Spell tiers (PB v2.5): cost in HP, Sorcery target to cast.
    Cost paid on success, failure, and death alike. */
@@ -832,6 +861,7 @@ function renderSheet() {
   renderEdges();
   renderHavenDP();
   renderIdentity();
+  renderActionCard();
 }
 
 function switchTab(tab) {
@@ -2233,6 +2263,42 @@ function renderHandbook(section) {
       body.appendChild(topic);
     });
   }
+}
+
+// Action economy reference on the COMBAT tab (v78). One collapsed accordion, reusing the
+// Handbook's rules-topic pattern. Read-only: nothing here spends, tracks, or blocks.
+function renderActionCard() {
+  const card = $("action-card");
+  card.textContent = "";
+
+  const topic = ce("div", "rules-topic");
+  const head = ce("button", "rules-topic-head");
+  head.setAttribute("aria-expanded", "false");
+  head.appendChild(ce("span", "rules-topic-title", "Actions"));
+  head.appendChild(ce("span", "rules-topic-caret", "›"));
+
+  const body = ce("div", "rules-topic-body hidden");
+  COMBAT_ACTIONS.forEach((group) => {
+    body.appendChild(ce("h4", "action-tier", group.tier));
+    body.appendChild(ce("p", "action-rule", group.rule));
+    group.items.forEach((it) => {
+      const row = ce("p", "action-row");
+      row.appendChild(ce("span", "action-name", it.name));
+      row.appendChild(ce("span", "action-desc", it.desc));
+      body.appendChild(row);
+    });
+  });
+  body.appendChild(ce("p", "action-improvised", IMPROVISED_NOTE));
+
+  head.addEventListener("click", () => {
+    const nowOpen = body.classList.toggle("hidden") === false;
+    head.classList.toggle("open", nowOpen);
+    head.setAttribute("aria-expanded", nowOpen ? "true" : "false");
+  });
+
+  topic.appendChild(head);
+  topic.appendChild(body);
+  card.appendChild(topic);
 }
 
 // Class abilities: display the character's four, unlocked by level (locked ones note when).
