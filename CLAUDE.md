@@ -66,7 +66,7 @@ Present your plan before editing files on any task larger than a one-line fix. N
 
 ## Workflow, ALWAYS
 
-* IMPORTANT: bump the CACHE version in sw.js (tystnad-vN to vN+1) in EVERY patch that changes any file. Without it, installed phones serve stale files.
+* IMPORTANT: bump the CACHE version in sw.js (tystnad-vN to vN+1) in EVERY patch that changes a DEPLOYED file, and bump VERSION in app.js to match. Without it, installed phones serve stale files. The test is whether the change can reach a phone: everything in the sw.js ASSETS list always counts. Repo-only files that are never served (.gitignore, CLAUDE.md, smoke.js and other test tooling) do NOT get a bump, because bumping forces every installed phone to re-download every asset for a change it can never observe. Such a commit is also unversioned: it is not vN+1, since nothing a user can see changed. Ratified 2026-07-19.
 * Run the jsdom smoke test before declaring any patch done. Extend assertions whenever the patch changes DOM structure, app logic, or the deployed file list. jsdom quirks: use url "http://localhost/" (for working localStorage), runScripts "outside-only", eval app.js inside the window load event, then dispatch DOMContentLoaded manually once.
 * npm/jsdom are local test tooling ONLY and never get committed (gitignored along with smoke.js and package files).
 * When a patch lands new or replaced asset files, verify them by byte size against the sizes stated in the spec before committing. Wrong size means the wrong file; stop and report.
