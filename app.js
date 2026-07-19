@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v70";
+const VERSION = "v71";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -356,7 +356,15 @@ function randSuccessText() {
 
 let character = null;
 let pendingSkill = null;
+let pendingSave = null;   // save label ("Body"/"Mind"/"Spirit") when the roll is a Save
 let pendingSpellTier = null;
+
+// Saves (PB v2.5 p.9): a Save is a skill roll against a GM difficulty.
+const SAVES = [
+  { id: "body",   label: "Body",   skill: "Athletics" },
+  { id: "mind",   label: "Mind",   skill: "Awareness" },
+  { id: "spirit", label: "Spirit", skill: "Presence" }
+];
 let rollLocked = false;
 let pendingConfirmAction = null;
 let attackMomentum = 0;
@@ -1906,8 +1914,21 @@ function castSpell() {
 
 function openDifficulty(skill) {
   pendingSkill = skill;
+  pendingSave = null;
   $("diff-skill-name").firstChild.textContent = skill + " ";
   $("diff-skill-die").textContent = character.skills[skill];
+  refreshWearyOverlay("overlay-difficulty");
+  show($("overlay-difficulty"));
+}
+
+// A Save maps to a fixed skill and rolls against the GM's difficulty like any skill check.
+function openSave(saveId) {
+  const s = SAVES.find((x) => x.id === saveId);
+  if (!s) return;
+  pendingSkill = s.skill;
+  pendingSave = s.label;
+  $("diff-skill-name").firstChild.textContent = s.label + " Save ";
+  $("diff-skill-die").textContent = character.skills[s.skill];
   refreshWearyOverlay("overlay-difficulty");
   show($("overlay-difficulty"));
 }
@@ -2042,10 +2063,11 @@ function rollSkill(target) {
   const skill = pendingSkill;
   const die = character.skills[skill];
   const effective = wearyShift(target);
+  const weary = effective !== target ? " (Weary)" : "";
+  const label = pendingSave ? pendingSave + " Save · " + skill : skill;
+  pendingSave = null;
   hide($("overlay-difficulty"));
-  performRoll(die, effective,
-    skill + " " + die + " vs " + effective + "+" + (effective !== target ? " (Weary)" : ""),
-    { tickSkill: skill });
+  performRoll(die, effective, label + " " + die + " vs " + effective + "+" + weary, { tickSkill: skill });
 }
 
 function rollDefense(target) {
@@ -2883,6 +2905,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Clear ticks
   $("btn-improve-skills").addEventListener("click", improveSkills);
   $("improve-continue").addEventListener("click", improveNext);
+  $("saves-row").addEventListener("click", (e) => {
+    const btn = e.target.closest(".save-btn");
+    if (btn) openSave(btn.dataset.save);
+  });
 
   // Attack overlay
   $("btn-attack").addEventListener("click", openAttack);

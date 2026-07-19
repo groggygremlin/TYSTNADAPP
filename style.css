@@ -617,6 +617,30 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .foot-note { text-align: center; font-size: 0.75rem; color: var(--ash); letter-spacing: 0.06em; }
 
+/* Saves (v71): Body/Mind/Spirit map to Athletics/Awareness/Presence */
+.saves-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.save-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-height: 56px;
+  padding: 8px 4px;
+  cursor: pointer;
+}
+.save-btn:active { background: var(--panel-hi); border-color: var(--blood); }
+.save-name {
+  color: var(--bone);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.save-skill { color: var(--ash); font-size: 0.75rem; }
+
 .version-note { text-align: center; font-size: 0.75rem; color: var(--ash); letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none; }
 #version-note { position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 0; right: 0; }
 #intro-version-note { color: rgba(207, 201, 192, 0.6); }
