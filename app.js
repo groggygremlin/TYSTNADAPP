@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v76";
+const VERSION = "v77";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -398,6 +398,10 @@ let atkMode = "melee";
 let atkRangeSteps = 0;
 let atkCoverSteps = 0;
 let atkIntoMelee = false;
+// v77: Double Attack. atkDouble is the overlay toggle; pendingDouble carries the second
+// attack between the first attack's result screen and the second roll.
+let atkDouble = false;
+let pendingDouble = null;
 let defMode = "melee";
 let defRangeSteps = 0;
 let defCoverSteps = 0;
@@ -1520,6 +1524,8 @@ function openAttack() {
   atkRangeSteps = 0;
   atkCoverSteps = 0;
   atkIntoMelee = false;
+  atkDouble = false;
+  pendingDouble = null;
   selectByData(".mode-btn", "mode", "melee");
   selectByData(".range-btn", "steps", "0");
   selectByData(".cover-btn", "steps", "0");
@@ -1540,6 +1546,41 @@ function attackRollDie() {
   const base = character.skills["Combat"];
   if (atkMode !== "ranged") return base;
   return rangedAttackDie(base, atkRangeSteps, atkCoverSteps);
+}
+
+// The second attack's die: one step lower than the first, or the same die with Weapon
+// Mastery (Edge 17). Returns null when there is no step left, which is Tomas's ruling
+// that a d6 Combat die cannot Double Attack at all. Edge 17 is the way around it.
+function secondAttackDie() {
+  const first = attackRollDie();
+  if (!first) return null;
+  if (hasEdge(17)) return first;
+  const i = DICE.indexOf(first) - 1;
+  return i < 0 ? null : DICE[i];
+}
+
+function renderDoubleAttack() {
+  const btn = $("atk-double");
+  const line = $("atk-double-line");
+  const second = secondAttackDie();
+  if (!second) {
+    atkDouble = false;
+    btn.disabled = true;
+    btn.classList.remove("selected");
+    btn.classList.add("locked-out");
+    line.textContent = attackRollDie()
+      ? "Double Attack needs a die to step down to."
+      : "";
+    return;
+  }
+  btn.disabled = false;
+  btn.classList.remove("locked-out");
+  btn.classList.toggle("selected", atkDouble);
+  line.textContent = atkDouble
+    ? (hasEdge(17)
+        ? "Second attack " + second + ", held by Weapon Mastery."
+        : "Second attack " + second + ", one step lower.")
+    : "";
 }
 
 function renderAttackRanged() {
@@ -1581,6 +1622,9 @@ function renderAttackRanged() {
     btn.classList.toggle("locked-out", off);
     btn.disabled = off;
   });
+
+  // Availability depends on the effective die, so it re-renders with range and cover.
+  renderDoubleAttack();
 }
 
 function rollAttack(target) {
@@ -1589,10 +1633,37 @@ function rollAttack(target) {
   const intoMelee = atkMode === "ranged" && atkIntoMelee;
   const momentum = attackMomentum;
   const effective = wearyShift(target);
+  const second = atkDouble ? secondAttackDie() : null;
   hide($("overlay-attack"));
   const damageDie = damageDieForWeapon();
+  // Canon: "make two attacks". The second is owed whether or not the first lands, so it
+  // is queued before the first resolves and offered on either result screen.
+  pendingDouble = second
+    ? { die: second, target: effective, momentum: momentum, intoMelee: intoMelee }
+    : null;
   performRollAttack(combatDie, damageDie, effective, momentum,
     effective !== target ? " (Weary)" : "", intoMelee);
+}
+
+// Markup for the Second Attack offer, appended to whichever result screen is showing.
+function doubleAttackButtons() {
+  if (!pendingDouble) return "";
+  return '<button class="roll-damage-btn second-attack-btn" onclick="startSecondAttack()">' +
+         "Second Attack " + pendingDouble.die + "</button>" +
+         '<button class="def-dismiss-btn" onclick="skipSecondAttack()">Skip</button>';
+}
+
+function startSecondAttack() {
+  if (!pendingDouble) return;
+  const d = pendingDouble;
+  pendingDouble = null; // consumed, so the second attack never offers a third
+  rollLocked = false;
+  performRollAttack(d.die, damageDieForWeapon(), d.target, d.momentum, "", d.intoMelee);
+}
+
+function skipSecondAttack() {
+  pendingDouble = null;
+  closeResultOverlay();
 }
 
 function runFlicker(numEl, sides, onDone) {
@@ -1650,7 +1721,14 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote, in
       document.querySelector(".result-dismiss").classList.add("hidden");
       rollLocked = false;
     } else {
-      verdictEl.innerHTML = SKULL_IMG;
+      const second = doubleAttackButtons();
+      verdictEl.innerHTML = second
+        ? '<div class="verdict-fail">' + SKULL_IMG + second + "</div>"
+        : SKULL_IMG;
+      if (second) {
+        overlay.classList.add("overlay--action");
+        document.querySelector(".result-dismiss").classList.add("hidden");
+      }
       if (navigator.vibrate) navigator.vibrate(40);
       rollLocked = false;
     }
@@ -1726,13 +1804,21 @@ function finalizeExplosionChain(verdictEl) {
   let total = chain.reduce((a, b) => a + b, 0) + momentum;
   // Heavy Hitter (Edge 1): a successful weapon attack deals a minimum of 2 damage.
   if (hasEdge(1)) total = Math.max(total, 2);
+  const second = doubleAttackButtons();
   verdictEl.innerHTML =
     '<div class="prompt-card">' +
     '<span class="prompt-success-text">' + randSuccessText() + "</span>" +
     '<span class="prompt-total">' + total + "</span>" +
     '<span class="prompt-damage-label">DAMAGE</span>' +
+    second +
     "</div>";
-  document.querySelector(".result-dismiss").classList.remove("hidden");
+  if (second) {
+    overlay.classList.remove("overlay--act3");
+    overlay.classList.add("overlay--action");
+    document.querySelector(".result-dismiss").classList.add("hidden");
+  } else {
+    document.querySelector(".result-dismiss").classList.remove("hidden");
+  }
   explosionState = null;
   rollLocked = false;
 }
@@ -3387,6 +3473,13 @@ document.addEventListener("DOMContentLoaded", () => {
   $("atk-into-melee").addEventListener("click", () => {
     atkIntoMelee = !atkIntoMelee;
     renderAttackRanged();
+  });
+
+  // Double Attack (v77)
+  $("atk-double").addEventListener("click", () => {
+    if (!secondAttackDie()) return;
+    atkDouble = !atkDouble;
+    renderDoubleAttack();
   });
 
   // Shields (v76)

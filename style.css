@@ -1428,6 +1428,21 @@ button.hp-max:active { color: var(--blood-bright); }
   right: 24px;
 }
 
+/* ============ DOUBLE ATTACK (v77) ============ */
+
+.melee-toggle.locked-out {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#overlay-result.overlay--action .second-attack-btn {
+  position: absolute;
+  bottom: 88px;
+  left: 24px;
+  right: 24px;
+  width: auto;
+}
+
 /* ============ SHIELD REROLL (v76) ============ */
 
 /* Outlined, so it never competes with the solid TAKE IT fill below it. */
