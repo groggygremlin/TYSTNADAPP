@@ -10,5 +10,6 @@ smoke.js
 # Mac noise
 .DS_Store
 
-# Personal Claude Code settings
-.claude/settings.local.json
+# Local Claude Code setup: personal settings and the dev-server launch config.
+# The whole directory, so nothing new dropped in here reaches a public repo.
+.claude/
