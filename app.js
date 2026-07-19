@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v72";
+const VERSION = "v73";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -63,6 +63,22 @@ const EDGES = [
 ];
 function hasEdge(id) { return Array.isArray(character.edges) && character.edges.includes(id); }
 function edgesOwed() { return EDGE_LEVELS.filter((l) => l <= character.level).length; }
+
+// Discovery Points / Haven Level (PB v2.5 p.9-10). Haven Level == party level (an advance
+// levels the whole party). DP the party must deliver to Haven to advance FROM level N:
+const HAVEN_THRESHOLDS = { 1: 20, 2: 25, 3: 30, 4: 40, 5: 50, 6: 70, 7: 90, 8: 110, 9: 140, 10: 170, 11: 200 };
+function havenThreshold() { return HAVEN_THRESHOLDS[character.level] || null; }   // null at level 12 (Haven fully emerged)
+// Canonical DP awards the GM grants on the party's return; the player logs them.
+const DP_AWARDS = [
+  { label: "Minor Insight",       dp: 1 },
+  { label: "Medium Insight",      dp: 2 },
+  { label: "Major Insight",       dp: 3 },
+  { label: "Mapped Hex",          dp: 3 },
+  { label: "Confirmed Threat",    dp: 5 },
+  { label: "Secured Asset",       dp: 10 },
+  { label: "Neutralized Threat",  dp: 10 },
+  { label: "Strategic Discovery", dp: 10 }
+];
 
 // Class abilities (PB v2.5 p.12-13): four per class, unlocked at levels 3, 6, 9, 11.
 // Pure display, derived from class + level -- no roll, no stored state.
@@ -423,6 +439,8 @@ function migrate(c) {
   });
   // v62: Edges held (array of Edge ids 1-20)
   if (!Array.isArray(c.edges)) c.edges = [];
+  // v73: Discovery Points toward the next Haven Level
+  if (typeof c.dp !== "number" || isNaN(c.dp) || c.dp < 0) c.dp = 0;
   return c;
 }
 
@@ -728,6 +746,7 @@ function createCharacter() {
     skillTicks: {},
     supply: 0,
     level: 1,
+    dp: 0,
     conditions: {},
     edges: [],
     identity: {
@@ -774,6 +793,7 @@ function renderSheet() {
   renderConditions();
   renderAbilities();
   renderEdges();
+  renderHavenDP();
   renderIdentity();
 }
 
@@ -1725,6 +1745,7 @@ function adjustLevel(delta) {
   character.level = Math.min(Math.max(character.level + delta, 1), 20);
   renderAbilities();
   renderEdges();
+  renderHavenDP();
   renderSorceryTab();
   save();
 }
@@ -1745,10 +1766,12 @@ function levelUp() {
   const gain = applied.reduce((a, b) => a + b, 0);
   character.hpMax += gain;
   character.level = newLevel;
+  character.dp = 0;                                       // Haven advanced: DP reset for the next level (PB v2.5 p.9)
   save();
   renderHP();
   renderAbilities();
   renderEdges();
+  renderHavenDP();
   renderSorceryTab();
   showLevelUpReveal(newLevel, applied, gain);
 }
@@ -1786,6 +1809,51 @@ function renderEdges() {
     row.appendChild(ce("p", "edge-desc", e.desc));
     list.appendChild(row);
   });
+}
+
+// Discovery Points tracker: a recorder, not an adjudicator. The GM awards DP; the player
+// logs them here; the app shows progress to the next Haven Level and signals when the
+// party can advance. It never auto-levels (the Level Up button is the deliberate advance).
+function renderHavenDP() {
+  const dp = character.dp || 0;
+  const threshold = havenThreshold();
+  $("dp-current").textContent = dp;
+  const target = $("dp-target");
+  const note = $("dp-note");
+  const fill = $("dp-bar-fill");
+  const awards = $("dp-awards");
+  if (threshold === null) {                              // Level 12: Haven fully emerged
+    target.textContent = "";
+    fill.style.width = "100%";
+    fill.classList.remove("dp-ready");
+    note.textContent = "Haven has fully emerged. The Explorer Initiative's mandate is fulfilled.";
+    awards.innerHTML = "";
+    hide(awards);
+    return;
+  }
+  target.textContent = " / " + threshold + " DP";
+  fill.style.width = Math.min(100, Math.round((dp / threshold) * 100)) + "%";
+  const ready = dp >= threshold;
+  fill.classList.toggle("dp-ready", ready);
+  note.classList.toggle("dp-note-ready", ready);
+  note.textContent = ready
+    ? "Haven can advance to Level " + (character.level + 1) + ". Tap Level Up when the GM confirms."
+    : "Toward Haven Level " + (character.level + 1) + ". The GM awards DP when the party reports back.";
+  awards.innerHTML = "";
+  DP_AWARDS.forEach((a) => {
+    const b = ce("button", "dp-award-btn", a.label + " +" + a.dp);
+    b.type = "button";
+    b.setAttribute("aria-label", "Award " + a.dp + " Discovery Points for " + a.label);
+    b.addEventListener("click", () => awardDP(a.dp));
+    awards.appendChild(b);
+  });
+  show(awards);
+}
+
+function awardDP(n) {
+  character.dp = (character.dp || 0) + n;
+  save();
+  renderHavenDP();
 }
 
 function rollEdge() {

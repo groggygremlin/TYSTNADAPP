@@ -1586,6 +1586,41 @@ button.hp-max:active { color: var(--blood-bright); }
 .level-row { display: flex; align-items: center; gap: 16px; }
 .level-row .field-label { margin: 0; }
 .level-up-btn { align-self: flex-start; }
+
+/* Discovery Points / Haven Level tracker */
+.haven-dp { display: flex; flex-direction: column; gap: 8px; }
+.haven-dp .field-label { margin: 0; }
+.dp-readout { margin: 0; color: var(--bone); font-size: 1.4rem; line-height: 1; }
+.dp-readout #dp-target { color: var(--ash); font-size: 0.9rem; }
+.dp-bar {
+  height: 8px;
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.dp-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--ember-light);
+  transition: width 0.25s ease;
+}
+.dp-bar-fill.dp-ready { box-shadow: 0 0 6px var(--ember-light); }
+.dp-note { margin: 0; color: var(--ash); font-size: 0.75rem; line-height: 1.4; }
+.dp-note-ready { color: var(--blood-bright); }
+.dp-awards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.dp-award-btn {
+  min-height: 44px;
+  padding: 6px 12px;
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+.dp-award-btn:active { background: var(--blood); color: var(--bone); }
 .levelup-dice { color: var(--bone); font-size: 1rem; text-align: center; margin: 0; }
 #btn-roll-edge { align-self: flex-start; }
 .edges-empty { color: var(--ash); font-size: 0.82rem; line-height: 1.4; margin: 0; }
