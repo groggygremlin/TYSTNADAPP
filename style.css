@@ -1152,6 +1152,33 @@ button.hp-max:active { color: var(--blood-bright); }
   font-size: 2.6rem;
 }
 
+.hp-left { display: flex; align-items: center; gap: 12px; }
+
+.hp-recover-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+}
+.hp-recover-btn:active { background: var(--blood); color: var(--bone); }
+
+.recovery-btn { margin-top: 4px; }
+
+.recovery-result {
+  font-size: 0.95rem;
+  color: var(--bone);
+  text-align: center;
+  margin: 4px 0 10px;
+}
+
 /* ============ ATTACK OVERLAY ============ */
 
 .atk-section-label {

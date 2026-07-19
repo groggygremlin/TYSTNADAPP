@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v71";
+const VERSION = "v72";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -848,6 +848,53 @@ function adjustMaxHP(delta) {
   renderHP();
   save();
 }
+
+// ---------- Rest & Recovery (PB v2.5 p.9-10, p.24) ----------
+// Player-triggered HP recovery. The app rolls and records; it never blocks on
+// inventory (Healer's Kit / bandages are ruled at the table). Character edges and
+// abilities that modify these actions auto-apply.
+
+function firstAidBonus() {
+  // Samaritan edge -> 1d4+1; Scholar Healing Hands (level 6+) -> +1 more.
+  let b = 0;
+  if (hasEdge(6)) b += 1;
+  if (character.cls === "Scholar" && character.level >= 6) b += 1;
+  return b;
+}
+
+function breatherAmount() { return hasEdge(15) ? 4 : 3; } // Mending Flesh edge -> 4
+
+function openRecovery() {
+  const r = $("recovery-result");
+  r.textContent = "";
+  hide(r);
+  const b = firstAidBonus();
+  $("rec-firstaid-hint").textContent =
+    "Heal 1d4" + (b ? "+" + b : "") + " HP. Requires a Healer's Kit.";
+  $("rec-breather-hint").textContent =
+    "Recover " + breatherAmount() + " HP. Requires 1 bandage.";
+  show($("overlay-recovery"));
+}
+
+function healBy(amount, label) {
+  const before = character.hpCur;
+  character.hpCur = Math.min(character.hpCur + amount, character.hpMax);
+  const gained = character.hpCur - before;
+  renderHP();
+  save();
+  const r = $("recovery-result");
+  r.textContent = gained > 0
+    ? label + ": +" + gained + " HP  (" + character.hpCur + "/" + character.hpMax + ")"
+    : "Already at full HP.";
+  show(r);
+}
+
+function recoverFirstAid() {
+  const roll = rollD4();
+  healBy(roll + firstAidBonus(), "First Aid (rolled " + roll + ")");
+}
+function recoverBreather() { healBy(breatherAmount(), "Breather"); }
+function recoverRest() { healBy(1, "Rest"); }
 
 // ---------- Skill list ----------
 
@@ -2764,6 +2811,11 @@ document.addEventListener("DOMContentLoaded", () => {
   $("maxhp-minus").addEventListener("click", () => adjustMaxHP(-1));
   $("maxhp-plus").addEventListener("click", () => adjustMaxHP(1));
   $("maxhp-done").addEventListener("click", () => hide($("overlay-maxhp")));
+  $("btn-recover").addEventListener("click", openRecovery);
+  $("rec-firstaid").addEventListener("click", recoverFirstAid);
+  $("rec-breather").addEventListener("click", recoverBreather);
+  $("rec-rest").addEventListener("click", recoverRest);
+  $("rec-done").addEventListener("click", () => hide($("overlay-recovery")));
 
   // Skill difficulty overlay
   document.querySelectorAll("#overlay-difficulty .diff-btn").forEach((btn) => {

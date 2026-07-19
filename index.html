@@ -79,7 +79,10 @@
     </header>
 
     <div class="hp-compact-strip">
-      <span class="hp-label-large">HP</span>
+      <div class="hp-left">
+        <span class="hp-label-large">HP</span>
+        <button id="btn-recover" class="hp-recover-btn" aria-label="Rest and recovery">&#10010;</button>
+      </div>
       <div class="hp-controls">
         <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
         <div class="hp-readout hp-readout-compact">
@@ -370,6 +373,19 @@
     </div>
     <p class="field-hint overlay-hint">Raising max HP does not heal. Current HP stays where it is.</p>
     <button id="maxhp-done" class="primary-btn slim">Done</button>
+  </div>
+
+  <!-- ============ REST & RECOVERY OVERLAY ============ -->
+  <div id="overlay-recovery" class="overlay hidden">
+    <p class="overlay-skill">Recovery</p>
+    <p id="recovery-result" class="recovery-result hidden"></p>
+    <button id="rec-firstaid" class="primary-btn slim recovery-btn">First Aid</button>
+    <p class="field-hint overlay-hint" id="rec-firstaid-hint">Heal 1d4 HP. Requires a Healer's Kit.</p>
+    <button id="rec-breather" class="primary-btn slim recovery-btn">Post-Combat Breather</button>
+    <p class="field-hint overlay-hint" id="rec-breather-hint">Recover 3 HP. Requires 1 bandage.</p>
+    <button id="rec-rest" class="primary-btn slim recovery-btn">Rest One Hour</button>
+    <p class="field-hint overlay-hint">Recover 1 HP per hour of safe rest. Light activity heals 1 HP every two hours.</p>
+    <button id="rec-done" class="ghost-btn">Done</button>
   </div>
 
   <!-- ============ LOADOUT OVERLAY (Initiative) ============ -->
