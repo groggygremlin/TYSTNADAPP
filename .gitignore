@@ -1,11 +1,12 @@
 # Paid product text. NEVER commit. Publishing this = publishing the booklets.
 canon/
 
-# Local test tooling only
+# Local test tooling. smoke.js IS committed (2026-07-19): it holds the assertions that
+# enforce design rulings, and it needs to survive this laptop. Its one dev dependency is
+# documented in its header rather than a manifest, so the repo stays dependency-file-free.
 node_modules/
 package.json
 package-lock.json
-smoke.js
 
 # Mac noise
 .DS_Store
