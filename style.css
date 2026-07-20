@@ -2209,7 +2209,10 @@ button.hp-max:active { color: var(--blood-bright); }
 
 /* v85: the local-only escape hatch states its own limits, so this reads as a caveat
    rather than an error. Ash, not blood: nothing has gone wrong at this point. */
-.tl-forget-note {
+/* v89: the privacy notice reads as a quiet statement of fact, not a warning. Ash, and it
+   sits directly above the join button so it is read at the moment consent is given. */
+.tl-forget-note,
+.tl-privacy {
   color: var(--ash);
   font-size: 0.75rem;
   line-height: 1.45;
