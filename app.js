@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v89";
+const VERSION = "v90";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1870,9 +1870,9 @@ function rollAttack(target) {
 // Markup for the Second Attack offer, appended to whichever result screen is showing.
 function doubleAttackButtons() {
   if (!pendingDouble) return "";
-  return '<button class="roll-damage-btn second-attack-btn" onclick="startSecondAttack()">' +
+  return '<button class="roll-damage-btn second-attack-btn" data-action="second-attack">' +
          "Second Attack " + pendingDouble.die + "</button>" +
-         '<button class="def-dismiss-btn" onclick="skipSecondAttack()">Skip</button>';
+         '<button class="def-dismiss-btn" data-action="skip-second">Skip</button>';
 }
 
 function startSecondAttack() {
@@ -1948,7 +1948,7 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote, in
       verdictEl.innerHTML =
         '<div class="attack-result">' +
         '<span class="strike-hit">HIT</span>' +
-        '<button class="roll-damage-btn" onclick="startDamageRoll()">ROLL DAMAGE</button>' +
+        '<button class="roll-damage-btn" data-action="roll-damage">ROLL DAMAGE</button>' +
         "</div>";
       document.querySelector(".result-dismiss").classList.add("hidden");
       rollLocked = false;
@@ -1998,7 +1998,7 @@ function showExplosionWait(verdictEl) {
   let html = '<div class="attack-result">';
   html += '<span class="damage-chain">' + chainLabel + "</span>";
   html += '<span class="damage-explodes">EXPLODES</span>';
-  html += '<button class="roll-again-btn" onclick="continueExplosionChain()">ROLL AGAIN</button>';
+  html += '<button class="roll-again-btn" data-action="roll-again">ROLL AGAIN</button>';
   html += "</div>";
   verdictEl.innerHTML = html;
   $("overlay-result").classList.add("overlay--action");
@@ -2790,7 +2790,7 @@ function performRoll(die, target, context, opts) {
         notes += '<span class="survive-note">Unconscious ' + rounds +
           (rounds === 1 ? " round" : " rounds") + "</span>";
         notes += '<span class="survive-note">Further damage kills outright</span>';
-        notes += '<button class="roll-damage-btn wake-btn" onclick="wakeAtOneHP(event)">WAKE AT 1 HP</button>';
+        notes += '<button class="roll-damage-btn wake-btn" data-action="wake">WAKE AT 1 HP</button>';
         verdictEl.innerHTML =
           '<div class="verdict-fail"><span class="verdict-success">SURVIVES</span>' +
           notes + "</div>";
@@ -2882,15 +2882,15 @@ function performRollDefense(target, rollDie, isReroll) {
       // The shield reroll is offered once per combat, and only on a first roll: canon
       // gives one reroll, not a chain, so a rerolled failure shows no button.
       const shieldBtn = (!isReroll && shieldRerollAvailable())
-        ? '<button class="def-shield-btn" onclick="shieldReroll(this)">Shield Reroll</button>' +
+        ? '<button class="def-shield-btn" data-action="shield-reroll">Shield Reroll</button>' +
           '<span class="shield-note">The new roll stands, better or worse.</span>'
         : "";
       verdictEl.innerHTML =
         '<div class="verdict-fail' + (shieldBtn ? " has-shield" : "") + '">' + SKULL_IMG +
         '<span class="def-damage">Take ' + pendingDefenseDamage + ' Damage</span>' +
-        '<button class="roll-damage-btn def-take-btn" onclick="takeDefenseDamage(this)">Take It</button>' +
+        '<button class="roll-damage-btn def-take-btn" data-action="take-damage">Take It</button>' +
         shieldBtn +
-        '<button class="def-dismiss-btn" onclick="closeDefenseFailure()">Dismiss</button>' +
+        '<button class="def-dismiss-btn" data-action="dismiss-defense">Dismiss</button>' +
         '</div>';
       if (navigator.vibrate) navigator.vibrate(40);
     }
@@ -2929,8 +2929,7 @@ function closeResultOverlay() {
   hide(overlay);
 }
 
-function wakeAtOneHP(ev) {
-  ev.stopPropagation();
+function wakeAtOneHP() {
   character.hpCur = 1;
   save();
   renderHP();
@@ -3857,6 +3856,31 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!secondAttackDie()) return;
     atkDouble = !atkDouble;
     renderDoubleAttack();
+  });
+
+  /* v90: the result overlay's buttons carry a data-action instead of an inline onclick, so
+     a strict CSP can forbid inline script outright. One delegated listener covers every
+     ceremony screen; the buttons are injected as markup and never need wiring afterwards,
+     which is what made inline handlers tempting in the first place. */
+  const RESULT_ACTIONS = {
+    "roll-damage": startDamageRoll,
+    "roll-again": continueExplosionChain,
+    "take-damage": takeDefenseDamage,
+    "dismiss-defense": closeDefenseFailure,
+    "shield-reroll": shieldReroll,
+    "second-attack": startSecondAttack,
+    "skip-second": skipSecondAttack,
+    "wake": wakeAtOneHP
+  };
+  $("result-verdict").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const fn = RESULT_ACTIONS[btn.dataset.action];
+    if (!fn) return;
+    // These screens offer explicit choices, so a tap on one must never ALSO reach the
+    // overlay's tap-anywhere dismiss behind it.
+    e.stopPropagation();
+    fn(btn);
   });
 
   // Dice history (v83)

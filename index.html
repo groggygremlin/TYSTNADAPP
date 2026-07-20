@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0c0a0b">
   <meta name="description" content="TYSTNAD player companion. Your Explorer, your dice.">
+  <!-- v90: a meta tag, because GitHub Pages serves static files and cannot set headers.
+       That rules out frame-ancestors, report-uri and sandbox, which are header-only.
+       script-src 'self' is only possible because no inline handler or <script> block
+       remains: the result overlay uses one delegated data-action listener instead.
+       img-src allows the backend for GM-pushed art; connect-src allows the Table Link API. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://playtystnad.com; font-src 'self'; connect-src 'self' https://playtystnad.com; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'self'">
   <title>TYSTNAD Companion</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
