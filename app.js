@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v87";
+const VERSION = "v88";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3000,6 +3000,18 @@ function tlSave() {
 
 // ---- Networking (cookieless bearer; one BACKEND_BASE) ----
 
+/* v88, from the peer review: every call gets a deadline. A stalled request used to hang
+   forever, leaving buttons disabled, polls pending, and the player with no idea whether
+   anything happened. Polling is tighter than a one-off action, since a poll that outlives
+   its own interval is already stuck. */
+const TL_TIMEOUT = { default: 12000, poll: 8000, link: 15000 };
+
+/* The maxlength attributes on the code inputs bound TYPING only; a scripted value is not
+   clamped by the browser. Bounding what is actually sent is the real guard, matching the
+   slice() already applied to deviceLabel and displayName. The server must enforce its own
+   limits regardless: none of this is a server security boundary. */
+const TL_CODE_MAX = 32;
+
 async function tlApi(path, opts) {
   opts = opts || {};
   const method = opts.method || "GET";
@@ -3007,14 +3019,23 @@ async function tlApi(path, opts) {
   const headers = {};
   if (opts.body) headers["Content-Type"] = "application/json";
   if (auth && tlDevice) headers["Authorization"] = "Bearer " + tlDevice.token;
-  const res = await fetch(BACKEND_BASE + path, {
-    method,
-    headers,
-    body: opts.body ? JSON.stringify(opts.body) : undefined
-  });
-  let data = null;
-  try { data = await res.json(); } catch (e) { data = null; }
-  return { ok: res.ok, status: res.status, data };
+  // A caller may supply its own controller so it can cancel the work itself; the polling
+  // loop does exactly that when the player leaves.
+  const controller = opts.controller || new AbortController();
+  const timer = setTimeout(() => controller.abort(), opts.timeout || TL_TIMEOUT.default);
+  try {
+    const res = await fetch(BACKEND_BASE + path, {
+      method,
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      signal: controller.signal
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    return { ok: res.ok, status: res.status, data };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ---- Character reporting (CAP-08: Party HUD snapshot) ----
@@ -3151,7 +3172,7 @@ function tlRenderEntitlement() {
 async function tlDoLink() {
   const codeEl = $("tl-link-code");
   const labelEl = $("tl-device-label");
-  const code = codeEl.value.trim();
+  const code = codeEl.value.trim().slice(0, TL_CODE_MAX);
   const label = labelEl.value.trim();
   tlHideError("tl-link-error");
   if (!code) { tlShowError("tl-link-error", "Enter the link code from your account page."); return; }
@@ -3162,7 +3183,8 @@ async function tlDoLink() {
   try {
     const body = { linkCode: code };
     if (label) body.deviceLabel = label.slice(0, 100);
-    const r = await tlApi("/api/v1/devices/link", { method: "POST", body, auth: false });
+    const r = await tlApi("/api/v1/devices/link",
+      { method: "POST", body, auth: false, timeout: TL_TIMEOUT.link });
     if (r.ok && r.data && r.data.deviceToken) {
       tlDevice = { token: r.data.deviceToken, ownsTableLink: !!r.data.ownsTableLink };
       tlSave();
@@ -3195,7 +3217,7 @@ function tlLinkErrorText(r) {
 async function tlDoJoin() {
   const codeEl = $("tl-join-code");
   const nameEl = $("tl-display-name");
-  const code = codeEl.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const code = codeEl.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, TL_CODE_MAX);
   const name = nameEl.value.trim();
   tlHideError("tl-join-error");
   hide($("tl-buy-prompt"));
@@ -3275,9 +3297,14 @@ function tlStartPolling() {
   tlPoll();
 }
 
+let tlPollAbort = null;
+
 function tlStopPolling() {
   tlPolling = false;
   if (tlPollTimer) { clearTimeout(tlPollTimer); tlPollTimer = null; }
+  // v88: cancel the request in flight too. The stale-response guard already ignored a
+  // late reply; this stops the work instead of waiting on it.
+  if (tlPollAbort) { tlPollAbort.abort(); tlPollAbort = null; }
 }
 
 function tlScheduleNextPoll() {
@@ -3290,9 +3317,11 @@ async function tlPoll() {
   if (!tlPolling || !tlSession) return;
   const sid = tlSession.sessionId;
   let reschedule = true;
+  tlPollAbort = new AbortController();
   try {
     const r = await tlApi("/api/v1/table-sessions/" + encodeURIComponent(sid) +
-                          "/messages?after=" + tlSession.cursor);
+                          "/messages?after=" + tlSession.cursor,
+                          { controller: tlPollAbort, timeout: TL_TIMEOUT.poll });
     // The player may have left, unlinked, or joined a different session while this
     // request was in flight. Drop the stale response so it cannot leak a banner into
     // the lobby or contaminate a new session's feed/cursor.
@@ -3321,7 +3350,11 @@ async function tlPoll() {
       $("tl-session-status").textContent = "Connected";
     }
   } catch (e) {
-    tlSetBanner("Reconnecting.");
+    if (tlPolling && tlSession && tlSession.sessionId === sid) {
+      tlSetBanner("Reconnecting.");   // a real stall: say so and try again
+    } else {
+      reschedule = false;             // we cancelled it by leaving; stay quiet
+    }
   } finally {
     if (reschedule) tlScheduleNextPoll();
   }
