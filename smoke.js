@@ -1111,17 +1111,23 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 {
   const SW = fs.readFileSync("sw.js", "utf8");
   const optional = (SW.match(/const OPTIONAL_ASSETS = \[([^\]]*)\]/) || [])[1] || "";
-  const binaries = (optional.match(/"\.\/([^"]+\.(?:woff2|png|webp|jpg|jpeg))"/g) || [])
+  const binaries = (optional.match(/"\.\/([^"]+\.(?:woff2|woff|png|webp|jpg|jpeg|gif|ico|avif))"/g) || [])
     .map(s => s.replace(/"\.\//, "").replace(/"$/, ""));
 
   assert(binaries.length > 0, "184e. sw.js OPTIONAL_ASSETS yields a readable list of binary assets");
 
+  // RIFF alone is a CONTAINER, not a format, so WebP must also carry "WEBP" at offset 8.
+  // Same for avif, whose brand sits at offset 8 behind an ftyp box.
   const SIGNATURES = {
     woff2: { head: "774f4632", name: "wOF2" },
+    woff:  { head: "774f4646", name: "wOFF" },
     png:   { head: "89504e47", name: "\\x89PNG" },
     webp:  { head: "52494646", name: "RIFF", at8: "WEBP" },
     jpg:   { head: "ffd8ff",   name: "JPEG" },
-    jpeg:  { head: "ffd8ff",   name: "JPEG" }
+    jpeg:  { head: "ffd8ff",   name: "JPEG" },
+    gif:   { head: "47494638", name: "GIF8" },
+    ico:   { head: "00000100", name: "ICO" },
+    avif:  { head: "0000",     name: "AVIF", at8: "avif" }
   };
 
   const bad = [];
@@ -4187,9 +4193,20 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   // Finding 6: ASSETS is the authoritative inventory, so prove it covers every deployed
   // file rather than spot-checking four names. sw.js is correctly excluded: a worker
   // does not cache itself.
+  // v91: this used to ALLOWLIST deployed extensions (html|css|js|json|png|webp|woff2). A .jpg,
+  // .svg, .gif, .ico or .avif dropped in the root was therefore deployed, referenced by the
+  // markup, absent from the precache, and INVISIBLE to this assertion: it would work online and
+  // 404 offline, which is the one failure offline-first exists to prevent. Proven by planting a
+  // .jpg and an .svg, both of which passed the whole suite. Now it DENYLISTS the handful of
+  // repo-only files instead, so a new asset TYPE is covered the day it lands rather than the day
+  // someone remembers to widen a regex. The GM site reached the same conclusion from the other
+  // direction: walk the tree, do not read a list.
+  const NOT_DEPLOYED = ["sw.js", "smoke.js", "package.json", "package-lock.json",
+                        "CLAUDE.md", ".gitignore", ".DS_Store"];
   const deployed = fs.readdirSync(".")
-    .filter((f) => /\.(html|css|js|json|png|webp|woff2)$/.test(f))
-    .filter((f) => !["sw.js", "smoke.js", "package.json", "package-lock.json"].includes(f));
+    .filter((f) => fs.statSync(f).isFile())
+    .filter((f) => !f.startsWith("."))
+    .filter((f) => !NOT_DEPLOYED.includes(f));
   const missing = deployed.filter((f) => !SW.includes('"./' + f + '"'));
   assert(missing.length === 0, "973. Every deployed file is cached (CORE or OPTIONAL)" +
     (missing.length ? " (missing: " + missing.join(", ") + ")" : ""));
