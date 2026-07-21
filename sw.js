@@ -1,7 +1,7 @@
 /* TYSTNAD Companion service worker.
    Cache-first: the app works in the basement, the cabin, the dead zone. */
 
-const CACHE = "tystnad-v93";
+const CACHE = "tystnad-v94";
 
 /* v85: assets are split by how badly their absence hurts.
 
@@ -106,7 +106,39 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  /* v94, peer review finding 2: optional assets are allowed to fail the install, which is
+     correct, but nothing ever wrote them back afterwards. A font or a background that missed
+     install stayed missing OFFLINE FOR THE WHOLE CACHE VERSION, healing only on the next
+     deploy, even though the player had since loaded it online a dozen times. Cache-first
+     still, with network-and-populate on a miss.
+
+     Deliberately narrow. Only OPTIONAL_ASSETS are written back, so the runtime cache can
+     never become a place where arbitrary same-origin responses accumulate. Cross-origin and
+     non-GET requests already returned above, which keeps Table Link traffic out. A response
+     is stored only when it is a real, complete same-origin 200: an error page or an opaque
+     response cached under an asset name is exactly the failure v91 spent a day removing. */
   event.respondWith(
-    caches.match(req).then((hit) => hit || fetch(req))
+    caches.match(req).then((hit) => {
+      if (hit) return hit;
+      return fetch(req).then((res) => {
+        if (isOptionalAsset(req.url) && res && res.ok && res.type === "basic") {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {});
+        }
+        return res;
+      });
+    })
   );
 });
+
+/* Match on the trailing path so this holds under a project subpath (GitHub Pages serves the
+   app from /TYSTNADAPP/), and so a lookalike request elsewhere on the origin cannot claim an
+   asset name. */
+function isOptionalAsset(url) {
+  let path;
+  try { path = new URL(url).pathname; } catch (e) { return false; }
+  return OPTIONAL_ASSETS.some((entry) => {
+    const name = entry.replace(/^\.\//, "");
+    return path.endsWith("/" + name);
+  });
+}

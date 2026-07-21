@@ -260,7 +260,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v93", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v94", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -984,13 +984,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v93"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v94"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v93"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v94"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1021,13 +1021,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v93"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v94"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v93"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v94"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1179,13 +1179,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v93"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v94"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v93"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v94"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1307,8 +1307,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "224. sw.js cache tystnad-v93");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "224. sw.js cache tystnad-v94");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1510,8 +1510,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1568,8 +1568,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1594,8 +1594,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1624,8 +1624,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1733,8 +1733,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1777,8 +1777,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1829,8 +1829,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1936,8 +1936,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2029,8 +2029,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2214,8 +2214,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2335,8 +2335,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "478. sw.js cache tystnad-v93");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "478. sw.js cache tystnad-v94");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2394,8 +2394,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v93"'), "493. sw.js cache tystnad-v93");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v94"'), "493. sw.js cache tystnad-v94");
 }
 
 // ============================================================
@@ -3118,8 +3118,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v93"'),          "529. sw.js cache tystnad-v93");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v94"'),          "529. sw.js cache tystnad-v94");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3204,8 +3204,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v93"'), "543b. sw.js cache tystnad-v93");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v94"'), "543b. sw.js cache tystnad-v94");
 }
 
 // ============================================================
@@ -3337,8 +3337,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v93"), "563. sw.js cache tystnad-v93");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v93"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v94"), "563. sw.js cache tystnad-v94");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v94"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -4481,6 +4481,33 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
     "1079. No stale ceremony classes survive");
 }
 
+// ---- v94. The backend host is fixed at deploy time, and the origin stays script-free ----
+// Both are peer review points about FUTURE changes rather than present defects, so they are
+// pinned here: a convention nobody enforces is a convention that lasts until the next hurry.
+{
+  assert(/const BACKEND_BASE = "https:\/\/playtystnad\.com"/.test(APPJS),
+    "1220. BACKEND_BASE is the production host, fixed as a literal");
+
+  // A runtime override is the specific danger: staging tested against prod by accident, or a
+  // link that repoints a player's app at someone else's server.
+  const backendLines = APPJS.split("\n").filter((l) => l.includes("BACKEND_BASE"));
+  const overridden = backendLines.filter((l) =>
+    /location\.(search|hash|href)|URLSearchParams|localStorage|prompt\(/.test(l));
+  assert(overridden.length === 0,
+    "1221. BACKEND_BASE is never taken from the URL, storage or a prompt" +
+    (overridden.length ? " -- OFFENDERS: " + overridden.join(" | ") : ""));
+
+  // The token's safety is a property of the ORIGIN. One third-party script ends it.
+  const csp = (HTML.match(/content="([^"]*default-src[^"]*)"/) || [])[1] || "";
+  assert(/script-src 'self'/.test(csp) && !/script-src[^;]*unsafe/.test(csp),
+    "1222. script-src is 'self' with nothing unsafe");
+  assert(!/script-src[^;]*https?:\/\//.test(csp),
+    "1223. script-src names no external host, so nothing else executes in this origin");
+  const claudeMd = fs.readFileSync("CLAUDE.md", "utf8");
+  assert(/SECURITY BOUNDARY/.test(claudeMd) && /script-src/.test(claudeMd),
+    "1224. The script-src dependency is written down as a boundary, not left as folklore");
+}
+
 // ---- v93. A save that does not happen must be visible (peer review finding 1) ----
 // Driven against a BROKEN localStorage rather than pattern-matched, because the whole point
 // of the finding is that the old code looked correct: it had a try/catch and it logged.
@@ -4897,6 +4924,12 @@ function makeSW(opts) {
   (opts.existingCaches || []).forEach((n) => { store[n] = new Set(["./index.html"]); });
   const posted = [], navigated = [], handlers = {};
 
+  // v94: the fetch path needs match/put and a network, so the harness grew three things.
+  // `cached` is what a runtime write-back actually stored, keyed by request url.
+  const cached = opts.cached || [];
+  const network = opts.network || {};
+  const fetched = [];
+
   const cachesApi = {
     open: (name) => {
       if (!store[name]) store[name] = new Set();
@@ -4910,8 +4943,15 @@ function makeSW(opts) {
           if (bad) return Promise.reject(new Error("404 " + bad));
           urls.forEach((u) => set.add(u));
           return Promise.resolve();
-        }
+        },
+        put: (req, res) => { set.add(req.url || req); return Promise.resolve(); }
       });
+    },
+    match: (req) => {
+      const url = req.url || req;
+      // Entries are written "./app.js" the way the worker lists them; compare on the name.
+      const hit = cached.some((c) => url.endsWith("/" + c.replace(/^\.\//, "")));
+      return Promise.resolve(hit ? { fromCache: true, url } : undefined);
     },
     keys: () => Promise.resolve(Object.keys(store)),
     delete: (name) => { delete store[name]; return Promise.resolve(true); }
@@ -4931,11 +4971,35 @@ function makeSW(opts) {
     location: { origin: "http://x" }
   };
 
+  // The network returns whatever the test declares for that filename, defaulting to a real
+  // same-origin 200 so the ordinary case needs no setup. `clone` exists because the worker
+  // must not hand a consumed body to the page.
+  const netFetch = (req) => {
+    const url = req.url || req;
+    fetched.push(url);
+    const decl = Object.keys(network).find((k) => url.endsWith(k));
+    const res = decl ? network[decl] : { ok: true, type: "basic" };
+    if (res instanceof Error) return Promise.reject(res);
+    return Promise.resolve(Object.assign({ clone: () => ({ copyOf: url }) }, res));
+  };
+
   new Function("self", "caches", "console", "fetch", "URL",
     fs.readFileSync("sw.js", "utf8"))(
-      swSelf, cachesApi, { error() {} }, () => Promise.resolve(), URL);
+      swSelf, cachesApi, { error() {} }, netFetch, URL);
 
-  return { handlers, store, posted, navigated };
+  return { handlers, store, posted, navigated, fetched };
+}
+
+/* Drive one fetch event and return what the worker answered with, plus what it stored.
+   Nothing here asserts: the tests below decide what the answer should be. */
+function driveFetch(sw, url, init) {
+  init = init || {};
+  const req = { url, method: init.method || "GET", mode: init.mode || "no-cors" };
+  let answer;
+  const handled = sw.handlers.fetch({ request: req, respondWith: (p) => { answer = p; } });
+  void handled;
+  // A worker that declines to answer leaves the browser to it, which is a valid outcome.
+  return Promise.resolve(answer).then((res) => ({ res, answered: answer !== undefined }));
 }
 
 function fireEvent(handler) {
@@ -4945,7 +5009,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v93";
+  const CURRENT = "tystnad-v94";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {
@@ -5005,6 +5069,69 @@ const swBehaviour = (async () => {
     await fireEvent(sw.handlers.activate);
     assert(sw.posted.length === 0, "1094. A first install announces no update");
     assert(sw.navigated.length === 0, "1095. A first install reloads nothing");
+  }
+
+  /* 5. v94: an optional asset that missed install must heal on the next online request.
+        Driven through the real fetch handler against a mock Cache API, because the point of
+        the finding is that the previous code LOOKED fine: it served from cache and fell back
+        to the network, it just never wrote anything back. */
+  {
+    const sw = makeSW({ existingCaches: [], cached: ["./app.js"] });
+    await fireEvent(sw.handlers.install);
+    const CACHED = sw.store[CURRENT];
+    CACHED.clear();                        // simulate an install where the art never landed
+
+    await driveFetch(sw, "http://x/skull.webp");
+    assert(CACHED.has("http://x/skull.webp"),
+      "1212. An optional asset fetched online is written back to the cache");
+
+    // A cache HIT must not re-fetch: this stays cache-first, not stale-while-revalidate.
+    const before = sw.fetched.length;
+    const hit = await driveFetch(sw, "http://x/app.js");
+    assert(hit.res && hit.res.fromCache, "1213. A cached asset is still served from cache");
+    assert(sw.fetched.length === before, "1214. A cache hit costs no network request");
+  }
+
+  // Only OPTIONAL assets are written back. The runtime cache must not become a place where
+  // arbitrary same-origin responses accumulate.
+  {
+    const sw = makeSW({ existingCaches: [] });
+    await fireEvent(sw.handlers.install);
+    sw.store[CURRENT].clear();
+    await driveFetch(sw, "http://x/some-other-page.html");
+    assert(!sw.store[CURRENT].has("http://x/some-other-page.html"),
+      "1215. A same-origin response outside the asset list is NOT cached");
+  }
+
+  /* A failed or opaque response must never be stored under an asset name. This is the v91
+     lesson in service-worker form: a 404 page cached as a font is the exact failure that
+     made Cormorant render as a fallback for sixty-five versions, and a cache is a worse
+     place to hide one than a repo, because no smoke test ever reads it. */
+  {
+    const sw = makeSW({ existingCaches: [], network: { "skull.webp": { ok: false, type: "basic", status: 404 } } });
+    await fireEvent(sw.handlers.install);
+    sw.store[CURRENT].clear();
+    await driveFetch(sw, "http://x/skull.webp");
+    assert(!sw.store[CURRENT].has("http://x/skull.webp"),
+      "1216. A 404 is never written back under an asset name");
+  }
+  {
+    const sw = makeSW({ existingCaches: [], network: { "logo.png": { ok: true, type: "opaque" } } });
+    await fireEvent(sw.handlers.install);
+    sw.store[CURRENT].clear();
+    await driveFetch(sw, "http://x/logo.png");
+    assert(!sw.store[CURRENT].has("http://x/logo.png"),
+      "1217. An opaque response is never written back either");
+  }
+
+  // Table Link traffic still never reaches the cache: cross-origin and non-GET bail first.
+  {
+    const sw = makeSW({ existingCaches: [] });
+    await fireEvent(sw.handlers.install);
+    const api = await driveFetch(sw, "https://playtystnad.com/api/v1/table-sessions/1/messages");
+    assert(!api.answered, "1218. A cross-origin API request is left to the browser");
+    const post = await driveFetch(sw, "http://x/skull.webp", { method: "POST" });
+    assert(!post.answered, "1219. A non-GET request is left to the browser");
   }
 })();
 
