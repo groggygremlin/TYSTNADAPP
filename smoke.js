@@ -1102,6 +1102,48 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(retired.length === 0, "184d. The three retired static weight files are gone from the repo");
 }
 
+// ---- v91-B. EVERY deployed binary is really what its extension claims ----
+// The font was the one that broke, but nothing made it special: any of the artwork could be
+// swapped for an error page the same way, and the app would still "look fine" against a
+// fallback or an empty box. The list is READ OUT OF sw.js rather than hard-coded, so a binary
+// added to OPTIONAL_ASSETS in some later patch is covered the day it lands, with no memory
+// required of whoever adds it. Signatures: woff2 wOF2, PNG \x89PNG, WebP RIFF....WEBP.
+{
+  const SW = fs.readFileSync("sw.js", "utf8");
+  const optional = (SW.match(/const OPTIONAL_ASSETS = \[([^\]]*)\]/) || [])[1] || "";
+  const binaries = (optional.match(/"\.\/([^"]+\.(?:woff2|png|webp|jpg|jpeg))"/g) || [])
+    .map(s => s.replace(/"\.\//, "").replace(/"$/, ""));
+
+  assert(binaries.length > 0, "184e. sw.js OPTIONAL_ASSETS yields a readable list of binary assets");
+
+  const SIGNATURES = {
+    woff2: { head: "774f4632", name: "wOF2" },
+    png:   { head: "89504e47", name: "\\x89PNG" },
+    webp:  { head: "52494646", name: "RIFF", at8: "WEBP" },
+    jpg:   { head: "ffd8ff",   name: "JPEG" },
+    jpeg:  { head: "ffd8ff",   name: "JPEG" }
+  };
+
+  const bad = [];
+  binaries.forEach((f) => {
+    const ext = f.split(".").pop().toLowerCase();
+    const sig = SIGNATURES[ext];
+    let head = "", tag = "";
+    try {
+      const fd = fs.openSync(f, "r");
+      const buf = Buffer.alloc(12);
+      fs.readSync(fd, buf, 0, 12, 0);
+      fs.closeSync(fd);
+      head = buf.toString("hex");
+      tag = buf.toString("latin1", 8, 12);
+    } catch (e) { /* unreadable file falls through as bad */ }
+    const ok = sig && head.startsWith(sig.head) && (!sig.at8 || tag === sig.at8);
+    if (!ok) bad.push(f + " (expected " + (sig ? sig.name : "a known type") + ", got " + (head.slice(0, 8) || "nothing") + ")");
+  });
+  assert(bad.length === 0, "184f. Every deployed binary carries its true magic bytes" +
+    (bad.length ? " -- IMPOSTORS: " + bad.join("; ") : ""));
+}
+
 // ---- v26-D. Section labels: vital-label uses blood color in CSS ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
