@@ -260,7 +260,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v90", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v91", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -984,13 +984,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v90"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v91"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v90"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v91"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1021,13 +1021,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v90"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v91"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v90"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v91"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1038,37 +1038,68 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(CSS.includes("body::before") && CSS.includes('url("bg-pages.webp")'), "176. body::before carries bg-pages.webp");
 }
 
-// ---- v26-A. Font woff2 files in SW asset cache ----
+// ---- v26-A. Font woff2 file in SW asset cache ----
+// v91: three static weight files became ONE variable font on the weight axis, because Google
+// no longer ships static instances of this family. The old three are gone from the repo.
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes("CormorantGaramond-Medium.woff2"), "177. SW cache includes CormorantGaramond-Medium.woff2");
-  assert(SW.includes("CormorantGaramond-SemiBold.woff2"), "178. SW cache includes CormorantGaramond-SemiBold.woff2");
-  assert(SW.includes("CormorantGaramond-Bold.woff2"), "179. SW cache includes CormorantGaramond-Bold.woff2");
+  assert(SW.includes("CormorantGaramond-Variable.woff2"), "177. SW cache includes CormorantGaramond-Variable.woff2");
+  assert(!/CormorantGaramond-(Medium|SemiBold|Bold)\.woff2/.test(SW),
+    "178. SW cache names no retired static weight file");
+  assert(SW.includes("OPTIONAL_ASSETS") && SW.split("OPTIONAL_ASSETS")[1].includes("CormorantGaramond-Variable.woff2"),
+    "179. The font is an OPTIONAL asset, so a failed font download cannot reject the install");
 }
 
-// ---- v26-B. @font-face declared for each weight ----
+// ---- v26-B. @font-face declared for each weight, all pointing at the variable file ----
+// Pinning font-weight per declaration is what instantiates the variable axis at 500/600/700,
+// so the three blocks stay even though they now share one src.
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  assert(CSS.includes('url("CormorantGaramond-Medium.woff2")'), "180. @font-face src for weight 500 (Medium)");
-  assert(CSS.includes('url("CormorantGaramond-SemiBold.woff2")'), "181. @font-face src for weight 600 (SemiBold)");
-  assert(CSS.includes('url("CormorantGaramond-Bold.woff2")'), "182. @font-face src for weight 700 (Bold)");
+  const faces = CSS.match(/@font-face\s*\{[^}]*\}/g) || [];
+  const cormorant = faces.filter(f => f.includes('"Cormorant Garamond"'));
+  const weightSrc = (w) => cormorant.some(f =>
+    new RegExp("font-weight:\\s*" + w + "\\s*;").test(f) &&
+    f.includes('url("CormorantGaramond-Variable.woff2")'));
+  assert(weightSrc(500), "180. @font-face weight 500 loads the variable file");
+  assert(weightSrc(600), "181. @font-face weight 600 loads the variable file");
+  assert(weightSrc(700), "182. @font-face weight 700 loads the variable file");
   assert(CSS.includes('--font-display: "Cormorant Garamond"'), "183. --font-display custom property defined");
 }
 
 // ---- v26-C. Font chain: .sheet-head h2 uses var(--font-display) → "Cormorant Garamond" ----
 // jsdom does not resolve CSS custom properties in getComputedStyle; we verify the full chain via
 // CSS text: element uses var(--font-display), that variable maps to "Cormorant Garamond", and
-// the woff2 file physically exists (assertions 177-182 confirm file + @font-face). Together this
-// means a missing or misnamed font file will fail the test suite, satisfying the spec intent.
+// the woff2 file physically exists AND IS REALLY A FONT (assertions 177-182 confirm the
+// @font-face wiring). Together this means a missing, misnamed or bogus font file fails the suite.
+//
+// v91, and the reason this bug survived for the life of the product: 184b used to assert only
+// that the three files existed and were non-empty. All three were GitHub "Page not found" HTML
+// documents saved with a .woff2 extension, 311KB each, so the test passed while Cormorant NEVER
+// ONCE RENDERED. Size, HTTP status and content-type all lie; the magic bytes do not. Test the
+// outcome, not the mechanism.
 {
   const CSS = fs.readFileSync("style.css", "utf8");
   const h2Block = CSS.match(/\.sheet-head h2\s*\{([^}]*)\}/);
   const h2UsesFontVar = h2Block && h2Block[1].includes("var(--font-display)");
   const varMapsToFont = CSS.includes('--font-display: "Cormorant Garamond"');
   assert(h2UsesFontVar && varMapsToFont, "184. .sheet-head h2 uses var(--font-display) which maps to Cormorant Garamond");
-  const fontFilesExist = ["CormorantGaramond-Medium.woff2","CormorantGaramond-SemiBold.woff2","CormorantGaramond-Bold.woff2"]
-    .every(f => { try { return require("fs").statSync(f).size > 0; } catch(e) { return false; } });
-  assert(fontFilesExist, "184b. All 3 Cormorant Garamond woff2 files exist and are non-empty");
+
+  let magic = "";
+  let size = 0;
+  try {
+    const fd = fs.openSync("CormorantGaramond-Variable.woff2", "r");
+    const head = Buffer.alloc(4);
+    fs.readSync(fd, head, 0, 4, 0);
+    fs.closeSync(fd);
+    magic = head.toString("hex");
+    size = fs.statSync("CormorantGaramond-Variable.woff2").size;
+  } catch (e) { /* leaves magic empty, which fails below */ }
+  assert(size > 0, "184b. CormorantGaramond-Variable.woff2 exists and is non-empty");
+  assert(magic === "774f4632", "184c. The font file begins wOF2, so it is a real woff2 and not an HTML error page");
+
+  const retired = ["CormorantGaramond-Medium.woff2", "CormorantGaramond-SemiBold.woff2", "CormorantGaramond-Bold.woff2"]
+    .filter(f => { try { fs.statSync(f); return true; } catch (e) { return false; } });
+  assert(retired.length === 0, "184d. The three retired static weight files are gone from the repo");
 }
 
 // ---- v26-D. Section labels: vital-label uses blood color in CSS ----
@@ -1100,13 +1131,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v90"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v91"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v90"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v91"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1228,8 +1259,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "224. sw.js cache tystnad-v90");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "224. sw.js cache tystnad-v91");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1431,8 +1462,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1489,8 +1520,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1515,8 +1546,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1545,8 +1576,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1654,8 +1685,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1698,8 +1729,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1750,8 +1781,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1857,8 +1888,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1950,8 +1981,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2135,8 +2166,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2256,8 +2287,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "478. sw.js cache tystnad-v90");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "478. sw.js cache tystnad-v91");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2315,8 +2346,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v90"'), "493. sw.js cache tystnad-v90");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v91"'), "493. sw.js cache tystnad-v91");
 }
 
 // ============================================================
@@ -3039,8 +3070,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v90"'),          "529. sw.js cache tystnad-v90");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v91"'),          "529. sw.js cache tystnad-v91");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3125,8 +3156,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v90"'), "543b. sw.js cache tystnad-v90");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v91"'), "543b. sw.js cache tystnad-v91");
 }
 
 // ============================================================
@@ -3258,8 +3289,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v90"), "563. sw.js cache tystnad-v90");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v90"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v91"), "563. sw.js cache tystnad-v91");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v91"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -4735,7 +4766,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v90";
+  const CURRENT = "tystnad-v91";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {

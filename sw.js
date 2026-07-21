@@ -1,7 +1,7 @@
 /* TYSTNAD Companion service worker.
    Cache-first: the app works in the basement, the cabin, the dead zone. */
 
-const CACHE = "tystnad-v90";
+const CACHE = "tystnad-v91";
 
 /* v85: assets are split by how badly their absence hurts.
 
@@ -30,9 +30,7 @@ const OPTIONAL_ASSETS = [
   "./logo.png",
   "./intro-bg.webp",
   "./app-bg.webp",
-  "./CormorantGaramond-Medium.woff2",
-  "./CormorantGaramond-SemiBold.woff2",
-  "./CormorantGaramond-Bold.woff2",
+  "./CormorantGaramond-Variable.woff2",
   "./skull.webp",
   "./bg-pages.webp"
 ];
