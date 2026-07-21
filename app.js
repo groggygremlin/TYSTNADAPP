@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v91";
+const VERSION = "v92";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -398,6 +398,8 @@ const STORAGE_KEY = "tystnad-character";
 // Single backend base (production). Dev/testing: swap to "https://staging.playtystnad.com".
 const BACKEND_BASE = "https://playtystnad.com";
 const TABLELINK_KEY = "tystnad-tablelink"; // stores ONLY the device token (the sole secret)
+// The only path a GM-pushed image may live under. Fixed by the backend contract of 2026-07-20.
+const TL_ASSET_PREFIX = "/api/v1/shared-assets/";
 
 const SKULL_IMG       = '<img class="verdict-skull" src="skull.webp" alt="Failure">';
 const SKULL_IMG_DEATH = '<img class="verdict-skull verdict-skull--death" src="skull.webp" alt="Death">';
@@ -488,6 +490,9 @@ function save() {
    not recognisably a character at all is set aside, and set aside is the operative word:
    the raw text is preserved under a quarantine key instead of being destroyed. */
 const QUARANTINE_KEY = "tystnad-character-unreadable";
+// Same 256KB ceiling an imported file gets (IMPORT_LIMITS.bytes), written as a literal because
+// IMPORT_LIMITS is declared later in the file. A real Explorer is a few KB.
+const QUARANTINE_MAX = 256 * 1024;
 
 function load() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -501,9 +506,21 @@ function load() {
     return canonicalCharacter(data);
   } catch (e) {
     console.error("Load failed:", e);
-    // Keep the original bytes. A character that cannot be read is not a character that
-    // should be thrown away; it may still be recoverable by hand.
-    try { localStorage.setItem(QUARANTINE_KEY, raw); } catch (_) {}
+    /* Keep the original bytes. A character that cannot be read is not a character that
+       should be thrown away; it may still be recoverable by hand.
+
+       v92, peer review: bounded. The quarantine cannot GROW, since it writes one fixed key
+       that each failure overwrites, but a single oversized blob could still eat the storage
+       quota and take save() down with it, which would cost the player his NEXT character to
+       preserve an unreadable one. A real character serialises well under the cap. Past it,
+       the raw text is beyond hand-recovery anyway, so it is dropped rather than kept, and
+       the failure is REPORTED: the old bare catch swallowed a full quota without a word. */
+    try {
+      if (raw.length <= QUARANTINE_MAX) localStorage.setItem(QUARANTINE_KEY, raw);
+      else console.error("Unreadable character too large to quarantine:", raw.length);
+    } catch (e) {
+      console.error("Could not quarantine the unreadable character:", e);
+    }
     return null;
   }
 }
@@ -3451,7 +3468,21 @@ function tlBuildCard(m) {
     // A revoked asset 404s: dismiss this pop-up quietly, no error state shown to the player.
     // Guard on isConnected so a late error from an already-dismissed image cannot close a later one.
     img.onerror = () => { if (img.isConnected) tlDismissPopup(); };
-    img.src = BACKEND_BASE + (p.assetUrl || "");
+    /* v92, peer review: assetUrl is a SERVER-CONTROLLED STRING and this line concatenates it
+       onto our origin. It is safe today (the backend's written contract of 2026-07-20 fixes
+       the shape at /api/v1/shared-assets/<signed-token>, served from its own docroot, and
+       img-src pins the host), but nothing in the CLIENT enforced the promise. A backend
+       change, or a compromised response, could otherwise turn this into an arbitrary GET
+       against playtystnad.com carrying the player's cookies for that origin. So check the
+       shape rather than trusting it: anything else renders nothing and dismisses quietly,
+       the same treatment a revoked asset already gets. */
+    const assetUrl = typeof p.assetUrl === "string" ? p.assetUrl : "";
+    if (assetUrl.startsWith(TL_ASSET_PREFIX) && !assetUrl.includes("..")) {
+      img.src = BACKEND_BASE + assetUrl;
+    } else {
+      console.error("[tl] refused an asset URL outside " + TL_ASSET_PREFIX);
+      setTimeout(() => { if (img.isConnected) tlDismissPopup(); }, 0);
+    }
     card.appendChild(img);
     if (p.caption) {
       const cap = document.createElement("p");
