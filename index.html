@@ -24,6 +24,14 @@
     <button id="update-reload" class="update-reload-btn" aria-label="Reload to update">Reload</button>
   </div>
 
+  <!-- ============ SAVE FAILURE BANNER (v93) ============
+       role="alert" rather than "status": a save that is not happening is not an aside.
+       It stays until a save succeeds, and it carries the escape hatch with it. -->
+  <div id="save-banner" class="update-banner save-banner hidden" role="alert" aria-live="assertive">
+    <span class="update-banner-text">Changes are not being saved on this device.</span>
+    <button id="save-banner-export" class="update-reload-btn" aria-label="Export your Explorer now">Export now</button>
+  </div>
+
   <!-- ============ INTRO SCREEN ============ -->
   <section id="screen-intro" class="screen hidden">
     <div class="intro-layout">

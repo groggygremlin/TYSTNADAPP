@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v92";
+const VERSION = "v93";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -470,14 +470,46 @@ let defCoverSteps = 0;
 
 // ---------- Persistence ----------
 
+/* v93, peer review finding 1: save() used to swallow a failed write into console.error while
+   the UI carried on as though the character were stored. On a device with storage disabled,
+   a full quota, or private-mode eviction, a player could finish a session and lose every
+   change since the last good write, with nothing on screen ever hinting at it. The export
+   path exists so that losing a PHONE does not lose an Explorer; a silent save failure
+   defeated that from the inside.
+
+   Now the write is VERIFIED by reading it back, not merely attempted: setItem can resolve
+   without persisting under eviction pressure, so a bare try/catch proves nothing. save()
+   reports its outcome, and a failure raises a persistent banner carrying the one action that
+   actually rescues the character, an immediate export. It WARNS AND NEVER BLOCKS, in line
+   with the rule that governs load states: the table keeps playing, and the player decides.
+
+   The banner clears on the next successful save, so a transient failure heals itself without
+   the player doing anything. */
+let saveFailed = false;
+
 function save() {
+  let ok = false;
+  const payload = JSON.stringify(character);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(character));
+    localStorage.setItem(STORAGE_KEY, payload);
+    // Read back: the only proof that the bytes are actually there.
+    ok = localStorage.getItem(STORAGE_KEY) === payload;
+    if (!ok) console.error("Save failed: the write did not persist");
   } catch (e) {
     console.error("Save failed:", e);
   }
+  reportSaveState(ok);
   // CAP-08: while joined to a table, report the character snapshot (debounced).
   if (typeof tlSession !== "undefined" && tlSession) tlScheduleReport();
+  return ok;
+}
+
+/* Show the warning on the first failure and keep it up until a save succeeds. Every later
+   save is the retry: the app writes on every state change, so the next tap re-attempts. */
+function reportSaveState(ok) {
+  saveFailed = !ok;
+  const banner = $("save-banner");
+  if (banner) (ok ? hide : show)(banner);
 }
 
 /* v87: stored characters go through the same shaping as imported ones, so invalid data
@@ -3964,6 +3996,11 @@ document.addEventListener("DOMContentLoaded", () => {
      sharp case: createState is memory-only, so a deploy landing mid-wizard wiped the whole
      Explorer being made. The banner lets him finish the roll, then update. */
   $("update-reload").addEventListener("click", () => location.reload());
+
+  /* v93: the escape hatch. When storage is refusing the write, the file in the player's hand
+     is the only copy of his Explorer, so the banner offers export directly rather than
+     sending him to find the BACKUP button on a screen he may not be on. */
+  $("save-banner-export").addEventListener("click", exportCharacter);
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("message", (e) => {

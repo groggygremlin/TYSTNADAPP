@@ -1445,6 +1445,14 @@ button.hp-max:active { color: var(--blood-bright); }
   border-bottom: 1px solid var(--blood);
 }
 
+/* v93: the save-failure banner reuses the update banner's geometry and differs only in
+   weight. A pending update is news; a character that is not being written to disk is a
+   warning, so it carries the blood border on all sides rather than a thin bottom rule. */
+.save-banner {
+  border: 1px solid var(--blood);
+  background: var(--panel-hi);
+}
+
 .update-banner-text {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
