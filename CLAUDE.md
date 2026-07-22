@@ -6,6 +6,30 @@ Player companion PWA for TYSTNAD, a dark fantasy tabletop RPG published by Tomas
 
 The app is a die and a sheet, not a referee. The GM sets all difficulties, announces all Threat tiers, rolls party Initiative, and adjudicates all outcomes, including death.
 
+## Phase 2: POLISH (feature freeze, in force)
+
+IMPORTANT: Tomas ruled a feature freeze on 2026-07-22, effective immediately, binding the GM site, the Owlbear Rodeo panel, and this app. It ends only on Tomas's explicit order in session. There is no end date and no expiry, and nothing is inferred from a passing mention of a new idea. While it holds, this section outranks every scope instruction below it: a request that reads as in scope elsewhere in this file is still frozen if it fails the test here.
+
+Allowed, and nothing else:
+
+1. Text edits
+2. Bug fixes
+3. Graphical enhancements
+4. Testing
+5. Content re-arrangements
+6. Completion of content of a kind that already ships
+
+The tie-breaker: it is a FEATURE, and frozen, if it adds a new user-reachable capability, a new route or endpoint, a new stored field, a new cache entry, a new entitlement, or a new dependency. It is ALLOWED if it changes how an existing capability looks, reads, or behaves correctly, or fills in content of a kind that already ships. In doubt equals frozen: stop and ask Tomas.
+
+Why this exists, because the reason changes what you do. A week of fast feature work outran Tomas's own knowledge of what shipped, to the point where he does not trust the texts the app presents to players. The phase's real work is a verification pass: read, check and correct everything the app says on screen, against canon and against what the code actually does. The freeze holds the ground still while that happens. Reading it as "build less" is a misreading. The correct reading is "go back over what you already built, and make it true."
+
+Clauses that stop it leaking:
+
+* Flags are flagged, never fixed. A DEBT flag found now goes in the report and nowhere near the code.
+* A blocker that can only be fixed by building something escalates to Tomas, and is not built.
+* Do not propose features. Not as an aside, not as a "while we're here", not as a suggestion in a completion report. Record it for after the freeze.
+* Only Tomas lifts it, explicitly.
+
 ## Your role
 
 Implement scoped patches exactly as requested. Design decisions belong to Tomas. When unsure between two approaches, present both and let him choose. Do not invent features beyond the requested scope. Do not refactor unrelated code. Keep diffs minimal.
