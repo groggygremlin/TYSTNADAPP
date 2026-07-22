@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v94";
+const VERSION = "v95";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3146,6 +3146,9 @@ function tlShowState(name) {
     const el = $("tl-state-" + s);
     if (el) (s === name ? show : hide)(el);
   });
+  // v95: the link state cannot join anything, so the subtitle must not promise it.
+  const sub = $("tl-status-line");
+  if (sub) sub.textContent = (name === "link") ? "Link this device" : "Join your GM's table";
 }
 
 // ---- Screen enter / leave ----
@@ -3209,9 +3212,10 @@ function tlRenderEntitlement() {
   const el = $("tl-entitlement");
   if (!el) return;
   if (tlDevice && tlDevice.ownsTableLink) {
-    el.textContent = "Device linked. You own Table Link.";
+    el.textContent = "Device linked, and you own Table Link. You can join any GM's table.";
   } else {
-    el.textContent = "Device linked. Join a Full House GM's table, or get Table Link to host your own party.";
+    // v95: Table Link is player-side only. It never grants hosting; Full House does.
+    el.textContent = "Device linked. When your GM owns GM Access Full House, his table covers his whole party and joining costs you nothing. To join a table that is not Full House, you need Table Link of your own.";
   }
 }
 

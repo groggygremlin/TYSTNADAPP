@@ -187,6 +187,9 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 
 input:focus { border-color: var(--blood); }
 
+/* v95: browser default placeholders read as pre-filled values. Match the hint colour. */
+input::placeholder { color: var(--ash); opacity: 1; }
+
 .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 /* ============ CLASS PICKER ============ */
@@ -2195,6 +2198,11 @@ button.hp-max:active { color: var(--blood-bright); }
 .tl-state { display: flex; flex-direction: column; gap: 18px; }
 
 .tl-lead { color: var(--bone); line-height: 1.5; margin: 0; }
+
+/* v95: the two-codes warning. Red marks structure, so the weight carries it, not the colour. */
+.tl-lead-warn { font-weight: 600; }
+
+.tl-next-note { color: var(--ash); font-size: 0.8rem; line-height: 1.4; margin: 0; text-align: center; }
 
 .tl-steps {
   color: var(--ash);

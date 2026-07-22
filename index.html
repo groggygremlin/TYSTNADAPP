@@ -287,15 +287,16 @@
 
     <!-- STATE: not linked -->
     <div id="tl-state-link" class="tl-state hidden">
-      <p class="tl-lead">Link this device to your TYSTNAD account to join a GM's table and receive what he shares. Your solo game never needs an account.</p>
+      <p class="tl-lead">Table Link needs a TYSTNAD account, and creating one is free. Your solo game never needs an account, so if you only play alone you can leave this screen and lose nothing.</p>
+      <p class="tl-lead tl-lead-warn">Holding a code from your GM? Keep it for the next screen. This one asks for a different code.</p>
       <ol class="tl-steps">
-        <li>Open your account on the site and tap Link a device.</li>
-        <li>Copy the one-time link code it shows.</li>
-        <li>Enter that code below.</li>
+        <li>Open playtystnad.com and create your account, or sign in if you already have one.</li>
+        <li>On your account page, tap Link a device, and copy the link code it shows.</li>
+        <li>Enter that link code below. It is good for ten minutes.</li>
       </ol>
       <a id="tl-open-site" class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Open my account on the site</a>
       <label class="field">
-        <span class="field-label">Link code</span>
+        <span class="field-label">Link code (from your account page)</span>
         <input id="tl-link-code" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AB3C-9XYZ-K2MN">
       </label>
       <label class="field">
@@ -303,6 +304,7 @@
         <input id="tl-device-label" type="text" maxlength="100" autocomplete="off" placeholder="My phone">
       </label>
       <button id="tl-link-btn" class="primary-btn slim">Link this device</button>
+      <p class="tl-next-note" id="tl-next-note">Next: the join code your GM reads out.</p>
       <p class="tl-error hidden" id="tl-link-error"></p>
     </div>
 
@@ -310,7 +312,7 @@
     <div id="tl-state-lobby" class="tl-state hidden">
       <p class="tl-entitlement" id="tl-entitlement"></p>
       <div id="tl-buy-prompt" class="tl-buy hidden">
-        <p class="tl-buy-text">You need Table Link to join this table, or ask your GM for a Full House table.</p>
+        <p class="tl-buy-text">This GM does not have Full House, so joining his table needs Table Link of your own.</p>
         <a class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Get Table Link</a>
       </div>
       <label class="field">
