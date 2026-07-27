@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v96";
+const VERSION = "v97";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3019,6 +3019,7 @@ let tlQueue = [];            // pending pushed messages, shown one pop-up at a t
 let tlPopupOpen = false;     // a pop-up is currently displayed
 let tlPopupLastFocus = null; // element to restore focus to when the queue empties
 let tlPopupDeferred = false; // APP-001: a share is queued but held back because a field is being edited
+let tlEnded = null;          // APP-004: why a live session ended, until the player acknowledges it
 
 // ---- Table Link persistence (the device token is the only stored secret) ----
 
@@ -3134,6 +3135,26 @@ function tlClearBanner() {
   const b = $("tl-conn-banner");
   if (b) { hide(b); b.textContent = ""; }
 }
+/* APP-004: tl-conn-banner, tl-session-status and tl-leave-btn all live inside #screen-table,
+   so before v97 a table that ended while the player was on his sheet wrote its only account
+   onto a screen he had left. Both halves of Table Link stopped in that instant and nothing
+   said so. This notice is the one Table Link element outside that screen: it states a
+   TERMINAL end only, wherever the player is. A stall keeps using tlSetBanner, because
+   telling a player his table closed when the train went into a tunnel would be its own bug. */
+function tlSetNotice(text) {
+  const b = $("tl-banner");
+  const t = $("tl-banner-text");
+  if (!b || !t) return;
+  t.textContent = text;
+  show(b);
+}
+function tlClearNotice() {
+  const b = $("tl-banner");
+  const t = $("tl-banner-text");
+  if (!b || !t) return;
+  hide(b);
+  t.textContent = "";
+}
 function tlShowError(id, text) {
   const e = $(id);
   if (e) { e.textContent = text; show(e); }
@@ -3169,6 +3190,11 @@ function openTableLink() {
     // APP-001: the session survived navigation. Show it as it stands; polling and the
     // pop-up queue are already live and must not be restarted or cleared.
     tlShowState("session");
+  } else if (tlSession && tlEnded) {
+    // APP-004: the table ended while he was elsewhere. Say what happened and offer the way
+    // out, rather than dropping him in the lobby inexplicably un-joined.
+    tlRenderEnded();
+    tlShowState("session");
   } else if (tlDevice) {
     tlSession = null;   // drop any handle left behind by a session that ended off-screen
     tlRenderEntitlement();
@@ -3184,8 +3210,9 @@ function closeTableLink() {
   // polling) survives, so the GM keeps receiving snapshots and the player keeps receiving
   // pushes on whatever screen he moves to. tlLeaveSession stays the one deliberate departure.
   // A session that already ended off-screen (table closed, kicked) is not live: tear it down
-  // as before, so no dead handle is stranded.
-  if (!(tlSession && tlPolling)) {
+  // as before, so no dead handle is stranded. APP-004: unless the end has not been
+  // acknowledged yet, in which case the handle is what still carries the account of it.
+  if (!(tlSession && tlPolling) && !tlEnded) {
     tlStopPolling();
     tlSession = null;
   }
@@ -3195,12 +3222,18 @@ function closeTableLink() {
 }
 
 function tlDropToLink() {
+  // APP-004: a 401 mid-poll ends Table Link exactly as terminally as a closed table, and its
+  // only account was tl-link-error, which is also inside #screen-table. If a session was
+  // running, say it wherever the player is.
+  const wasInSession = !!tlSession;
   tlStopPolling();
   tlSession = null;
+  tlEnded = null;
   tlDevice = null;
   tlSave();
   tlShowState("link");
   tlShowError("tl-link-error", "This device is no longer linked. Link it again.");
+  if (wasInSession) tlSetNotice("This device is no longer linked. Your table has ended here.");
 }
 
 // ---- Device status / entitlement ----
@@ -3331,29 +3364,58 @@ function tlEnterSession() {
   tlHideError("tl-join-error");
   hide($("tl-buy-prompt"));
   tlClearPopups();
+  tlEnded = null;
+  tlClearNotice();       // a fresh table replaces whatever the last one ended with
   $("tl-session-status").textContent = "At the table";
   $("tl-leave-btn").textContent = "Leave table";
   tlShowState("session");
   tlStartPolling();
 }
 
+// The deliberate departure, and also how an ended session is acknowledged: either way the
+// player is done with that table and lands in the lobby with nothing stale left behind.
 function tlLeaveSession() {
   tlStopPolling();
   tlClearPopups();
   tlSession = null;
+  tlEnded = null;
   tlClearBanner();
+  tlClearNotice();
   tlRenderEntitlement();
   tlShowState("lobby");
+}
+
+/* Acknowledging the notice. With a device still linked, being done with that table IS
+   leaving it, so the lobby is the right place to land. With no device left, the 401 path has
+   already dropped to the link state and there is no lobby to show: clearing the notice is
+   then the whole of the act. */
+function tlDismissNotice() {
+  if (tlDevice) tlLeaveSession();
+  else tlClearNotice();
+}
+
+function tlEndText(reason) {
+  if (reason === 404 || reason === "closed") return "The table has closed.";
+  if (reason === 403) return "The GM removed you from this table.";
+  return "Disconnected from the table.";
+}
+
+// Paints the ended state onto the Table Link screen. Split out because the player may reach
+// that screen long after the end, and must find the same account there that the notice gave.
+function tlRenderEnded() {
+  const statusEl = $("tl-session-status");
+  if (statusEl) statusEl.textContent = tlEndText(tlEnded);
+  const btn = $("tl-leave-btn");
+  if (btn) btn.textContent = "Back to lobby";
 }
 
 function tlEndSession(reason) {
   tlStopPolling();
   tlClearPopups();
-  const statusEl = $("tl-session-status");
-  if (reason === 404 || reason === "closed") statusEl.textContent = "The table has closed.";
-  else if (reason === 403) statusEl.textContent = "The GM removed you from this table.";
-  else statusEl.textContent = "Disconnected from the table.";
-  $("tl-leave-btn").textContent = "Back to lobby";
+  tlEnded = reason || "ended";
+  tlClearBanner();       // a stale "Reconnecting." must not sit under a terminal notice
+  tlRenderEnded();
+  tlSetNotice(tlEndText(tlEnded));   // APP-004: and say it wherever the player actually is
 }
 
 function tlStartPolling() {
@@ -3579,6 +3641,8 @@ function tlBuildCard(m) {
 function tlClearDeviceLocally() {
   tlStopPolling();
   tlSession = null;
+  tlEnded = null;
+  tlClearNotice();
   tlDevice = null;
   tlSave();
   tlHideError("tl-join-error");
@@ -3634,6 +3698,35 @@ async function tlDoUnlink() {
 function tlForgetLocally() {
   if (!tlDevice || tlBusy) return;
   tlClearDeviceLocally();
+}
+
+/* ============================================================
+   Update checks (APP-003)
+   ============================================================
+   The service worker's own chain is correct and the banner works: install, skipWaiting,
+   activate, claim, postMessage, banner. What was missing is anything that ever STARTS it.
+   register() alone leaves the question of whether a new version exists entirely to the
+   browser's own schedule, and an installed iOS home-screen app can resume from a frozen
+   state without ever performing the navigation that would ask. One device reached v96 while
+   another sat on v95 and was never offered it.
+
+   So ask, at the two moments that mean something: when the app loads, and when it comes
+   back to the foreground. Never on a timer, never in a loop, and never audibly: a player
+   who is offline is a normal player, and must not be told anything about updates at all. */
+
+let swRegistration = null;
+let lastUpdateCheck = 0;
+const UPDATE_CHECK_MIN_MS = 60000;   // a resume is a real moment; a tight interval is not
+
+function checkForUpdate() {
+  if (!swRegistration || typeof swRegistration.update !== "function") return;
+  const now = Date.now();
+  if (now - lastUpdateCheck < UPDATE_CHECK_MIN_MS) return;
+  lastUpdateCheck = now;
+  try {
+    const p = swRegistration.update();
+    if (p && typeof p.catch === "function") p.catch(() => {});   // offline: silent, non-fatal
+  } catch (e) { /* the same, for a browser that throws instead of rejecting */ }
 }
 
 // ---------- Wiring ----------
@@ -3721,6 +3814,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("tl-unlink-btn").addEventListener("click", tlDoUnlink);
   $("tl-forget-btn").addEventListener("click", tlForgetLocally);
   $("tl-leave-btn").addEventListener("click", tlLeaveSession);
+  // APP-004: acknowledging the notice. The table is already gone; this clears the notice and
+  // drops the dead handle, leaving the lobby ready for the next table.
+  $("tl-banner-dismiss").addEventListener("click", tlDismissNotice);
   $("tl-popup-close").addEventListener("click", tlDismissPopup);
 
   // Confirm overlay (abandon)
@@ -4050,8 +4146,31 @@ document.addEventListener("DOMContentLoaded", () => {
     navigator.serviceWorker.addEventListener("message", (e) => {
       if (e.data && e.data.type === "tystnad-update-ready") show($("update-banner"));
     });
-    navigator.serviceWorker.register("sw.js").catch((e) => {
-      console.error("Service worker registration failed:", e);
+
+    /* APP-003, second half: a page that was FROZEN when the new worker activated can miss
+       that message outright, which is precisely the installed home-screen case on iOS.
+       controllerchange fires when the new worker takes over the page, so it catches what the
+       message dropped. It ALSO fires on a first-ever install, when clients.claim() takes a
+       page that had no controller, and a first install is not an update. hadController is
+       what tells those two apart. */
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController) show($("update-banner"));
+    });
+
+    /* updateViaCache "none" keeps sw.js itself out of the HTTP cache on every update check,
+       so a check can never be answered by the very file it is checking for a change to. */
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+      .then((reg) => {
+        swRegistration = reg;
+        checkForUpdate();          // on load
+      })
+      .catch((e) => {
+        console.error("Service worker registration failed:", e);
+      });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") checkForUpdate();   // on return to foreground
     });
   }
 });

@@ -1,7 +1,7 @@
 /* TYSTNAD Companion service worker.
    Cache-first: the app works in the basement, the cabin, the dead zone. */
 
-const CACHE = "tystnad-v96";
+const CACHE = "tystnad-v97";
 
 /* v85: assets are split by how badly their absence hurts.
 

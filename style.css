@@ -1433,17 +1433,30 @@ button.hp-max:active { color: var(--blood-bright); }
 
 /* ============ UPDATE BANNER (v85) ============ */
 
-.update-banner {
+/* v97: the banners used to be individually fixed to the top, so any two of them showing at
+   once landed on the same pixels. The Table Link notice made that a three-way. They now
+   share one fixed column, which owns the safe-area inset, and each banner is an ordinary
+   block inside it. */
+.banner-stack {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
   display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  pointer-events: none;   /* an empty stack must never swallow a tap on the screen below */
+}
+
+.banner-stack > * { pointer-events: auto; }
+
+.update-banner {
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  padding: 10px 16px;
   background: var(--panel);
   border-bottom: 1px solid var(--blood);
 }
