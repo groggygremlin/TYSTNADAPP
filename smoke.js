@@ -260,7 +260,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v95", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v96", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -984,13 +984,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v95"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v96"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v95"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v96"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1021,13 +1021,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v95"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v96"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v95"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v96"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1179,13 +1179,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v95"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v96"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v95"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v96"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1307,8 +1307,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "224. sw.js cache tystnad-v95");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "224. sw.js cache tystnad-v96");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1510,8 +1510,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1568,8 +1568,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1594,8 +1594,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1624,8 +1624,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1733,8 +1733,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1777,8 +1777,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1829,8 +1829,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1936,8 +1936,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2029,8 +2029,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2214,8 +2214,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2335,8 +2335,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "478. sw.js cache tystnad-v95");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "478. sw.js cache tystnad-v96");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2394,8 +2394,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v95"'), "493. sw.js cache tystnad-v95");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v96"'), "493. sw.js cache tystnad-v96");
 }
 
 // ============================================================
@@ -3118,8 +3118,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v95"'),          "529. sw.js cache tystnad-v95");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v96"'),          "529. sw.js cache tystnad-v96");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3204,8 +3204,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v95"'), "543b. sw.js cache tystnad-v95");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v96"'), "543b. sw.js cache tystnad-v96");
 }
 
 // ============================================================
@@ -3337,8 +3337,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v95"), "563. sw.js cache tystnad-v95");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v95"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v96"), "563. sw.js cache tystnad-v96");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v96"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -5009,7 +5009,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v95";
+  const CURRENT = "tystnad-v96";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {
@@ -5307,7 +5307,130 @@ const unlinkBehaviour = (async () => {
     "1248. No em-dash in the Table Link module");
 }
 
-Promise.all([swBehaviour, unlinkBehaviour]).then(finishRun, (e) => {
+// ---- APP-001. A live Table Link session survives leaving the screen ----
+/* The BLOCKER, found by Tomas in a live solo test on 2026-07-27, present since v51: Table
+   Link is a SCREEN with no HP control, so actual play happens on the sheet, and the only
+   exit tore the session down (`closeTableLink` nulled `tlSession` and stopped polling). The
+   GM's HUD then repainted the join-time snapshot forever and the player received nothing the
+   GM pushed. Ruled Option B: leaving the screen is NAVIGATION, so a live session survives;
+   `tlLeaveSession` stays the one deliberate departure, and pushes pop over whatever screen
+   the player is on. Driven through the journey a player walks, not a fixture, because a
+   driven fixture is exactly how this shipped broken and passed its 2026-07-15 validation. */
+const sessionSurvivalBehaviour = (async () => {
+  const TL_KEY = "tystnad-tablelink";
+
+  // A device that owns Table Link, joined to a live session. Routes the four calls the
+  // journey makes and records every character snapshot POSTed to the GM.
+  async function joinedDOM() {
+    const dom = makeDOM(WARRIOR, { [TL_KEY]: JSON.stringify({ token: "TESTTOKEN", ownsTableLink: true }) });
+    const { d, w } = dom;
+    const posts = [];
+    w.fetch = (url, opts) => {
+      const method = (opts && opts.method) || "GET";
+      const reply = (status, data) => Promise.resolve({
+        ok: status >= 200 && status < 300, status, json: () => Promise.resolve(data)
+      });
+      if (/\/table-sessions\/join$/.test(url) && method === "POST") {
+        // pollIntervalSeconds huge so the next scheduled poll never fires mid-test
+        return reply(200, { sessionId: "S1", cursor: 0, pollIntervalSeconds: 9000 });
+      }
+      if (/\/character$/.test(url) && method === "POST") { posts.push(JSON.parse(opts.body)); return reply(200, {}); }
+      if (/\/messages/.test(url)) return reply(200, { messages: [], nextCursor: 0, session: { status: "open" } });
+      if (/\/devices\/status$/.test(url)) return reply(200, { ownsTableLink: true });
+      return reply(200, {});
+    };
+    click(d.getElementById("btn-join-table"));
+    d.getElementById("tl-join-code").value = "ABC123";
+    d.getElementById("tl-display-name").value = "Tyr";
+    await w.eval("tlDoJoin()");
+    // Let the immediate first poll and the join-time report settle: this registers the
+    // (far-future) poll timer so an end-of-block tlStopPolling can clear it, and drains the
+    // one-shot join snapshot so posts is accurate.
+    await new Promise((r) => setTimeout(r, 0));
+    return { d, w, posts };
+  }
+
+  const rule = { type: "rule", title: "Weary", body: "Every roll target shifts up one step." };
+
+  // Sanity: the journey reaches a live session with the join-time snapshot sent once.
+  {
+    const { d, w, posts } = await joinedDOM();
+    assert(visible(d.getElementById("tl-state-session")), "1249. Joining reaches the session state");
+    assert(posts.length === 1, "1250. The GM gets exactly one snapshot at join");
+    w.eval("tlStopPolling()");                      // release the pending poll timer
+  }
+
+  // Leaving the SCREEN keeps the session alive: a later vital change still reports.
+  {
+    const { d, w, posts } = await joinedDOM();
+    click(d.getElementById("tl-back"));           // the back arrow: navigation, not departure
+    assert(visible(d.getElementById("screen-intro")), "1251. Back arrow returns to the intro");
+    assert(hidden(d.getElementById("screen-table")), "1252. The Table Link screen is left");
+    posts.length = 0;
+    await w.eval("adjustHP(-1)");                  // play happens on the sheet
+    await new Promise((r) => setTimeout(r, 650));  // let the 500ms report debounce fire
+    assert(posts.length === 1 && posts[0].hp.current === WARRIOR.hpCur - 1,
+      "1253. A vital change off the Table Link screen still reaches the GM");
+    w.eval("tlStopPolling()");                     // release the pending poll timer
+  }
+
+  // Returning to the screen lands back IN the session, not in the lobby with a dead handle.
+  {
+    const { d, w } = await joinedDOM();
+    click(d.getElementById("tl-back"));
+    click(d.getElementById("btn-join-table"));     // navigate back in
+    assert(visible(d.getElementById("tl-state-session")), "1254. Returning lands back in the session");
+    assert(hidden(d.getElementById("tl-state-lobby")), "1255. Not dumped into the lobby to re-join");
+    w.eval("tlStopPolling()");
+  }
+
+  // The deliberate departure still ends participation: reporting stops after Leave table.
+  {
+    const { d, w, posts } = await joinedDOM();
+    click(d.getElementById("tl-leave-btn"));
+    assert(visible(d.getElementById("tl-state-lobby")), "1256. Leave table returns to the lobby");
+    posts.length = 0;
+    await w.eval("tlReportCharacter()");
+    assert(posts.length === 0, "1257. After leaving, no further snapshot is sent");
+  }
+
+  // Pushes reach the player wherever he is. Off the screen, a share pops over the intro.
+  {
+    const { d, w } = await joinedDOM();
+    click(d.getElementById("tl-back"));
+    w.eval(`tlRenderMessages([${JSON.stringify(rule)}])`);
+    assert(visible(d.getElementById("tl-popup")), "1258. A GM share pops up over another screen");
+    w.eval("tlClearPopups(); tlStopPolling()");
+  }
+
+  // But a share must not steal an in-progress edit. While a field is focused it DEFERS,
+  // and opens the moment focus leaves. This is the most likely way the fix self-inflicts a bug.
+  {
+    const { d, w } = await joinedDOM();
+    click(d.getElementById("tl-back"));
+    const field = d.getElementById("inv-name");
+    field.focus();
+    w.eval(`tlRenderMessages([${JSON.stringify(rule)}])`);
+    assert(hidden(d.getElementById("tl-popup")), "1259. A share defers while a field is being edited");
+    field.blur();                                  // focus leaves the field
+    field.dispatchEvent(new w.Event("focusout", { bubbles: true }));
+    assert(visible(d.getElementById("tl-popup")), "1260. And opens the moment the edit ends");
+    w.eval("tlClearPopups(); tlStopPolling()");
+  }
+
+  // A burst that arrives while returning renders one at a time, never six stacked modals.
+  {
+    const { d, w } = await joinedDOM();
+    click(d.getElementById("tl-back"));
+    const many = [rule, rule, rule].map((m, i) => Object.assign({}, m, { title: "R" + i }));
+    w.eval(`tlRenderMessages(${JSON.stringify(many)})`);
+    assert(visible(d.getElementById("tl-popup")), "1261. A burst opens a pop-up");
+    assert(d.querySelectorAll("#tl-popup").length === 1, "1262. And only ever one at a time");
+    w.eval("tlClearPopups(); tlStopPolling()");
+  }
+})();
+
+Promise.all([swBehaviour, unlinkBehaviour, sessionSurvivalBehaviour]).then(finishRun, (e) => {
   console.error("FAIL: async behaviour harness threw:", e && e.message);
   failed++;
   finishRun();

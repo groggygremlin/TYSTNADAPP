@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v95";
+const VERSION = "v96";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3018,6 +3018,7 @@ let tlBusy = false;
 let tlQueue = [];            // pending pushed messages, shown one pop-up at a time (in-memory)
 let tlPopupOpen = false;     // a pop-up is currently displayed
 let tlPopupLastFocus = null; // element to restore focus to when the queue empties
+let tlPopupDeferred = false; // APP-001: a share is queued but held back because a field is being edited
 
 // ---- Table Link persistence (the device token is the only stored secret) ----
 
@@ -3164,7 +3165,12 @@ function openTableLink() {
   hide($("tl-forget-btn"));
   hide($("tl-forget-note"));
   hide($("tl-buy-prompt"));
-  if (tlDevice) {
+  if (tlSession && tlPolling) {
+    // APP-001: the session survived navigation. Show it as it stands; polling and the
+    // pop-up queue are already live and must not be restarted or cleared.
+    tlShowState("session");
+  } else if (tlDevice) {
+    tlSession = null;   // drop any handle left behind by a session that ended off-screen
     tlRenderEntitlement();
     tlShowState("lobby");
     tlRefreshStatus();
@@ -3174,8 +3180,15 @@ function openTableLink() {
 }
 
 function closeTableLink() {
-  tlStopPolling();
-  tlSession = null;
+  // APP-001: leaving the SCREEN is navigation, not leaving the table. A live session (still
+  // polling) survives, so the GM keeps receiving snapshots and the player keeps receiving
+  // pushes on whatever screen he moves to. tlLeaveSession stays the one deliberate departure.
+  // A session that already ended off-screen (table closed, kicked) is not live: tear it down
+  // as before, so no dead handle is stranded.
+  if (!(tlSession && tlPolling)) {
+    tlStopPolling();
+    tlSession = null;
+  }
   hide($("screen-table"));
   renderIntro();
   show($("screen-intro"));
@@ -3430,7 +3443,30 @@ function tlRenderMessages(messages) {
   if (!tlPopupOpen) tlShowNextPopup();
 }
 
+// APP-001: since pop-ups now appear over any screen, a share must never interrupt an
+// in-progress edit. While a field is focused the message stays queued and opens the moment
+// focus leaves (see tlDeferPopup). Nothing is lost: the queue holds it either way.
+function tlIsEditable(el) {
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || el.isContentEditable === true;
+}
+
+function tlDeferPopup() {
+  if (tlPopupDeferred) return;
+  tlPopupDeferred = true;
+  document.addEventListener("focusout", tlPopupResume, true);
+}
+
+function tlPopupResume() {
+  document.removeEventListener("focusout", tlPopupResume, true);
+  tlPopupDeferred = false;
+  if (!tlPopupOpen && tlQueue.length) tlShowNextPopup();   // re-checks the edit guard itself
+}
+
 function tlShowNextPopup() {
+  if (!tlQueue.length) { tlHidePopup(); return; }
+  if (tlIsEditable(document.activeElement)) { tlDeferPopup(); return; }
   const m = tlQueue.shift();
   if (!m) { tlHidePopup(); return; }
   const card = tlBuildCard(m);
@@ -3465,6 +3501,10 @@ function tlHidePopup() {
 // Leaving, being removed, or the table closing clears everything pending and on screen.
 function tlClearPopups() {
   tlQueue = [];
+  if (tlPopupDeferred) {
+    document.removeEventListener("focusout", tlPopupResume, true);
+    tlPopupDeferred = false;
+  }
   tlHidePopup();
 }
 
