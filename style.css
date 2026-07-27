@@ -78,7 +78,10 @@ body::before {
 
 /* ============ INTRO ============ */
 
-#screen-intro {
+/* v99: the gate is the front door, so it wears the same face as the intro it stands in front
+   of. Its states reuse .tl-state, .field and .tl-error rather than growing a second set. */
+#screen-intro,
+#screen-gate {
   min-height: 100dvh;
   justify-content: center;
   background-image: url("intro-bg.webp");
@@ -86,6 +89,9 @@ body::before {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* The logo sits above the fields, not centred with them, so the form starts near the thumb. */
+.gate-screen .intro-logo-wrap { margin-bottom: 4px; }
 
 .intro-logo-wrap {
   display: flex;
@@ -170,7 +176,10 @@ body::before {
 
 .field-hint { font-size: 0.75rem; color: var(--ash); line-height: 1.4; }
 
-input[type="text"], input[type="number"] {
+/* v99: email and password join the list. The gate is the first screen anyone sees, and until
+   they were named here its fields rendered as the browser's own white boxes, outside the
+   palette entirely. */
+input[type="text"], input[type="number"], input[type="email"], input[type="password"] {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -2212,20 +2221,11 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .tl-lead { color: var(--bone); line-height: 1.5; margin: 0; }
 
-/* v95: the two-codes warning. Red marks structure, so the weight carries it, not the colour. */
-.tl-lead-warn { font-weight: 600; }
+/* v99: .tl-lead-warn (the two-codes warning) and .tl-steps (the three-step link-code list)
+   are gone with the markup they styled. There is one code at registration and one from the
+   GM, so nothing needs warning about any more. */
 
 .tl-next-note { color: var(--ash); font-size: 0.8rem; line-height: 1.4; margin: 0; text-align: center; }
-
-.tl-steps {
-  color: var(--ash);
-  line-height: 1.5;
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
 
 .tl-linkout { text-align: center; text-decoration: none; }
 

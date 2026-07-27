@@ -48,6 +48,89 @@
 
   </div>
 
+  <!-- ============ GATE SCREEN (v99) ============
+       Registration is mandatory before the app can be used (Tomas, 2026-07-28), which also
+       retires the site-minted link code: there is one way in, and one code at registration.
+
+       The gate is satisfied LOCALLY, by the presence of a stored device token. It never asks
+       the server whether the player is still valid, because a gate on a network call would
+       take a registered player's single-player game away from him on a train, and would let
+       a long-idle token lock him out of his own offline app. The token is checked by the
+       server only when Table Link is actually used, which is where a stale token correctly
+       becomes a re-login.
+
+       The gate is a screen in FRONT of the data, never a reset. Nothing in it reads, writes,
+       clears or migrates the stored character.
+
+       TOMAS: every line of copy in this screen is the plainest true sentence, placed here to
+       be overwritten by you. Same handling as GM-019's strings. -->
+  <section id="screen-gate" class="screen gate-screen hidden">
+
+    <div class="intro-logo-wrap">
+      <img src="logo.png" alt="TYSTNAD" class="intro-logo">
+      <p class="brand-sub">Companion</p>
+    </div>
+
+    <!-- STATE: register -->
+    <div id="gate-state-register" class="tl-state hidden">
+      <p class="tl-lead">TYSTNAD Companion needs an account, and it is free. You need a connection once, to register. After that the app works offline.</p>
+      <label class="field">
+        <span class="field-label">Email</span>
+        <input id="gate-reg-email" type="email" maxlength="254" autocomplete="email" autocapitalize="none" spellcheck="false" inputmode="email" placeholder="you@example.com">
+      </label>
+      <label class="field">
+        <span class="field-label">Password</span>
+        <input id="gate-reg-password" type="password" maxlength="200" autocomplete="new-password">
+        <span class="field-hint">At least 12 characters.</span>
+      </label>
+      <button id="gate-reg-btn" class="primary-btn slim" aria-label="Register this account">Register</button>
+      <p class="tl-error hidden" id="gate-reg-error"></p>
+      <button id="gate-to-signin" class="ghost-btn" aria-label="Sign in to an account you already have">I already have an account</button>
+    </div>
+
+    <!-- STATE: enter your code. Serves registration and password reset alike; the reset flow
+         is the one that also shows the new-password field. -->
+    <div id="gate-state-code" class="tl-state hidden">
+      <p class="tl-lead" id="gate-code-lead"></p>
+      <label class="field">
+        <span class="field-label">Code from your email</span>
+        <input id="gate-code-input" type="text" maxlength="32" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX">
+      </label>
+      <label class="field hidden" id="gate-code-pw-field">
+        <span class="field-label">New password</span>
+        <input id="gate-code-password" type="password" maxlength="200" autocomplete="new-password">
+        <span class="field-hint">At least 12 characters.</span>
+      </label>
+      <label class="field">
+        <span class="field-label">Device name (optional)</span>
+        <input id="gate-code-label" type="text" maxlength="100" autocomplete="off" placeholder="My phone">
+      </label>
+      <button id="gate-code-btn" class="primary-btn slim" aria-label="Send the code from your email">Continue</button>
+      <p class="tl-next-note">The code lasts 30 minutes. Five wrong tries and you need a new one.</p>
+      <p class="tl-error hidden" id="gate-code-error"></p>
+      <button id="gate-code-back" class="ghost-btn" aria-label="Start again from registration">Start over</button>
+    </div>
+
+    <!-- STATE: sign in. As reachable as register, because a GM buys before his players
+         install, so many arrivals already have an account. -->
+    <div id="gate-state-signin" class="tl-state hidden">
+      <p class="tl-lead">Sign in with the account you already have. You need a connection for this.</p>
+      <label class="field">
+        <span class="field-label">Email</span>
+        <input id="gate-si-email" type="email" maxlength="254" autocomplete="email" autocapitalize="none" spellcheck="false" inputmode="email" placeholder="you@example.com">
+      </label>
+      <label class="field">
+        <span class="field-label">Password</span>
+        <input id="gate-si-password" type="password" maxlength="200" autocomplete="current-password">
+      </label>
+      <button id="gate-si-btn" class="primary-btn slim" aria-label="Sign in">Sign in</button>
+      <p class="tl-error hidden" id="gate-si-error"></p>
+      <button id="gate-forgot-btn" class="ghost-btn" aria-label="Send a code to reset your password">I forgot my password</button>
+      <button id="gate-to-register" class="ghost-btn" aria-label="Register a new account">I need to register</button>
+    </div>
+
+  </section>
+
   <!-- ============ INTRO SCREEN ============ -->
   <section id="screen-intro" class="screen hidden">
     <div class="intro-layout">
@@ -301,28 +384,12 @@
 
     <p id="tl-conn-banner" class="tl-conn-banner hidden"></p>
 
-    <!-- STATE: not linked -->
-    <div id="tl-state-link" class="tl-state hidden">
-      <p class="tl-lead">Table Link needs a TYSTNAD account, and creating one is free. Your solo game never needs an account, so if you only play alone you can leave this screen and lose nothing.</p>
-      <p class="tl-lead tl-lead-warn">Holding a code from your GM? Keep it for the next screen. This one asks for a different code.</p>
-      <ol class="tl-steps">
-        <li>Open playtystnad.com and create your account, or sign in if you already have one.</li>
-        <li>On your account page, tap Link a device, and copy the link code it shows.</li>
-        <li>Enter that link code below. It is good for ten minutes.</li>
-      </ol>
-      <a id="tl-open-site" class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Open my account on the site</a>
-      <label class="field">
-        <span class="field-label">Link code (from your account page)</span>
-        <input id="tl-link-code" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AB3C-9XYZ-K2MN">
-      </label>
-      <label class="field">
-        <span class="field-label">Device name (optional)</span>
-        <input id="tl-device-label" type="text" maxlength="100" autocomplete="off" placeholder="My phone">
-      </label>
-      <button id="tl-link-btn" class="primary-btn slim">Link this device</button>
-      <p class="tl-next-note" id="tl-next-note">Next: the join code your GM reads out.</p>
-      <p class="tl-error hidden" id="tl-link-error"></p>
-    </div>
+    <!-- v99: the "not linked" state is gone. The device is linked at registration, in the
+         gate, so a player who reaches this screen always holds a token. That retires the
+         site-minted link code, the three-step list that explained it, and the warning
+         paragraph whose only job was to stop him confusing it with the GM's join code.
+         There is now one code at registration and one from the GM, and they arrive at
+         different times for different purposes. Signing out returns him to the gate. -->
 
     <!-- STATE: linked, choosing a table (lobby) -->
     <div id="tl-state-lobby" class="tl-state hidden">
@@ -342,10 +409,13 @@
       <p class="tl-privacy" id="tl-privacy">While you are at the table, your GM sees your Explorer's name, class, HP, conditions, expedition role, Initiative contribution, and how much you are carrying. He never sees your rolls, and he cannot change your sheet.</p>
       <button id="tl-join-btn" class="primary-btn slim">Join the table</button>
       <p class="tl-error hidden" id="tl-join-error"></p>
-      <button id="tl-unlink-btn" class="ghost-btn tl-unlink">Unlink this device</button>
+      <!-- TOMAS: v99 wording, yours to overwrite. Unlinking now signs the device out of the
+           app itself, not just out of Table Link, so the button has to say so. -->
+      <button id="tl-unlink-btn" class="ghost-btn tl-unlink" aria-label="Sign this device out">Sign this device out</button>
+      <p class="tl-forget-note" id="tl-unlink-warn">Signing out returns you to the front door, and signing back in needs a connection. Your Explorer stays on this device.</p>
       <p class="tl-error hidden" id="tl-unlink-error"></p>
-      <button id="tl-forget-btn" class="ghost-btn tl-unlink hidden">Forget on this device only</button>
-      <p class="tl-forget-note hidden" id="tl-forget-note">This clears the link here. The device may stay authorised on your account until you remove it there.</p>
+      <button id="tl-forget-btn" class="ghost-btn tl-unlink hidden" aria-label="Sign out on this device only">Sign out on this device only</button>
+      <p class="tl-forget-note hidden" id="tl-forget-note">This signs you out here. The device may stay authorised on your account until you remove it there.</p>
     </div>
 
     <!-- STATE: in session -->

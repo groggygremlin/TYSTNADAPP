@@ -48,7 +48,8 @@ const SORCERER = Object.assign({}, WARRIOR, {
    the platform surfaces a test needs to be present at boot rather than on demand. The service
    worker is the one that matters: jsdom has none, so without a stub the whole registration
    block is dead code no assertion can reach. */
-function makeDOM(savedChar, extraStorage, preEval) {
+function makeDOM(savedChar, extraStorage, preEval, opts) {
+  opts = opts || {};
   const dom = new JSDOM(HTML, { url: "http://localhost/", runScripts: "outside-only" });
   const w = dom.window;
   if (savedChar) {
@@ -57,6 +58,15 @@ function makeDOM(savedChar, extraStorage, preEval) {
   // Seeded before app.js boots, for state the app reads during init rather than on demand.
   if (extraStorage) {
     Object.keys(extraStorage).forEach((k) => w.localStorage.setItem(k, extraStorage[k]));
+  }
+  /* v99: registration is mandatory, so the gate stands in front of every screen until a device
+     token exists. A test DOM without one is a player who has not registered, and he can reach
+     none of the app: that is the point of the gate, and it would silently blind every existing
+     assertion in this file. So the default DOM is a REGISTERED player, which is what every real
+     user is by the time he sees a sheet. Pass { unregistered: true } to test the gate itself. */
+  if (!opts.unregistered && w.localStorage.getItem("tystnad-tablelink") === null) {
+    w.localStorage.setItem("tystnad-tablelink",
+      JSON.stringify({ token: "smoke-gate-token", ownsTableLink: false }));
   }
   w.eval(`
     if (typeof File === "undefined") {
@@ -265,7 +275,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v98", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v99", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -989,13 +999,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v98"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v99"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v98"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v99"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1026,13 +1036,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v98"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v99"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v98"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v99"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1184,13 +1194,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v98"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v99"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v98"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v99"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1312,8 +1322,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "224. sw.js cache tystnad-v98");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "224. sw.js cache tystnad-v99");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1515,8 +1525,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1573,8 +1583,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1599,8 +1609,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1629,8 +1639,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1738,8 +1748,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1782,8 +1792,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1834,8 +1844,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1941,8 +1951,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2034,8 +2044,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2219,8 +2229,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2340,8 +2350,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "478. sw.js cache tystnad-v98");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "478. sw.js cache tystnad-v99");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2399,8 +2409,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v98"'), "493. sw.js cache tystnad-v98");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v99"'), "493. sw.js cache tystnad-v99");
 }
 
 // ============================================================
@@ -3123,8 +3133,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v98"'),          "529. sw.js cache tystnad-v98");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v99"'),          "529. sw.js cache tystnad-v99");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3209,8 +3219,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v98"'), "543b. sw.js cache tystnad-v98");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v99"'), "543b. sw.js cache tystnad-v99");
 }
 
 // ============================================================
@@ -3342,8 +3352,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v98"), "563. sw.js cache tystnad-v98");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v98"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v99"), "563. sw.js cache tystnad-v99");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v99"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -3369,19 +3379,20 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
     const { d } = makeDOM(null);
     assert(visible(d.getElementById("btn-join-table")), "569. 'Join a table' entry visible on intro");
     assert(hidden(d.getElementById("screen-table")), "570. Table Link screen hidden on boot");
-    assert(d.getElementById("tl-state-link"), "571. link state exists");
+    // v99: the link state is retired. Reaching this screen means holding a token.
+    assert(!d.getElementById("tl-state-link"), "571. link state is gone (v99)");
     assert(d.getElementById("tl-state-lobby"), "572. lobby state exists");
     assert(d.getElementById("tl-state-session"), "573. session state exists");
   }
 
-  // No device token → clicking 'Join a table' shows the link state
+  // v99: no device token → the gate holds the app, and Table Link is not reachable at all
   {
-    const { d } = makeDOM(null);
+    const { d } = makeDOM(null, null, null, { unregistered: true });
+    assert(visible(d.getElementById("screen-gate")), "574. No token → the gate is shown");
+    assert(hidden(d.getElementById("screen-intro")), "575. No token → the intro is not");
     click(d.getElementById("btn-join-table"));
-    assert(visible(d.getElementById("screen-table")), "574. Table Link screen shown after entry");
-    assert(hidden(d.getElementById("screen-intro")), "575. Intro hidden after entry");
-    assert(visible(d.getElementById("tl-state-link")), "576. Not-linked → link state visible");
-    assert(hidden(d.getElementById("tl-state-lobby")), "577. Not-linked → lobby hidden");
+    assert(hidden(d.getElementById("screen-table")), "576. And 'Join a table' cannot be reached behind it");
+    assert(visible(d.getElementById("screen-gate")), "577. The gate is still what he is looking at");
   }
 
   // Solo core is untouched by Table Link state and vice versa
@@ -3402,7 +3413,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
     // Entering with a device goes straight to lobby (proves the token was loaded)
     click(d.getElementById("btn-join-table"));
     assert(visible(d.getElementById("tl-state-lobby")), "580. Linked device → lobby state visible");
-    assert(hidden(d.getElementById("tl-state-link")), "581. Linked device → link state hidden");
+    assert(hidden(d.getElementById("screen-gate")), "581. Linked device → the gate stays out of his way");
   }
 
   // Renderers build the right card per type; textContent only (no HTML injection)
@@ -3495,7 +3506,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
       "1264a. Ending a session is what fills it");
   }
 
-  // Drop-to-link clears the stored token (401 / revoked path)
+  // Drop-to-gate clears the stored token (401 / revoked path)
   {
     const dom = new JSDOM(HTML, { url: "http://localhost/", runScripts: "outside-only" });
     const w = dom.window;
@@ -3503,9 +3514,12 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
     w.eval(`window.fetch = () => Promise.resolve({ ok:true, status:200, json:()=>Promise.resolve({}) });`);
     w.eval(APPJS);
     w.document.dispatchEvent(new w.Event("DOMContentLoaded"));
-    w.eval("tlDropToLink()");
-    assert(w.localStorage.getItem("tystnad-tablelink") === null, "591. tlDropToLink clears the stored device token");
-    assert(visible(w.document.getElementById("tl-state-link")), "592. tlDropToLink returns to the link state");
+    w.eval("tlDropToGate()");
+    assert(w.localStorage.getItem("tystnad-tablelink") === null, "591. tlDropToGate clears the stored device token");
+    // v99: the token is what satisfies the gate, so losing it returns him to the front door.
+    assert(visible(w.document.getElementById("screen-gate")), "592. tlDropToGate returns to the gate");
+    assert(visible(w.document.getElementById("gate-state-signin")),
+      "592a. On the sign-in state, because he already has an account");
   }
 
   // CSS: cards use palette-only colors and a Cormorant rule title
@@ -3558,13 +3572,14 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
     assert(hidden(f.d.getElementById("tl-conn-banner")), "606. connection banner clears on reconnect");
   }
 
-  // Error-copy matrix: link + join error text maps the right message per error code
+  // Error-copy matrix: gate + join error text maps the right message per error code
   {
     const { w } = makeDOM(null);
-    const linkFull = w.eval("tlLinkErrorText({ status:429, data:{ error:'rate_limited' } })");
-    assert(/too many/i.test(linkFull), "607. link 429/rate_limited → 'too many attempts' copy");
-    const linkBad = w.eval("tlLinkErrorText({ status:422, data:{ error:'invalid_or_expired_code' } })");
-    assert(/expired|fresh/i.test(linkBad), "608. link invalid_or_expired_code → regenerate copy");
+    // v99: the link-code mapping is retired; the gate's mapping takes its place.
+    const gateFull = w.eval("gateErrorText({ status:429, data:{ error:'rate_limited' } })");
+    assert(/too many/i.test(gateFull), "607. gate 429/rate_limited → 'too many attempts' copy");
+    const gateBad = w.eval("gateErrorText({ status:422, data:{ error:'invalid_or_expired_code' } })");
+    assert(/expired/i.test(gateBad), "608. gate invalid_or_expired_code → ask for a new one");
     const joinFull = w.eval("tlJoinErrorText({ status:422, data:{ error:'session_full' } })");
     assert(/full|six/i.test(joinFull), "609. join session_full → 'table is full' copy");
     const joinBad = w.eval("tlJoinErrorText({ status:422, data:{ error:'invalid_or_expired_code' } })");
@@ -4758,8 +4773,9 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   const { d } = makeDOM(WARRIOR);
 
   // Finding 12: the code inputs were the only unbounded fields sent to the backend.
-  assert(d.getElementById("tl-link-code").getAttribute("maxlength") === "32",
-    "1147. The link code input is bounded");
+  // v99: the link code input is gone; the gate's emailed code inherits the same bound.
+  assert(d.getElementById("gate-code-input").getAttribute("maxlength") === "32",
+    "1147. The gate's emailed-code input is bounded");
   assert(d.getElementById("tl-join-code").getAttribute("maxlength") === "32",
     "1148. The join code input is bounded");
 
@@ -4767,8 +4783,9 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
      value actually SENT must be bounded too. Verified live that maxlength alone let a
      200-character value sit in the field. */
   assert(/const TL_CODE_MAX = 32;/.test(APPJS), "1148b. A code length bound exists in code, not just markup");
-  assert(/codeEl\.value\.trim\(\)\.slice\(0, TL_CODE_MAX\)/.test(APPJS),
-    "1148c. The link code is bounded before it is sent");
+  // v99: the gate's emailed code is the one that inherits this, the link code being retired.
+  assert(/\$\("gate-code-input"\)\.value\.trim\(\)\.slice\(0, TL_CODE_MAX\)/.test(APPJS),
+    "1148c. The emailed code is bounded before it is sent");
   assert(/replace\(\/\[\^A-Z0-9\]\/g, ""\)\.slice\(0, TL_CODE_MAX\)/.test(APPJS),
     "1148d. The join code is bounded after sanitising");
 
@@ -5030,7 +5047,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v98";
+  const CURRENT = "tystnad-v99";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {
@@ -5228,7 +5245,7 @@ const unlinkBehaviour = (async () => {
     click(d.getElementById("tl-forget-btn"));
     assert(tokenIn(w) === null, "1109. Forgetting locally clears the token");
     assert(hidden(d.getElementById("tl-forget-btn")), "1110. The hatch hides itself after use");
-    assert(visible(d.getElementById("tl-state-link")), "1111. And returns to the link screen");
+    assert(visible(d.getElementById("screen-gate")), "1111. And returns to the gate (v99)");
   }
 
   // Re-entering the screen must not show a stale failure from last time.
@@ -5275,30 +5292,33 @@ const unlinkBehaviour = (async () => {
   assert(!/ask your GM for a Full House/i.test(DOC),
     "1232. It no longer asks the player to lobby his GM for a purchase");
 
-  // The link state teaches the prerequisite, the two codes, and the expiry.
-  assert(/Table Link needs a TYSTNAD account, and creating one is free/.test(DOC),
-    "1233. The lead names the account as the prerequisite");
-  assert(/if you only play alone you can leave this screen and lose nothing/.test(DOC),
-    "1234. And tells the solo player he needs none of it");
-  assert(/Keep it for the next screen\. This one asks for a different code\./.test(DOC),
-    "1235. The two-codes warning is present");
-  assert(/create your account, or sign in if you already have one/.test(DOC),
-    "1236. Step 1 covers the player who has no account at all");
-  assert(/It is good for ten minutes\./.test(DOC),
-    "1237. The link code expiry is stated (backend LINK_TTL is 600s, single use)");
-  assert(/Link code \(from your account page\)/.test(DOC),
-    "1238. The field label says which code it wants");
-  assert(/Next: the join code your GM reads out\./.test(DOC),
-    "1239. The link screen points at the next one");
+  /* v99: the link state's copy is retired, and every sentence of it is now FALSE. These
+     assertions exist to keep it from creeping back: solo play needs an account, there is no
+     link code, and there is nothing to warn about two codes any more. */
+  assert(!/Table Link needs a TYSTNAD account, and creating one is free/.test(DOC),
+    "1233. The old account-prerequisite lead is gone");
+  assert(!/if you only play alone you can leave this screen and lose nothing/.test(DOC),
+    "1234. And the claim that a solo player needs no account is gone, because it is now untrue");
+  assert(!/Keep it for the next screen\. This one asks for a different code\./.test(DOC),
+    "1235. The two-codes warning is gone with the second code");
+  assert(!/On your account page, tap Link a device/.test(DOC),
+    "1236. The three-step link-code list is gone");
+  assert(!/It is good for ten minutes\./.test(DOC),
+    "1237. The link code expiry is gone with the link code");
+  assert(!/Link code \(from your account page\)/.test(DOC),
+    "1238. The link code field is gone");
+  assert(!/tl-link-code|tl-link-btn|tl-open-site/.test(DOC),
+    "1239. And so are its input, its button and its link out to the site");
 
-  // The subtitle must not promise joining on the screen that cannot join.
+  // The subtitle promises joining, because the only state that reaches it can join.
   {
     const { d } = makeDOM(null);
-    click(d.getElementById("btn-join-table"));
-    assert(visible(d.getElementById("tl-state-link")), "1240. Not linked lands on the link state");
-    assert(d.getElementById("tl-status-line").textContent === "Link this device",
-      "1241. The link state's subtitle describes linking, not joining");
-    assert(visible(d.getElementById("tl-next-note")), "1242. The next-screen note is on show there");
+    assert(d.getElementById("tl-status-line").textContent === "Join your GM's table",
+      "1240. The Table Link subtitle says joining, the one thing that screen now does");
+    assert(!/tlApi\(\s*"\/api\/v1\/devices\/link"/.test(SRC),
+      "1241. The app no longer calls /api/v1/devices/link");
+    assert(!/function tlDoLink\b/.test(SRC) && !/function tlLinkErrorText\b/.test(SRC),
+      "1242. And the handlers that called it are gone, not merely unwired");
   }
   {
     const dom = new JSDOM(HTML, { url: "http://localhost/", runScripts: "outside-only" });
@@ -5513,7 +5533,7 @@ const sessionSurvivalBehaviour = (async () => {
   }
 
   // A device that loses its link mid-session dies just as terminally, and used to do it just
-  // as quietly: tl-link-error is also inside #screen-table.
+  // as quietly: its only account was inside #screen-table, which he may have left.
   {
     const ctx = await joinedThenSheet();
     await endedPoll(ctx, { status: 401 });
@@ -5525,16 +5545,16 @@ const sessionSurvivalBehaviour = (async () => {
   }
 
   /* The same 401, met while he is standing ON the Table Link screen. Acknowledging must not
-     offer a lobby for a device that no longer has one: tlDropToLink has already sent him to
-     the link state, and that is where he must stay. Off-screen this self-corrects on the way
-     back in, which is exactly why it needs testing here instead. */
+     offer a lobby for a device that no longer has one: v99's tlDropToGate has already sent him
+     to the gate, and that is where he must stay. Off-screen this self-corrects on the way back
+     in, which is exactly why it needs testing here instead. */
   {
     const ctx = await joinedDOM();                  // stays on the Table Link screen
     const { d } = ctx;
     await endedPoll(ctx, { status: 401 });
-    assert(visible(d.getElementById("tl-state-link")), "1273b. A 401 sends him back to linking");
+    assert(visible(d.getElementById("screen-gate")), "1273b. A 401 sends him back to the gate");
     click(d.getElementById("tl-banner-dismiss"));
-    assert(visible(d.getElementById("tl-state-link")) && hidden(d.getElementById("tl-state-lobby")),
+    assert(visible(d.getElementById("screen-gate")) && hidden(d.getElementById("tl-state-lobby")),
       "1273c. And dismissing the notice leaves him there, not in a lobby he cannot use");
   }
 
@@ -5921,8 +5941,275 @@ const reloadResumeBehaviour = (async () => {
   }
 })();
 
+/* ---- v99: the gate. Registration is mandatory before the app can be used ----
+
+   Ruled by Tomas 2026-07-28, overriding R1 of SPECS/TABLE LINK RE-HOME.md. The three
+   properties worth defending here, in the order they would hurt if they broke:
+
+   1. THE DATA RULE. The gate is a screen in front of the data, never a reset. A player who
+      registers must find his Explorer exactly where he left it. Nothing else in this patch
+      can eat a character; this is the assertion that proves it did not.
+   2. The gate is satisfied LOCALLY. A stored token means no network call at boot, or a
+      registered player loses his single-player game the moment he is offline.
+   3. No enumeration. An address that already has an account and one that does not must be
+      indistinguishable in the app, in state and in wording alike. The backend refuses to leak
+      it, and the app must not undo that by inference. */
+const gateBehaviour = (async () => {
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+  const settle = async () => { for (let i = 0; i < 4; i++) await tick(); };
+  const PW = "a-long-enough-password";
+
+  /* async, and deliberately so. jsdom fires its OWN DOMContentLoaded a tick after the document
+     is built, so the usual "eval app.js then dispatch it by hand" boots the app TWICE. Most of
+     this file survives that; the gate does not, because the second boot re-runs gateOpen and
+     wipes the very error text an assertion is about to read. Waiting for jsdom's event to pass
+     with no listeners attached leaves exactly one boot, which is what a phone does. */
+  async function gateDOM(seedChar, routes, seedToken) {
+    const dom = new JSDOM(HTML, { url: "http://localhost/", runScripts: "outside-only" });
+    const w = dom.window;
+    await tick();
+    if (seedChar) w.localStorage.setItem("tystnad-character", JSON.stringify(seedChar));
+    if (seedToken) w.localStorage.setItem("tystnad-tablelink", JSON.stringify(seedToken));
+    // Routes are eval'd in as JSON: a Node-side object reaching into the window realm is one
+    // of the ways this harness has lied before.
+    w.eval(`window.__net = { calls: [] };
+      window.__routes = ${JSON.stringify(routes || {})};
+      window.fetch = (url, opts) => {
+        const body = (opts && opts.body) ? JSON.parse(opts.body) : null;
+        window.__net.calls.push({ url: String(url), body: body });
+        const key = Object.keys(window.__routes).find((k) => String(url).indexOf(k) !== -1);
+        const r = key ? window.__routes[key] : { status: 500, data: {} };
+        return Promise.resolve({
+          ok: r.status >= 200 && r.status < 300,
+          status: r.status,
+          json: () => Promise.resolve(r.data || {})
+        });
+      };`);
+    w.eval(APPJS);
+    w.document.dispatchEvent(new w.Event("DOMContentLoaded"));
+    return { w, d: w.document };
+  }
+  const setVal = (d, id, v) => { d.getElementById(id).value = v; };
+  const R_REG = { status: 202, data: { queued: true } };
+  const R_TOK = { status: 200, data: { deviceToken: "TOK-NEW", ownsTableLink: true } };
+
+  // The gate stands in front of everything, and decides it without asking the server.
+  {
+    const { d, w } = await gateDOM(WARRIOR, {});
+    assert(visible(d.getElementById("screen-gate")), "1313. No token: the gate holds the app");
+    assert(visible(d.getElementById("gate-state-register")), "1314. It opens on register, the common arrival");
+    assert(hidden(d.getElementById("gate-state-signin")) && hidden(d.getElementById("gate-state-code")),
+      "1315. And on that state only");
+    assert(hidden(d.getElementById("screen-intro")) && hidden(d.getElementById("screen-shell")) &&
+           hidden(d.getElementById("screen-table")) && hidden(d.getElementById("screen-create")),
+      "1316. Nothing behind it is reachable");
+    assert(w.__net.calls.length === 0, "1317. The gate asks the server nothing to decide this");
+  }
+
+  // A stored token satisfies it, locally. This is what keeps a registered player playing offline.
+  {
+    const { d, w } = await gateDOM(WARRIOR, {}, { token: "OLD", ownsTableLink: false });
+    assert(hidden(d.getElementById("screen-gate")), "1318. A stored token satisfies the gate");
+    assert(visible(d.getElementById("screen-intro")), "1319. And the app opens as it always did");
+    assert(!w.__net.calls.some((c) => /\/api\/v1\/app\//.test(c.url)),
+      "1320. Without one call to validate it, so a 90-day-idle token cannot lock him out offline");
+  }
+
+  // Register: 202 sends him to the code, and registration never asks for a new password.
+  {
+    const { d, w } = await gateDOM(null, { "/api/v1/app/register": R_REG });
+    setVal(d, "gate-reg-email", "player@example.com");
+    setVal(d, "gate-reg-password", PW);
+    click(d.getElementById("gate-reg-btn"));
+    await settle();
+    assert(w.__net.calls.length === 1 && /\/api\/v1\/app\/register$/.test(w.__net.calls[0].url),
+      "1321. Register posts to /api/v1/app/register");
+    assert(w.__net.calls[0].body.email === "player@example.com" && w.__net.calls[0].body.password === PW,
+      "1322. Carrying the address and password he typed");
+    assert(visible(d.getElementById("gate-state-code")), "1323. A 202 sends him straight to the code");
+    assert(hidden(d.getElementById("gate-code-pw-field")),
+      "1324. Which asks for no new password: that field belongs to a reset");
+  }
+
+  /* THE DATA RULE. He arrives with an Explorer already on the device, registers, and must find
+     it untouched. Snapshotted after boot so this measures the GATE, not migrate(). */
+  {
+    const { d, w } = await gateDOM(WARRIOR, { "/api/v1/app/register": R_REG, "/api/v1/app/verify": R_TOK });
+    const before = w.localStorage.getItem("tystnad-character");
+    setVal(d, "gate-reg-email", "player@example.com");
+    setVal(d, "gate-reg-password", PW);
+    click(d.getElementById("gate-reg-btn"));
+    await settle();
+    setVal(d, "gate-code-input", "3ntk-9wpq");
+    click(d.getElementById("gate-code-btn"));
+    await settle();
+    assert(w.localStorage.getItem("tystnad-character") === before,
+      "1325. THE DATA RULE: registering does not clear, migrate or rewrite his Explorer");
+    assert(JSON.parse(w.localStorage.getItem("tystnad-character")).name === WARRIOR.name,
+      "1326. It is still the same Explorer, by name");
+    assert(visible(d.getElementById("btn-continue")),
+      "1327. And Continue is waiting to take him back to it");
+  }
+
+  // verify both activates the account and links the device. One call, no second step.
+  {
+    const { d, w } = await gateDOM(null, { "/api/v1/app/register": R_REG, "/api/v1/app/verify": R_TOK });
+    setVal(d, "gate-reg-email", "player@example.com");
+    setVal(d, "gate-reg-password", PW);
+    click(d.getElementById("gate-reg-btn"));
+    await settle();
+    setVal(d, "gate-code-input", "3ntk-9wpq");
+    setVal(d, "gate-code-label", "My phone");
+    click(d.getElementById("gate-code-btn"));
+    await settle();
+    const sent = w.__net.calls[1];
+    assert(/\/api\/v1\/app\/verify$/.test(sent.url), "1328. The code goes to /api/v1/app/verify");
+    assert(sent.body.email === "player@example.com" && sent.body.code === "3ntk-9wpq",
+      "1329. Sent as he typed it, because the code is case-insensitive server-side");
+    assert(sent.body.deviceLabel === "My phone", "1330. With the device name when he gave one");
+    const blob = JSON.parse(w.localStorage.getItem("tystnad-tablelink"));
+    assert(blob.token === "TOK-NEW" && blob.ownsTableLink === true,
+      "1331. The token is stored exactly as the link code's used to be, entitlement and all");
+    assert(hidden(d.getElementById("screen-gate")) && visible(d.getElementById("screen-intro")),
+      "1332. And that is the whole of it: fills in the code, done");
+  }
+
+  // Sign in, as reachable as register, because a GM buys before his players install.
+  {
+    const { d, w } = await gateDOM(null, { "/api/v1/app/login": R_TOK });
+    click(d.getElementById("gate-to-signin"));
+    assert(visible(d.getElementById("gate-state-signin")), "1333. Sign in is one tap from register");
+    setVal(d, "gate-si-email", "player@example.com");
+    setVal(d, "gate-si-password", PW);
+    click(d.getElementById("gate-si-btn"));
+    await settle();
+    assert(/\/api\/v1\/app\/login$/.test(w.__net.calls[0].url), "1334. Sign in posts to /api/v1/app/login");
+    assert(JSON.parse(w.localStorage.getItem("tystnad-tablelink")).token === "TOK-NEW",
+      "1335. And the same shape means the same storing path, with no new branch");
+    assert(visible(d.getElementById("screen-intro")), "1336. He is in");
+  }
+
+  // Forgot password lives in the sign-in state, and its code state is the one with a password.
+  {
+    const { d, w } = await gateDOM(null, {
+      "/api/v1/app/forgot": R_REG,
+      "/api/v1/app/reset": { status: 200, data: { deviceToken: "TOK-RESET", ownsTableLink: false } }
+    });
+    click(d.getElementById("gate-to-signin"));
+    setVal(d, "gate-si-email", "player@example.com");
+    click(d.getElementById("gate-forgot-btn"));
+    await settle();
+    assert(/\/api\/v1\/app\/forgot$/.test(w.__net.calls[0].url), "1337. Forgot posts to /api/v1/app/forgot");
+    assert(visible(d.getElementById("gate-state-code")), "1338. And lands on the same code state");
+    assert(visible(d.getElementById("gate-code-pw-field")),
+      "1339. This time carrying the new password, which is what makes it a reset");
+    assert(/other devices are signed out/i.test(d.getElementById("gate-code-lead").textContent),
+      "1340. And it says the other devices are signed out, so that is no surprise later");
+    setVal(d, "gate-code-input", "3ntk-9wpq");
+    setVal(d, "gate-code-password", PW);
+    click(d.getElementById("gate-code-btn"));
+    await settle();
+    assert(/\/api\/v1\/app\/reset$/.test(w.__net.calls[1].url), "1341. The reset goes to /api/v1/app/reset");
+    assert(JSON.parse(w.localStorage.getItem("tystnad-tablelink")).token === "TOK-RESET",
+      "1342. The device he reset from keeps working, on a fresh token");
+  }
+
+  /* NO ENUMERATION. The backend answers a known and an unknown address identically; the app
+     must not undo that by wording, by state, or by any other visible difference. */
+  {
+    const shownFor = async (addr) => {
+      const { d } = await gateDOM(null, { "/api/v1/app/register": R_REG });
+      setVal(d, "gate-reg-email", addr);
+      setVal(d, "gate-reg-password", PW);
+      click(d.getElementById("gate-reg-btn"));
+      await settle();
+      const g = d.getElementById("screen-gate");
+      return [...g.querySelectorAll(".tl-state")].map((s) => (hidden(s) ? "H" : "V") + s.textContent).join("|");
+    };
+    assert(await shownFor("taken@example.com") === await shownFor("brand-new@example.com"),
+      "1343. A registered address and a new one are indistinguishable in the app");
+  }
+
+  // The password rule is stated BEFORE he submits, and a short one costs no round trip.
+  {
+    assert(/At least 12 characters\./.test(HTML), "1344. The 12-character rule is on screen before he submits");
+    const { d, w } = await gateDOM(null, { "/api/v1/app/register": R_REG });
+    setVal(d, "gate-reg-email", "player@example.com");
+    setVal(d, "gate-reg-password", "short");
+    click(d.getElementById("gate-reg-btn"));
+    await settle();
+    assert(w.__net.calls.length === 0, "1345. A too-short password never reaches the server");
+    assert(/at least 12/i.test(d.getElementById("gate-reg-error").textContent),
+      "1346. And he is told the rule, not merely refused");
+  }
+
+  /* /api/v1/app/forgot answers 202 even for "not-an-email", so the client-side check is the
+     only thing standing between him and a promise of mail that was never sent. */
+  {
+    const { d, w } = await gateDOM(null, { "/api/v1/app/forgot": R_REG });
+    click(d.getElementById("gate-to-signin"));
+    setVal(d, "gate-si-email", "not-an-email");
+    click(d.getElementById("gate-forgot-btn"));
+    await settle();
+    assert(w.__net.calls.length === 0, "1347. A malformed address is not sent to forgot");
+    assert(hidden(d.getElementById("gate-state-code")),
+      "1348. And he is not promised an email the backend never queued");
+  }
+
+  // Every documented error reaches him in his own language.
+  {
+    const { w } = await gateDOM(null, {});
+    const t = (status, error, extra) =>
+      w.eval(`gateErrorText(${JSON.stringify({ status, data: Object.assign({ error }, extra || {}) })})`);
+    assert(/does not look like an email/i.test(t(422, "email_invalid")), "1349. email_invalid");
+    assert(/12 characters/.test(t(422, "password_too_short", { minLength: 12 })), "1350. password_too_short quotes minLength");
+    assert(/expired/i.test(t(422, "invalid_or_expired_code")), "1351. invalid_or_expired_code");
+    assert(/wrong email or password/i.test(t(401, "bad_credentials")), "1352. bad_credentials");
+    assert(/finish registering/i.test(t(403, "email_unverified")), "1353. email_unverified");
+    assert(/too many/i.test(t(429, "rate_limited")), "1354. rate_limited");
+    assert(!/never|nothing|error/i.test(t(400, "bad_request")) || t(400, "bad_request").length > 0,
+      "1355. bad_request still produces a sentence rather than nothing");
+  }
+
+  // An unverified account is sent where its code goes, instead of being told to try harder.
+  {
+    const { d } = await gateDOM(null, { "/api/v1/app/login": { status: 403, data: { error: "email_unverified" } } });
+    click(d.getElementById("gate-to-signin"));
+    setVal(d, "gate-si-email", "player@example.com");
+    setVal(d, "gate-si-password", PW);
+    click(d.getElementById("gate-si-btn"));
+    await settle();
+    assert(visible(d.getElementById("gate-state-code")), "1356. An unverified account lands on the code state");
+    assert(/check your email/i.test(d.getElementById("gate-code-error").textContent),
+      "1357. And is told why it is there");
+  }
+
+  // Passwords do not linger in the DOM once they have done their work.
+  {
+    const { d } = await gateDOM(null, { "/api/v1/app/login": R_TOK });
+    click(d.getElementById("gate-to-signin"));
+    setVal(d, "gate-si-email", "player@example.com");
+    setVal(d, "gate-si-password", PW);
+    click(d.getElementById("gate-si-btn"));
+    await settle();
+    assert(d.getElementById("gate-si-password").value === "", "1358. The password field is cleared on the way in");
+    assert(d.getElementById("gate-si-email").value === "", "1359. And so is the address");
+  }
+
+  // House voice and Law 4 hold on the front door as everywhere else.
+  {
+    const gate = HTML.slice(HTML.indexOf('id="screen-gate"'), HTML.indexOf('id="screen-intro"'));
+    assert(!/—/.test(gate), "1360. No em-dash anywhere in the gate");
+    const btns = gate.match(/<button[^>]*>/g) || [];
+    assert(btns.length > 0 && btns.every((b) => /aria-label=/.test(b)),
+      "1361. Every gate button carries an aria-label");
+    assert(/you need a connection once, to register/i.test(gate),
+      "1362. First run says plainly that it needs a connection");
+  }
+})();
+
 Promise.all([swBehaviour, unlinkBehaviour, sessionSurvivalBehaviour, updateCheckBehaviour,
-             reloadResumeBehaviour]).then(finishRun, (e) => {
+             reloadResumeBehaviour, gateBehaviour]).then(finishRun, (e) => {
   console.error("FAIL: async behaviour harness threw:", e && e.message);
   failed++;
   finishRun();

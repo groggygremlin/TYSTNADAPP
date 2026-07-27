@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v98";
+const VERSION = "v99";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3076,7 +3076,7 @@ function tlSave() {
       };
       /* A session is worth resuming only while it is LIVE. That single condition is what
          clears the stored seat everywhere a session ends: tlLeaveSession, tlEndSession,
-         tlDropToLink and tlClearDeviceLocally all stop polling first, so the next write
+         tlDropToGate and tlClearDeviceLocally all stop polling first, so the next write
          stores nothing and a reload cannot chase a table that is already gone. */
       if (tlSession && tlPolling) {
         blob.session = { sessionId: tlSession.sessionId, cursor: tlSession.cursor };
@@ -3204,13 +3204,253 @@ function tlHideError(id) {
   if (e) { hide(e); e.textContent = ""; }
 }
 function tlShowState(name) {
-  ["link", "lobby", "session"].forEach((s) => {
+  // v99: the "link" state is retired. Reaching this screen at all means holding a token.
+  ["lobby", "session"].forEach((s) => {
     const el = $("tl-state-" + s);
     if (el) (s === name ? show : hide)(el);
   });
-  // v95: the link state cannot join anything, so the subtitle must not promise it.
   const sub = $("tl-status-line");
-  if (sub) sub.textContent = (name === "link") ? "Link this device" : "Join your GM's table";
+  if (sub) sub.textContent = "Join your GM's table";
+}
+
+/* ============ THE GATE (v99) ============
+
+   Tomas, 2026-07-28: registration is mandatory before the app can be used, and it needs
+   signal, no exceptions. This overrides R1 of SPECS/TABLE LINK RE-HOME.md, which chose the
+   site-minted link code precisely to keep passwords out of the app; in-app email and password
+   was R1's own second option, so this is a choice from its original menu.
+
+   It replaces eleven steps across two devices and two codes with: register, get a code by
+   email, type the code, done. `verify` both activates the account and links the device in one
+   call, which is why there is no second step to write here.
+
+   Three rules this code exists to keep:
+
+   1. The gate is satisfied LOCALLY, by a stored device token. Never by a network call. A
+      registered player must keep his single-player game on a train, and a 90-day-idle token
+      must not lock him out of his own offline app. The server checks the token only when
+      Table Link is actually used, which is where a stale token correctly becomes a re-login.
+   2. The gate is a screen in FRONT of the data, never a reset. Nothing here touches
+      STORAGE_KEY. The character is loaded before the gate is even consulted, and a player who
+      registers finds his Explorer exactly where he left it.
+   3. Never tell anyone an address is taken. The backend answers an already-registered address
+      with the same 202 as a new one, and the app must not undo that by inference: same
+      wording, same state change, same timing, whatever came back. */
+
+const GATE_MIN_PASSWORD = 12;    // the backend's minLength; stated before he submits, not after
+const GATE_EMAIL_MAX = 254;
+const GATE_PASSWORD_MAX = 200;
+
+let gateFlow = null;         // "verify" after registering, "reset" after a forgotten password
+let gatePendingEmail = "";   // the address the emailed code belongs to (memory only, never stored)
+
+/* Deliberately loose. Its whole job is to stop the app promising him an email it never sent,
+   because /api/v1/app/forgot answers 202 even for "not-an-email". The server owns the real
+   rule, and a client-side pattern that argues with it would only reject valid addresses. */
+function gateEmailLooksValid(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function gateShowState(name) {
+  ["register", "code", "signin"].forEach((s) => {
+    const el = $("gate-state-" + s);
+    if (el) (s === name ? show : hide)(el);
+  });
+  tlHideError("gate-reg-error");
+  tlHideError("gate-code-error");
+  tlHideError("gate-si-error");
+}
+
+/* The gate takes the whole window. Every other screen goes down, including #screen-table,
+   because a 401 mid-poll can land while the player is anywhere in the app. */
+function gateOpen(state) {
+  ["screen-intro", "screen-create", "screen-shell", "screen-table", "screen-handbook"]
+    .forEach((id) => { const el = $(id); if (el) hide(el); });
+  show($("screen-gate"));
+  gateShowState(state || "register");
+}
+
+/* Passwords and the emailed code are cleared out of the DOM the moment they stop being
+   needed. They were never stored; this keeps them from lingering in a live field either. */
+function gateClearFields() {
+  ["gate-reg-email", "gate-reg-password", "gate-code-input", "gate-code-password",
+   "gate-code-label", "gate-si-email", "gate-si-password"]
+    .forEach((id) => { const el = $(id); if (el) el.value = ""; });
+}
+
+function gateEnterApp() {
+  gateClearFields();
+  gatePendingEmail = "";
+  gateFlow = null;
+  hide($("screen-gate"));
+  renderIntro();
+  show($("screen-intro"));
+}
+
+/* The success shape is identical to /api/v1/devices/link, deliberately, so holding a token
+   needs no new branch and no new stored field. */
+function gateAcceptToken(r) {
+  tlDevice = { token: r.data.deviceToken, ownsTableLink: !!r.data.ownsTableLink };
+  tlSave();
+  gateEnterApp();
+}
+
+function gateErrorText(r) {
+  const code = r.data && r.data.error;
+  if (r.status === 429 || code === "rate_limited") return "Too many attempts. Wait a few minutes, then try again.";
+  if (code === "email_invalid") return "That does not look like an email address.";
+  if (code === "password_too_short") {
+    const n = (r.data && typeof r.data.minLength === "number") ? r.data.minLength : GATE_MIN_PASSWORD;
+    return "Your password needs at least " + n + " characters.";
+  }
+  if (code === "invalid_or_expired_code") return "That code is not right, or it has expired. Ask for a new one.";
+  if (code === "bad_credentials") return "Wrong email or password.";
+  if (code === "email_unverified") return "Finish registering: check your email for the code.";
+  return "That did not work. Try again.";
+}
+
+/* One runner for all four submissions: it owns the busy flag, the disabled button and the
+   offline message, so no individual handler can forget to re-enable its own button. */
+async function gateSubmit(btnId, errId, run) {
+  if (tlBusy) return;
+  tlBusy = true;
+  const btn = $(btnId);
+  if (btn) btn.disabled = true;
+  tlHideError(errId);
+  try {
+    await run();
+  } catch (e) {
+    tlShowError(errId, "Could not reach the server. Check your connection and try again.");
+  } finally {
+    tlBusy = false;
+    if (btn) btn.disabled = false;
+  }
+}
+
+function gateToCode() {
+  const lead = $("gate-code-lead");
+  const pwField = $("gate-code-pw-field");
+  const btn = $("gate-code-btn");
+  if (gateFlow === "reset") {
+    lead.textContent = "Check your email for a code, then choose a new password. Your other devices are signed out; this one stays signed in.";
+    show(pwField);
+    btn.textContent = "Set my new password";
+  } else {
+    lead.textContent = "Check your email for a code, then type it here. That is the last step.";
+    hide(pwField);
+    btn.textContent = "Continue";
+  }
+  gateShowState("code");
+}
+
+async function gateDoRegister() {
+  await gateSubmit("gate-reg-btn", "gate-reg-error", async () => {
+    const email = $("gate-reg-email").value.trim().slice(0, GATE_EMAIL_MAX);
+    const pw = $("gate-reg-password").value;
+    if (!gateEmailLooksValid(email)) {
+      tlShowError("gate-reg-error", "That does not look like an email address.");
+      return;
+    }
+    if (pw.length < GATE_MIN_PASSWORD) {
+      tlShowError("gate-reg-error", "Your password needs at least " + GATE_MIN_PASSWORD + " characters.");
+      return;
+    }
+    const r = await tlApi("/api/v1/app/register", {
+      method: "POST",
+      body: { email: email, password: pw.slice(0, GATE_PASSWORD_MAX) },
+      auth: false,
+      timeout: TL_TIMEOUT.link
+    });
+    /* 202 whether the address is new or already registered. The owner of an existing account
+       gets an email telling him to sign in instead. Do not branch here, ever. */
+    if (r.status === 202 || r.ok) {
+      gatePendingEmail = email;
+      gateFlow = "verify";
+      gateToCode();
+    } else {
+      tlShowError("gate-reg-error", gateErrorText(r));
+    }
+  });
+}
+
+/* One handler for verify and reset. They differ by one field and one path; the token they
+   return is the same, and so is what the app does with it. */
+async function gateDoCode() {
+  await gateSubmit("gate-code-btn", "gate-code-error", async () => {
+    // Sent however he typed it: the code is case-insensitive server-side.
+    const code = $("gate-code-input").value.trim().slice(0, TL_CODE_MAX);
+    const label = $("gate-code-label").value.trim();
+    if (!code) { tlShowError("gate-code-error", "Enter the code from your email."); return; }
+    if (!gatePendingEmail) {
+      tlShowError("gate-code-error", "Start again, so a fresh code can be sent.");
+      return;
+    }
+    const body = { email: gatePendingEmail, code: code };
+    if (label) body.deviceLabel = label.slice(0, 100);
+    let path = "/api/v1/app/verify";
+    if (gateFlow === "reset") {
+      const pw = $("gate-code-password").value;
+      if (pw.length < GATE_MIN_PASSWORD) {
+        tlShowError("gate-code-error", "Your new password needs at least " + GATE_MIN_PASSWORD + " characters.");
+        return;
+      }
+      body.password = pw.slice(0, GATE_PASSWORD_MAX);
+      path = "/api/v1/app/reset";
+    }
+    const r = await tlApi(path, { method: "POST", body: body, auth: false, timeout: TL_TIMEOUT.link });
+    if (r.ok && r.data && r.data.deviceToken) gateAcceptToken(r);
+    else tlShowError("gate-code-error", gateErrorText(r));
+  });
+}
+
+async function gateDoSignin() {
+  await gateSubmit("gate-si-btn", "gate-si-error", async () => {
+    const email = $("gate-si-email").value.trim().slice(0, GATE_EMAIL_MAX);
+    const pw = $("gate-si-password").value;
+    if (!gateEmailLooksValid(email)) {
+      tlShowError("gate-si-error", "That does not look like an email address.");
+      return;
+    }
+    if (!pw) { tlShowError("gate-si-error", "Enter your password."); return; }
+    const r = await tlApi("/api/v1/app/login", {
+      method: "POST",
+      body: { email: email, password: pw.slice(0, GATE_PASSWORD_MAX) },
+      auth: false,
+      timeout: TL_TIMEOUT.link
+    });
+    // login never evicts another device: a phone and a tablet both stay linked.
+    if (r.ok && r.data && r.data.deviceToken) { gateAcceptToken(r); return; }
+    if (r.data && r.data.error === "email_unverified") {
+      // He registered but never typed his code. Put him where the code goes.
+      gatePendingEmail = email;
+      gateFlow = "verify";
+      gateToCode();
+      tlShowError("gate-code-error", gateErrorText(r));
+      return;
+    }
+    tlShowError("gate-si-error", gateErrorText(r));
+  });
+}
+
+async function gateDoForgot() {
+  await gateSubmit("gate-forgot-btn", "gate-si-error", async () => {
+    const email = $("gate-si-email").value.trim().slice(0, GATE_EMAIL_MAX);
+    if (!gateEmailLooksValid(email)) {
+      tlShowError("gate-si-error", "Type your email address above, then tap this again.");
+      return;
+    }
+    const r = await tlApi("/api/v1/app/forgot", {
+      method: "POST", body: { email: email }, auth: false, timeout: TL_TIMEOUT.link
+    });
+    // 202 for a known and an unknown address alike. Same wording, same state change.
+    if (r.status === 202 || r.ok) {
+      gatePendingEmail = email;
+      gateFlow = "reset";
+      gateToCode();
+    } else {
+      tlShowError("gate-si-error", gateErrorText(r));
+    }
+  });
 }
 
 // ---- Screen enter / leave ----
@@ -3219,7 +3459,6 @@ function openTableLink() {
   hide($("screen-intro"));
   show($("screen-table"));
   tlClearBanner();
-  tlHideError("tl-link-error");
   tlHideError("tl-join-error");
   // v85: a failed revoke must not leave its error and escape hatch on screen next visit.
   tlHideError("tl-unlink-error");
@@ -3241,7 +3480,9 @@ function openTableLink() {
     tlShowState("lobby");
     tlRefreshStatus();
   } else {
-    tlShowState("link");
+    // v99: unreachable in normal use, since the gate holds the app until a token exists.
+    // Kept as the honest fallback rather than showing a Table Link screen that cannot act.
+    gateOpen("signin");
   }
 }
 
@@ -3261,19 +3502,26 @@ function closeTableLink() {
   show($("screen-intro"));
 }
 
-function tlDropToLink() {
-  // APP-004: a 401 mid-poll ends Table Link exactly as terminally as a closed table, and its
-  // only account was tl-link-error, which is also inside #screen-table. If a session was
-  // running, say it wherever the player is.
+/* v99: renamed from tlDropToLink, because the destination changed. The server has told us the
+   token is dead, and the token is what satisfies the gate, so a 401 now returns the player to
+   the front door rather than to a Table Link screen. Tomas ruled this on 2026-07-28, knowing
+   the cost: a 401 the server chose ejects him from his offline single-player game until he
+   next has signal. That is the price of registration being mandatory, and it is his to pay.
+
+   APP-004 still holds: a 401 mid-poll ends Table Link as terminally as a closed table, so if a
+   session was running, say so. tlSetNotice is used for both halves because it is the one Table
+   Link element outside #screen-table, and the player is about to be somewhere else entirely. */
+function tlDropToGate() {
   const wasInSession = !!tlSession;
   tlStopPolling();
   tlSession = null;
   tlEnded = null;
   tlDevice = null;
   tlSave();
-  tlShowState("link");
-  tlShowError("tl-link-error", "This device is no longer linked. Link it again.");
-  if (wasInSession) tlSetNotice("This device is no longer linked. Your table has ended here.");
+  gateOpen("signin");
+  tlSetNotice(wasInSession
+    ? "This device is signed out. Your table has ended here. Sign in to carry on."
+    : "This device is signed out. Sign in to carry on.");
 }
 
 // ---- Device status / entitlement ----
@@ -3282,7 +3530,7 @@ async function tlRefreshStatus() {
   if (!tlDevice) return;
   try {
     const r = await tlApi("/api/v1/devices/status", { method: "POST" });
-    if (r.status === 401) { tlDropToLink(); return; }
+    if (r.status === 401) { tlDropToGate(); return; }
     if (r.ok && r.data) {
       tlDevice.ownsTableLink = !!r.data.ownsTableLink;
       tlSave();
@@ -3305,50 +3553,9 @@ function tlRenderEntitlement() {
   }
 }
 
-// ---- Link a device ----
-
-async function tlDoLink() {
-  const codeEl = $("tl-link-code");
-  const labelEl = $("tl-device-label");
-  const code = codeEl.value.trim().slice(0, TL_CODE_MAX);
-  const label = labelEl.value.trim();
-  tlHideError("tl-link-error");
-  if (!code) { tlShowError("tl-link-error", "Enter the link code from your account page."); return; }
-  if (tlBusy) return;
-  tlBusy = true;
-  const btn = $("tl-link-btn");
-  btn.disabled = true;
-  try {
-    const body = { linkCode: code };
-    if (label) body.deviceLabel = label.slice(0, 100);
-    const r = await tlApi("/api/v1/devices/link",
-      { method: "POST", body, auth: false, timeout: TL_TIMEOUT.link });
-    if (r.ok && r.data && r.data.deviceToken) {
-      tlDevice = { token: r.data.deviceToken, ownsTableLink: !!r.data.ownsTableLink };
-      tlSave();
-      codeEl.value = "";
-      labelEl.value = "";
-      tlRenderEntitlement();
-      tlShowState("lobby");
-      tlClearBanner();
-    } else {
-      tlShowError("tl-link-error", tlLinkErrorText(r));
-    }
-  } catch (e) {
-    tlShowError("tl-link-error", "Could not reach the server. Check your connection and try again.");
-  } finally {
-    tlBusy = false;
-    btn.disabled = false;
-  }
-}
-
-function tlLinkErrorText(r) {
-  const code = r.data && r.data.error;
-  if (r.status === 429 || code === "rate_limited") return "Too many attempts. Wait a while, then try again.";
-  if (code === "link_code_required") return "Enter the link code from your account page.";
-  if (code === "invalid_or_expired_code") return "That link code is unknown or has expired. Generate a fresh one on the site.";
-  return "That did not work. Check the code and try again.";
-}
+/* v99: tlDoLink and tlLinkErrorText are gone with the link-code state. /api/v1/devices/link is
+   no longer called from the app; the device is linked by /api/v1/app/verify, /login or /reset
+   in the gate, all of which answer with the same shape this used to consume. */
 
 // ---- Join a table ----
 
@@ -3370,7 +3577,7 @@ async function tlDoJoin() {
       method: "POST",
       body: { joinCode: code, displayName: name.slice(0, 50) }
     });
-    if (r.status === 401) { tlDropToLink(); return; }
+    if (r.status === 401) { tlDropToGate(); return; }
     if (r.ok && r.data && r.data.sessionId) {
       tlSession = { sessionId: r.data.sessionId, cursor: 0, pollInterval: 2 };
       tlEnterSession();
@@ -3520,7 +3727,7 @@ async function tlPoll() {
     // request was in flight. Drop the stale response so it cannot leak a banner into
     // the lobby or contaminate a new session's feed/cursor.
     if (!tlPolling || !tlSession || tlSession.sessionId !== sid) { reschedule = false; return; }
-    if (r.status === 401) { reschedule = false; tlStopPolling(); tlDropToLink(); return; }
+    if (r.status === 401) { reschedule = false; tlStopPolling(); tlDropToGate(); return; }
     if (r.status === 404) { reschedule = false; tlEndSession(404); return; }
     if (r.status === 403) { reschedule = false; tlEndSession(403); return; }
     if (r.status === 429) {
@@ -3715,8 +3922,10 @@ function tlBuildCard(m) {
 
 // ---- Unlink ----
 
-/* v85: drop the local token and return to the link screen. Used once the server has
-   confirmed the revocation, and by the explicit local-only escape hatch. */
+/* v85: drop the local token. Used once the server has confirmed the revocation, and by the
+   explicit local-only escape hatch. v99: the destination is the gate, not the link screen,
+   since the token is what satisfies the gate. This one is a tap he chose, so it arrives
+   without a notice explaining itself. */
 function tlClearDeviceLocally() {
   tlStopPolling();
   tlSession = null;
@@ -3729,7 +3938,7 @@ function tlClearDeviceLocally() {
   hide($("tl-forget-btn"));
   hide($("tl-forget-note"));
   hide($("tl-buy-prompt"));
-  tlShowState("link");
+  gateOpen("signin");
 }
 
 /* v85, from the peer review: unlink used to clear the local token no matter what, so a
@@ -3885,10 +4094,25 @@ document.addEventListener("DOMContentLoaded", () => {
     switchTab(btn.dataset.tab);
   });
 
+  // The gate (v99)
+  $("gate-reg-btn").addEventListener("click", gateDoRegister);
+  $("gate-code-btn").addEventListener("click", gateDoCode);
+  $("gate-si-btn").addEventListener("click", gateDoSignin);
+  $("gate-forgot-btn").addEventListener("click", gateDoForgot);
+  $("gate-to-signin").addEventListener("click", () => gateShowState("signin"));
+  $("gate-to-register").addEventListener("click", () => gateShowState("register"));
+  /* Start over means start over: the pending address and flow go too, so a stale one cannot
+     be spent against a code he requests next. */
+  $("gate-code-back").addEventListener("click", () => {
+    gatePendingEmail = "";
+    gateFlow = null;
+    gateClearFields();
+    gateShowState("register");
+  });
+
   // Table Link (CAP-07)
   $("btn-join-table").addEventListener("click", openTableLink);
   $("tl-back").addEventListener("click", closeTableLink);
-  $("tl-link-btn").addEventListener("click", tlDoLink);
   $("tl-join-btn").addEventListener("click", tlDoJoin);
   $("tl-unlink-btn").addEventListener("click", tlDoUnlink);
   $("tl-forget-btn").addEventListener("click", tlForgetLocally);
@@ -4207,8 +4431,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Boot
   character = load();
   tlDevice = tlLoad();
-  renderIntro();
-  show($("screen-intro"));
+
+  /* v99: the gate. Note the order. The character is loaded FIRST and is never consulted here:
+     the gate only decides which screen is shown, so an unregistered player with an Explorer
+     already on this device finds it exactly where he left it once he registers. No clearing,
+     no migration, no schema change. The check is local by design; see THE GATE above. */
+  if (tlDevice) {
+    renderIntro();
+    show($("screen-intro"));
+  } else {
+    gateOpen("register");
+  }
 
   /* APP-005: a reload is not leaving the table. If a stored seat is there, take it back
      before anything else happens, so the player who tapped Reload on the update banner (or
