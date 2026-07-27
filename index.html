@@ -398,6 +398,12 @@
         <p class="tl-buy-text">This GM does not have Full House, so joining his table needs Table Link of your own.</p>
         <a class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Get Table Link</a>
       </div>
+      <!-- v100: restored. This link-out shipped on the retired link state, and went with it,
+           leaving the lobby saying a non-Full-House table "needs Table Link of your own" with
+           no way to act on it until a join had been tried and refused. It also gives the
+           sign-out note's "remove it there" something to tap. Standing, not conditional: the
+           buy prompt above is the reaction to a 403, this is the way to the account page. -->
+      <a id="tl-open-site" class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Open my account on the site</a>
       <label class="field">
         <span class="field-label">Join code</span>
         <input id="tl-join-code" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6JC5Q035">
