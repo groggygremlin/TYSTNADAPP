@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v97";
+const VERSION = "v98";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3020,8 +3020,20 @@ let tlPopupOpen = false;     // a pop-up is currently displayed
 let tlPopupLastFocus = null; // element to restore focus to when the queue empties
 let tlPopupDeferred = false; // APP-001: a share is queued but held back because a field is being edited
 let tlEnded = null;          // APP-004: why a live session ended, until the player acknowledges it
+let tlResuming = false;      // APP-005: this poll is a resume after a reload, not an ordinary one
 
 // ---- Table Link persistence (the device token is the only stored secret) ----
+
+/* APP-005: the seat at the table is stored beside the token as of v98. `tlSession` used to
+   live only in memory, so ANY reload returned a joined player to the lobby needing a fresh
+   join code: an operating system discarding a backgrounded page, a crash, a refresh, and
+   worst of all the app's own "A new version is ready. Reload" button, which ejected a player
+   from his table in order to deliver a fix. The session id is not a credential; joining and
+   polling both need the bearer token, which was already stored here, so keeping the id beside
+   it widens nothing. `pollInterval` is deliberately NOT stored: the server advertises it on
+   the next poll, so storing it would only let a stale value outlive the server's opinion. */
+
+const TL_SESSION_ID_MAX = 100;
 
 function tlLoad() {
   try {
@@ -3035,13 +3047,41 @@ function tlLoad() {
   }
 }
 
+/* Read deliberately as its own step rather than hanging the session off tlDevice, so the
+   device object cannot start carrying session state and writing it back by accident.
+   Everything is bounded on the way in: localStorage is the player's own machine, but a
+   corrupt or hand-edited blob must land in the lobby, never in a bad request. */
+function tlLoadSession() {
+  try {
+    const raw = localStorage.getItem(TABLELINK_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    const s = d && d.session;
+    if (!s || typeof s.sessionId !== "string" || !s.sessionId) return null;
+    if (s.sessionId.length > TL_SESSION_ID_MAX) return null;
+    const cursor = (typeof s.cursor === "number" && isFinite(s.cursor) && s.cursor >= 0)
+      ? Math.floor(s.cursor) : 0;
+    return { sessionId: s.sessionId, cursor: cursor, pollInterval: 2 };
+  } catch (e) {
+    return null;
+  }
+}
+
 function tlSave() {
   try {
     if (tlDevice && tlDevice.token) {
-      localStorage.setItem(TABLELINK_KEY, JSON.stringify({
+      const blob = {
         token: tlDevice.token,
         ownsTableLink: !!tlDevice.ownsTableLink
-      }));
+      };
+      /* A session is worth resuming only while it is LIVE. That single condition is what
+         clears the stored seat everywhere a session ends: tlLeaveSession, tlEndSession,
+         tlDropToLink and tlClearDeviceLocally all stop polling first, so the next write
+         stores nothing and a reload cannot chase a table that is already gone. */
+      if (tlSession && tlPolling) {
+        blob.session = { sessionId: tlSession.sessionId, cursor: tlSession.cursor };
+      }
+      localStorage.setItem(TABLELINK_KEY, JSON.stringify(blob));
     } else {
       localStorage.removeItem(TABLELINK_KEY);
     }
@@ -3365,11 +3405,13 @@ function tlEnterSession() {
   hide($("tl-buy-prompt"));
   tlClearPopups();
   tlEnded = null;
+  tlResuming = false;   // a fresh join is not a resume
   tlClearNotice();       // a fresh table replaces whatever the last one ended with
   $("tl-session-status").textContent = "At the table";
   $("tl-leave-btn").textContent = "Leave table";
   tlShowState("session");
   tlStartPolling();
+  tlSave();   // APP-005: the seat is stored the moment he has one, not at the first message
 }
 
 // The deliberate departure, and also how an ended session is acknowledged: either way the
@@ -3379,6 +3421,8 @@ function tlLeaveSession() {
   tlClearPopups();
   tlSession = null;
   tlEnded = null;
+  tlResuming = false;
+  tlSave();            // APP-005: and the stored seat goes with it
   tlClearBanner();
   tlClearNotice();
   tlRenderEntitlement();
@@ -3392,6 +3436,25 @@ function tlLeaveSession() {
 function tlDismissNotice() {
   if (tlDevice) tlLeaveSession();
   else tlClearNotice();
+}
+
+/* APP-005: resume a stored seat at boot. Deliberately NOT a new code path for deciding
+   whether the table is still there: it starts the ordinary poll loop, so the existing
+   handling settles it. A 200 puts him back at the table and reports once; a 404, 403, or a
+   closed or expired session routes to tlEndSession, which since v97 states what happened
+   wherever he is; a 401 drops to the link state the same way. He does not need to be looking
+   at the Table Link screen for any of that, which is exactly what v97 bought. */
+function tlResumeSession() {
+  if (!tlDevice || !tlSession) return;
+  /* Never start a second loop over a live one. A resume that ran twice would leave two poll
+     timers with only one handle to cancel them, so the orphan would keep polling a table the
+     player had left. Found by the test suite refusing to exit. */
+  if (tlPolling) return;
+  tlResuming = true;
+  $("tl-session-status").textContent = "At the table";
+  $("tl-leave-btn").textContent = "Leave table";
+  tlShowState("session");
+  tlStartPolling();
 }
 
 function tlEndText(reason) {
@@ -3413,6 +3476,10 @@ function tlEndSession(reason) {
   tlStopPolling();
   tlClearPopups();
   tlEnded = reason || "ended";
+  tlResuming = false;
+  /* APP-005: the STORED seat goes now, while the in-memory handle stays to carry the account
+     of what happened. A reload must land in the lobby, not chase a table that has closed. */
+  tlSave();
   tlClearBanner();       // a stale "Reconnecting." must not sit under a terminal notice
   tlRenderEnded();
   tlSetNotice(tlEndText(tlEnded));   // APP-004: and say it wherever the player actually is
@@ -3468,11 +3535,23 @@ async function tlPoll() {
         tlSession.pollInterval = r.data.pollIntervalSeconds;
       }
       tlRenderMessages(r.data.messages);
-      if (typeof r.data.nextCursor === "number") tlSession.cursor = r.data.nextCursor;
+      /* APP-005: store the cursor only when it MOVES. Writing on every poll would put a
+         localStorage write on a two-second loop for the whole evening; the cursor only
+         advances when the GM has actually pushed something. */
+      if (typeof r.data.nextCursor === "number" && r.data.nextCursor !== tlSession.cursor) {
+        tlSession.cursor = r.data.nextCursor;
+        tlSave();
+      }
       if (sess && (sess.status === "closed" || sess.status === "expired")) {
         reschedule = false;
         tlEndSession("closed");
         return;
+      }
+      /* APP-005: the resume worked. Report once so the GM's HUD repaints now rather than
+         waiting for the player's next HP change, and so his presence dot goes live. */
+      if (tlResuming) {
+        tlResuming = false;
+        if (character) tlReportCharacter();
       }
       $("tl-session-status").textContent = "Connected";
     }
@@ -4130,6 +4209,17 @@ document.addEventListener("DOMContentLoaded", () => {
   tlDevice = tlLoad();
   renderIntro();
   show($("screen-intro"));
+
+  /* APP-005: a reload is not leaving the table. If a stored seat is there, take it back
+     before anything else happens, so the player who tapped Reload on the update banner (or
+     whose phone discarded the page during a break) is still at his table. */
+  if (tlDevice) {
+    const storedSession = tlLoadSession();
+    if (storedSession) {
+      tlSession = storedSession;
+      tlResumeSession();
+    }
+  }
 
   /* v85: a waiting update announces itself instead of reloading the window underneath the
      player. Reloading mid-action destroyed transient state, and character creation is the
