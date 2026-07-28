@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v100";
+const VERSION = "v101";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -982,8 +982,10 @@ function renderIntro() {
   if (character) {
     $("continue-sub").textContent = character.name + " · " + character.cls;
     show($("btn-continue"));
+    show($("btn-backup-intro"));   // v101: it backs up the open Explorer, so it needs one
   } else {
     hide($("btn-continue"));
+    hide($("btn-backup-intro"));
   }
   hide($("intro-import-section"));
 }
@@ -2595,14 +2597,21 @@ function renderSorceryTab() {
     hdr.appendChild(tierName);
     hdr.appendChild(tierMech);
     list.appendChild(hdr);
+    /* v101: two spells to a row. Thirty spells at one row each made the tab a long scroll for
+       no gain, since a row carries only a name. The grid is per TIER so a header always starts
+       its own band and cannot be pulled into a column. The click handler is delegated from
+       #spell-list-sorcery and matches .spell-row through closest(), so nesting changes nothing. */
+    const grid = document.createElement("div");
+    grid.className = "spell-grid";
     SPELLS.filter((s) => s.tier === tier).forEach((spell) => {
       const btn = document.createElement("button");
       btn.className = "spell-row" + (locked ? " spell-locked" : "");
       btn.dataset.spellId = spell.id;
       btn.disabled = locked;
       btn.textContent = spell.name;
-      list.appendChild(btn);
+      grid.appendChild(btn);
     });
+    list.appendChild(grid);
   });
 }
 
@@ -4027,6 +4036,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Export
   $("btn-export").addEventListener("click", exportCharacter);
+  $("btn-backup-intro").addEventListener("click", exportCharacter);
 
   // Import: file picker
   $("btn-import").addEventListener("click", () => {

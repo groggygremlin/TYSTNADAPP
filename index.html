@@ -140,14 +140,20 @@
       </div>
 
       <div class="intro-buttons">
-        <button id="btn-continue" class="primary-btn hidden">
+        <!-- v101: aria-label added. Law 4 makes it mandatory on every button and this one had
+             none, so a screen reader announced the Explorer's name with no verb in front of it. -->
+        <button id="btn-continue" class="primary-btn hidden" aria-label="Continue with your Explorer">
           Continue
           <span class="continue-sub" id="continue-sub"></span>
         </button>
-        <button id="btn-new-explorer" class="ghost-btn">New Explorer</button>
-        <button id="btn-import-toggle" class="ghost-btn">Import</button>
-        <button id="btn-join-table" class="ghost-btn">Join a table</button>
-        <button id="btn-how-to-play" class="ghost-btn">How to Play</button>
+        <button id="btn-new-explorer" class="ghost-btn" aria-label="Create a new Explorer">New Explorer</button>
+        <button id="btn-import-toggle" class="ghost-btn" aria-label="Import an Explorer">Import Explorer</button>
+        <!-- v101: Backup reaches the intro. It backs up the OPEN Explorer, so like Continue it
+             is hidden when there is none. It stays in the sheet header too: a player who needs
+             a backup mid-session must not have to leave his sheet to get one. -->
+        <button id="btn-backup-intro" class="ghost-btn hidden" aria-label="Back up your Explorer">Backup Explorer</button>
+        <button id="btn-join-table" class="ghost-btn" aria-label="Join a table">Join a table</button>
+        <button id="btn-how-to-play" class="ghost-btn" aria-label="How to play">How to Play</button>
       </div>
       <p class="version-note" id="intro-version-note"></p>
     </div>
