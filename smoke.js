@@ -218,7 +218,11 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(WARRIOR);
   click(d.getElementById("btn-continue"));
-  assert(d.getElementById("btn-export"), "29. BACKUP button (btn-export) exists on shell");
+  /* v106: Backup left the sheet header for the intro, by Tomas's ruling. The path that matters
+     mid-session is the save-failure banner's own Export now, which is asserted below. */
+  assert(d.getElementById("btn-export") === null, "29. BACKUP is gone from the shell header");
+  assert(d.getElementById("save-banner-export"),
+    "29a. While the save-failure banner keeps its own way out, which is the one that matters mid-session");
   assert(!d.getElementById("btn-new"), "30. New button not present");
 }
 
@@ -275,7 +279,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v105", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v106", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -1000,13 +1004,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v105"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v106"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v105"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v106"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1037,13 +1041,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v105"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v106"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v105"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v106"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1195,13 +1199,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v105"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v106"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v105"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v106"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1323,8 +1327,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "224. sw.js cache tystnad-v105");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "224. sw.js cache tystnad-v106");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1526,8 +1530,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1584,8 +1588,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1610,8 +1614,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1640,8 +1644,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1749,8 +1753,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1793,8 +1797,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1845,8 +1849,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1952,8 +1956,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2045,8 +2049,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2204,8 +2208,11 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   const tab = d.getElementById("tab-combat");
   const children = Array.from(tab.children);
   assert(children[0] && children[0].id === "init-block", "443. init-block is first child of tab-combat");
-  assert(children[1] && children[1].id === "btn-attack", "444. btn-attack is second child of tab-combat");
-  assert(children[2] && children[2].id === "def-block", "445. def-block is third child of tab-combat");
+  /* v106: Attack and Defend share a .combat-pair row, so they are no longer direct children. */
+  const pair = children[1];
+  assert(pair && pair.className === "combat-pair", "444. Attack and Defend sit together in one row");
+  assert(pair.children[0].id === "btn-attack" && pair.children[1].id === "def-block",
+    "445. In that order, Attack then Defend");
 }
 
 // ---- v41-G. def-block is primary-btn; no def-init-row wrapper ----
@@ -2230,8 +2237,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2351,8 +2358,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "478. sw.js cache tystnad-v105");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "478. sw.js cache tystnad-v106");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2410,8 +2417,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v105"'), "493. sw.js cache tystnad-v105");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v106"'), "493. sw.js cache tystnad-v106");
 }
 
 // ============================================================
@@ -3140,8 +3147,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v105"'),          "529. sw.js cache tystnad-v105");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v106"'),          "529. sw.js cache tystnad-v106");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3226,8 +3233,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v105"'), "543b. sw.js cache tystnad-v105");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v106"'), "543b. sw.js cache tystnad-v106");
 }
 
 // ============================================================
@@ -3362,8 +3369,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "563. sw.js cache tystnad-v105");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v106"), "563. sw.js cache tystnad-v106");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v106"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -4396,87 +4403,38 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(!/—/.test(text), "1035. No em-dashes in the At the Table copy");
 }
 
-// ---- v83. Dice history (session only, in memory) ----
+/* ---- v106: the dice history is DELETED, not merely unreachable ----
+
+   It shipped in v83 as an in-memory session log behind the HP strip's burger button. Tomas
+   ruled on 2026-07-28 that the button goes and the feature with it, rather than leaving an
+   overlay nobody can open and functions nobody calls. These assertions exist so it cannot come
+   back by halves: no button, no overlay, no store, and no orphaned calls in the roll paths. */
 {
-  const { d, w } = makeDOM(WARRIOR);
+  const APP106 = fs.readFileSync("app.js", "utf8");
+  const { d } = makeDOM(WARRIOR);
   click(d.getElementById("btn-continue"));
 
-  assert(d.getElementById("btn-history") !== null, "1036. History button on the HP strip");
-  assert(d.getElementById("btn-history").getAttribute("aria-label") === "Dice history",
-    "1037. The history button is labelled for screen readers");
-  assert(d.getElementById("overlay-history") !== null, "1038. History overlay exists");
+  assert(d.getElementById("btn-history") === null, "1036. The HP strip's history button is gone");
+  assert(d.getElementById("overlay-history") === null, "1037. And so is the overlay it opened");
+  assert(!/history-list|history-row|history-done|history-empty/.test(HTML),
+    "1038. With none of its markup left behind");
 
-  // Empty state.
-  click(d.getElementById("btn-history"));
-  assert(visible(d.getElementById("overlay-history")), "1039. The button opens the overlay");
-  assert(d.querySelector(".history-empty").textContent === "No rolls yet this session.",
-    "1040. Empty state states it plainly");
-  assert(/This session only\. Nothing here is saved\./.test(d.getElementById("overlay-history").textContent),
-    "1041. The overlay says the log is not saved");
-  click(d.getElementById("history-done"));
+  // The code goes too, and crucially so do the CALLS: an orphan would throw at the first roll.
+  assert(!/function logRoll\b/.test(APP106) && !/function openHistory\b/.test(APP106) &&
+         !/function renderHistory\b/.test(APP106),
+    "1039. openHistory, renderHistory and logRoll are gone from app.js");
+  assert(!/\blogRoll\(/.test(APP106),
+    "1040. AND NOTHING STILL CALLS logRoll. Deleting the function alone would have thrown on the first roll");
+  assert(!/rollLog|ROLL_LOG_MAX/.test(APP106), "1041. The log store and its cap are gone");
 
-  // A skill roll lands in the log, newest first.
-  w.eval("Math.random = () => 0.99;"); // always the top face, a certain success
-  w.eval('openDifficulty("Athletics"); rollSkill(5);');
-  click(d.getElementById("btn-history"));
-  let rows = [...d.querySelectorAll(".history-row")];
-  assert(rows.length === 1, "1042. A skill roll is logged");
-  assert(/Athletics d8 vs 5\+/.test(rows[0].querySelector(".history-line").textContent),
-    "1043. The entry carries the roll context");
-  assert(rows[0].querySelector(".history-result").textContent === "8", "1044. The entry carries the result");
-  assert(rows[0].querySelector(".history-outcome").textContent === "SUCCESS", "1045. The entry carries the outcome");
-  click(d.getElementById("history-done"));
-
-  // Ordering. Driven through logRoll directly, because rollLocked only clears inside the
-  // flicker callback, so a second real roll cannot fire in a synchronous test.
-  w.eval('logRoll("Lore d6 vs 5+", 1, "FAIL");');
-  click(d.getElementById("btn-history"));
-  rows = [...d.querySelectorAll(".history-row")];
-  assert(rows.length === 2, "1046. A second entry is logged");
-  assert(/Lore/.test(rows[0].querySelector(".history-line").textContent), "1047. Newest entry is first");
-  assert(rows[0].querySelector(".history-outcome").textContent === "FAIL", "1048. A failed roll logs FAIL");
-  assert(/Athletics/.test(rows[1].querySelector(".history-line").textContent), "1049. The older entry moves down");
-  click(d.getElementById("history-done"));
-
-  // All six ceremonies hook in.
-  const ceremonies = ["performRoll", "performRollAttack", "performRollDefense",
-                      "performRollExplore", "performRollForage", "performRollCamp"];
-  const bounds = {
-    performRoll: "function rollSkill",
-    performRollAttack: "function startDamageRoll",
-    performRollDefense: "function hideRollReadout",
-    performRollExplore: "function openForage",
-    performRollForage: "function openCamp",
-    performRollCamp: "// ---------- Cast Spell"
-  };
-  ceremonies.forEach((fn, i) => {
-    const body = APPJS.slice(APPJS.indexOf("function " + fn + "("), APPJS.indexOf(bounds[fn]));
-    assert(body.length > 0 && /logRoll\(/.test(body),
-      "1050" + String.fromCharCode(97 + i) + ". " + fn + " logs its roll");
-  });
-
-  // Outcomes each ceremony can produce.
-  assert(/"SURVIVED" : "DEATH"/.test(APPJS), "1051. Death rolls log SURVIVED or DEATH");
-  assert(/success \? "HIT" : "MISS"/.test(APPJS), "1052. Attacks log HIT or MISS");
-  assert(/"UNTOUCHED"\)/.test(APPJS), "1053. A held Defense logs UNTOUCHED");
-  assert(/"TAKE " \+ pendingDefenseDamage/.test(APPJS), "1054. A failed Defense logs the damage taken");
-  assert(/"DEFENSIBLE" : "STABLE"\) : "EXPOSED"/.test(APPJS), "1055. Camp logs its three outcomes");
-  assert(/"\+" \+ gained \+ " SUPPLY" : "NOTHING"/.test(APPJS), "1056. Forage logs supply gained or nothing");
-  assert(/isReroll \? "Defense reroll " : "Defense "/.test(APPJS), "1057. A shield reroll logs as its own entry");
-
-  // Session only: nothing reaches the save or the export.
-  const saved = JSON.parse(w.localStorage.getItem("tystnad-character") || "{}");
-  assert(!("rollLog" in saved) && !("history" in saved), "1058. The log never reaches the saved character");
-  assert(!/character\.rollLog|c\.rollLog/.test(APPJS), "1059. The log is not part of the character schema");
-  const logFn = fnBody(APPJS, "logRoll");
-  assert(logFn.length > 0 && !/save\(\)/.test(logFn), "1060. Logging never writes to storage");
-
-  // Capped, so a long session cannot grow without bound.
-  assert(/ROLL_LOG_MAX = 30/.test(APPJS), "1061. The log is capped at 30 entries");
-  assert(/rollLog\.length > ROLL_LOG_MAX/.test(APPJS), "1062. The cap is enforced on every push");
-  w.eval('for (var i = 0; i < 40; i++) { logRoll("Filler d6 vs 5+", 3, "FAIL"); }');
-  click(d.getElementById("btn-history"));
-  assert(d.querySelectorAll(".history-row").length === 30, "1063. The log holds at 30 after 40+ rolls");
+  // The rolls themselves still work, which is the thing deleting a log must not break.
+  const { d: d2, w: w2 } = makeDOM(WARRIOR);
+  click(d2.getElementById("btn-continue"));
+  w2.eval("Math.random = () => 0.99;");
+  w2.eval('openDifficulty("Athletics"); rollSkill(5);');
+  assert(/Athletics d8 vs 5\+/.test(d2.getElementById("result-context").textContent),
+    "1042. A skill roll still rolls and still reports itself");
+  assert(visible(d2.getElementById("overlay-result")), "1043. And still shows its result");
 }
 
 // ---- v84. Closing the result overlay aborts the ceremony ----
@@ -4509,12 +4467,12 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   w.eval('openDifficulty("Athletics"); rollSkill(5);');
   w.eval("closeResultOverlay();");            // mid-flicker, exactly the stranding case
   w.eval('openDifficulty("Lore"); rollSkill(5);');
-  click(d.getElementById("btn-history"));
-  assert(d.querySelectorAll(".history-row").length === 2,
+  /* v106: the dice history was this test's witness and is now deleted, so the result line is.
+     It is written synchronously by every ceremony, which is what makes it a usable one. */
+  assert(visible(d.getElementById("overlay-result")),
     "1074. A second roll still fires after the overlay is closed mid-ceremony");
-  assert(/Lore/.test(d.querySelectorAll(".history-line")[0].textContent),
-    "1075. The second roll is the newest entry");
-  click(d.getElementById("history-done"));
+  assert(/^Lore d6 vs 5\+/.test(d.getElementById("result-context").textContent),
+    "1075. And it is the SECOND roll on screen, not the stranded first");
 
   // And the overlay is left in a clean state for the next ceremony.
   w.eval("closeResultOverlay();");
@@ -5056,6 +5014,116 @@ function fireEvent(handler) {
   return held;
 }
 
+/* ---- v106: a seven-item polish pass, plus a v103 bug it uncovered ---- */
+{
+  const APP = fs.readFileSync("app.js", "utf8");
+  const CSS = fs.readFileSync("style.css", "utf8");
+
+  /* THE v103 BUG. A Save borrows #overlay-difficulty, so it always had the stepper, but only
+     openDifficulty reset it. openSave then wrote the BASE die into the label, so the screen
+     said d8 while the roll used d10. Measured on the shipped build before this fix. */
+  {
+    const { d, w } = makeDOM(WARRIOR);          // Athletics d8
+    click(d.getElementById("btn-continue"));
+    w.eval('openDifficulty("Athletics")');
+    click(d.querySelector("#overlay-difficulty .roll-step .step-btn[data-step-dir='1']"));
+    assert(d.getElementById("diff-skill-die").textContent === "d10", "1465. A skill roll is stepped to d10");
+    click(d.getElementById("diff-cancel"));
+    click(d.querySelector('.save-btn[data-save="body"]'));
+    assert(d.getElementById("diff-skill-die").textContent === "d8",
+      "1466. Opening a Save shows the BASE die");
+    w.eval("Math.random = () => 0.999;");
+    click(d.querySelector("#overlay-difficulty .diff-btn[data-target='5']"));
+    assert(/Body Save · Athletics d8 vs 5\+/.test(d.getElementById("result-context").textContent),
+      "1467. AND ROLLS IT. A step from a cancelled skill roll no longer leaks into the next Save");
+  }
+
+  // Casting steps its die, and the cast-into-death branch never does.
+  {
+    const { d, w } = makeDOM(SORCERER);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="sorcery"]'));
+    click(d.querySelector("#spell-list-sorcery .spell-row"));
+    assert(visible(d.getElementById("overlay-spell")), "1468. A spell opens");
+    assert(d.getElementById("spell-die-label").textContent === "d8", "1469. Showing the Sorcery die");
+    click(d.querySelector("#overlay-spell .roll-step .step-btn[data-step-dir='1']"));
+    assert(d.getElementById("spell-die-label").textContent === "d10", "1470. Which steps like any other roll");
+    void w;
+  }
+  assert(/const die = steppedDie\(character\.skills\["Sorcery"\]\)/.test(APP),
+    "1471. The Sorcery roll uses the stepped die");
+  {
+    // The death branch of castTier must take the die canon gives it, unstepped.
+    const cast = fnBody(APP, "castTier");
+    const deathHalf = cast.slice(0, cast.indexOf('const die = steppedDie'));
+    assert(/Death Roll/.test(deathHalf) && !/steppedDie/.test(deathHalf),
+      "1472. THE CAST-INTO-DEATH ROLL IS NOT STEPPED. Canon fixes its die by HP and its target at 5");
+  }
+
+  // The overlay scroll bug: ranged content was unreachable at BOTH ends.
+  {
+    assert(/#overlay-attack,\s*\n#overlay-defense \{[^}]*overflow-y:\s*auto/.test(CSS),
+      "1473. The attack and defence overlays can scroll");
+    assert(/#overlay-attack > \*:first-child[\s\S]{0,80}margin-top:\s*auto/.test(CSS),
+      "1474. Auto margins centre them while they fit, which justify-content:center cannot do when they do not");
+    const overlay = (CSS.match(/\n\.overlay \{([^}]*)\}/) || ["",""])[1];
+    assert(/justify-content:\s*center/.test(overlay),
+      "1475. The shared .overlay rule is untouched, so #overlay-result and the death flood are not disturbed");
+  }
+
+  // Combat tab: one row for the two most-tapped buttons, truthful label, two-column actions.
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="combat"]'));
+    assert(d.querySelector("#init-block .vital-label").textContent === "Initiative Roll Contribution",
+      "1476. The label says what the app actually shows: a contribution, never a party roll");
+    assert(d.getElementById("btn-ammo").textContent === "Ammunition Use", "1477. Ammunition Use, not Fired This Scene");
+    assert(/\.combat-pair \{[^}]*grid-template-columns:\s*1fr 1fr/.test(CSS), "1478. Attack and Defend share a row");
+    assert(/\.combat-pair \.combat-main \{[^}]*font-size:\s*1\.15rem/.test(CSS), "1479. And read larger for it");
+    const actions = d.querySelector("#action-card .rules-topic-body");
+    assert(actions && actions.classList.contains("action-grid"), "1480. The action list is a grid");
+    /* Compounded with .rules-topic-body on purpose: that class sets display:flex later in the
+       file, so a bare .action-grid rule loses at equal specificity and the grid is inert. */
+    assert(/\.rules-topic-body\.action-grid \{[^}]*grid-template-columns:\s*1fr 1fr/.test(CSS),
+      "1481. Of two columns, and specific enough to actually beat .rules-topic-body's display:flex");
+    assert(/\.action-grid \.action-tier[\s\S]{0,90}grid-column: 1 \/ -1/.test(CSS),
+      "1482. With the tier headings spanning both, so a group cannot be split down the middle");
+  }
+
+  // Saves lose the skill name and grow.
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    assert(d.querySelectorAll(".save-skill").length === 0, "1483. The skill name is off the Save chips");
+    assert([...d.querySelectorAll(".save-name")].map((e) => e.textContent).join(",") === "Body,Mind,Spirit",
+      "1484. Leaving the three Saves themselves");
+    assert(/\.save-name \{[^}]*font-size:\s*1rem/.test(CSS), "1485. Which are larger for the room");
+    // The skill is still named where it counts: in the roll.
+    const w = makeDOM(WARRIOR).w;
+    void w;
+  }
+
+  // The Handbook button says what it is.
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    const hb = d.getElementById("btn-handbook");
+    assert(hb.textContent === "Handbook", "1486. The '?' is now named");
+    assert(hb.className === "head-btn", "1487. On a class sized for a word rather than a glyph");
+    assert(/\.head-btn \{[^}]*min-height:\s*44px/.test(CSS), "1488. And it meets the 44px rule");
+  }
+
+  /* The intro rises by closing gaps, because it had only 35px of headroom against the 45px and
+     57px asked for. Asserting the mechanism, since jsdom cannot measure the result. */
+  {
+    assert(/\.intro-logo-wrap \{[^}]*padding-top:\s*4px/.test(CSS), "1489. The logo's top padding gave up the space");
+    assert(/\.intro-layout \{[^}]*gap:\s*4px/.test(CSS), "1490. As did the gap below it");
+    assert(!/translate|margin-top:\s*-/.test((CSS.match(/\.intro-layout \{[^}]*\}/) || [""])[0]),
+      "1491. Nothing is shifted upward, which is what would have cropped the logo");
+  }
+}
+
 /* ---- v105: the three sizing flags, ruled fixed as one version ----
 
    All three had been flagged and left across v101 to v104: ghost buttons at 36px, the shared
@@ -5216,8 +5284,8 @@ function fireEvent(handler) {
   // A stepper in every overlay that rolls, and none in the one that must not.
   {
     const { d } = makeDOM(WARRIOR);
-    assert(d.querySelectorAll(".roll-step").length === 7,
-      "1415. Seven steppers: skill, attack, defense, travel, explore, forage, camp");
+    assert(d.querySelectorAll(".roll-step").length === 8,
+      "1415. Eight steppers: skill, attack, defense, travel, explore, forage, camp, and casting (v106)");
     assert(d.querySelectorAll("#overlay-death .roll-step").length === 0,
       "1416. THE DEATH ROLL HAS NONE. Canon fixes its die by HP and its target at 5");
     [...d.querySelectorAll(".roll-step .step-btn")].forEach((b, i) => {
@@ -5529,8 +5597,11 @@ function fireEvent(handler) {
       "1374. The intro import button names what it imports");
     assert(/id="btn-backup-intro"[^>]*>Backup Explorer</.test(HTML),
       "1375. And Backup Explorer sits on the intro");
-    assert(/id="btn-export"/.test(HTML),
-      "1376. While Backup STAYS in the sheet header, so a mid-session backup needs no detour");
+    /* v101 kept Backup in the sheet header as well; v106 removed it on Tomas's ruling, since
+       Import and Backup both live on the intro now. The mid-session path is the save-failure
+       banner's Export now, which is what that button was really insuring against. */
+    assert(!/id="btn-export"/.test(HTML),
+      "1376. Backup no longer duplicates itself in the sheet header (v106)");
     const gate = HTML.slice(HTML.indexOf('id="intro-buttons"') >= 0 ? HTML.indexOf('id="intro-buttons"') : HTML.indexOf('class="intro-buttons"'), HTML.indexOf('version-note'));
     const btns = gate.match(/<button[^>]*>/g) || [];
     assert(btns.length >= 5 && btns.every((b) => /aria-label=/.test(b)),
@@ -5558,7 +5629,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v105";
+  const CURRENT = "tystnad-v106";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {

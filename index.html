@@ -198,8 +198,10 @@
         </div>
       </div>
       <div class="sheet-head-right">
-        <button id="btn-handbook" class="head-icon-btn" aria-label="How to play">?</button>
-        <button id="btn-export" class="ghost-btn">Backup</button>
+        <!-- v106: Backup lives on the intro now, beside Import, so it is gone from here.
+             The save-failure banner keeps its own "Export now", which is the path that
+             matters mid-session. The Handbook button says what it is instead of "?". -->
+        <button id="btn-handbook" class="head-btn" aria-label="Open the Handbook">Handbook</button>
       </div>
     </header>
 
@@ -207,7 +209,6 @@
       <div class="hp-left">
         <span class="hp-label-large">HP</span>
         <button id="btn-recover" class="hp-recover-btn" aria-label="Rest and recovery">&#10010;</button>
-        <button id="btn-history" class="hp-recover-btn" aria-label="Dice history">&#9776;</button>
       </div>
       <div class="hp-controls">
         <button id="hp-minus" class="hp-btn" aria-label="Lose HP">&minus;</button>
@@ -233,9 +234,10 @@
       <button id="btn-improve-skills" class="clear-ticks-btn hidden">Improve Skills</button>
       <p class="field-label">Saves</p>
       <div class="saves-row" id="saves-row">
-        <button class="save-btn" data-save="body"><span class="save-name">Body</span><span class="save-skill">Athletics</span></button>
-        <button class="save-btn" data-save="mind"><span class="save-name">Mind</span><span class="save-skill">Awareness</span></button>
-        <button class="save-btn" data-save="spirit"><span class="save-name">Spirit</span><span class="save-skill">Presence</span></button>
+        <!-- v106: the skill name comes off the chip. The roll still names it in the result. -->
+        <button class="save-btn" data-save="body"><span class="save-name">Body</span></button>
+        <button class="save-btn" data-save="mind"><span class="save-name">Mind</span></button>
+        <button class="save-btn" data-save="spirit"><span class="save-name">Spirit</span></button>
       </div>
       <p class="field-label">Conditions</p>
       <div class="cond-grid" id="condition-chips"></div>
@@ -306,13 +308,17 @@
     <!-- COMBAT TAB -->
     <div id="tab-combat" class="tab-panel hidden">
       <button class="def-block" id="init-block" aria-label="Edit loadout">
-        <span class="vital-label">Initiative</span>
+        <span class="vital-label">Initiative Roll Contribution</span>
         <span class="def-die" id="sheet-init">+0</span>
         <span class="chip-hint">Tap to edit</span>
       </button>
-      <button id="btn-attack" class="primary-btn">Attack</button>
-      <button id="def-block" class="primary-btn">Defend</button>
-      <button id="btn-ammo" class="primary-btn">Fired This Scene</button>
+      <!-- v106: Attack and Defend share a row. They are the two most-tapped buttons in play
+           and each was eating a full width for one word. -->
+      <div class="combat-pair">
+        <button id="btn-attack" class="primary-btn combat-main">Attack</button>
+        <button id="def-block" class="primary-btn combat-main">Defend</button>
+      </div>
+      <button id="btn-ammo" class="primary-btn">Ammunition Use</button>
       <p class="field-hint" id="ammo-hint">Roll for ammunition after any scene in which you fired.</p>
       <button id="btn-new-combat" class="primary-btn hidden">New Combat</button>
       <p class="shield-state hidden" id="shield-state"></p>
@@ -577,13 +583,9 @@
     <button id="rec-done" class="ghost-btn">Done</button>
   </div>
 
-  <!-- ============ DICE HISTORY OVERLAY (v83) ============ -->
-  <div id="overlay-history" class="overlay hidden">
-    <p class="overlay-skill">Dice History</p>
-    <p class="field-hint overlay-hint">This session only. Nothing here is saved.</p>
-    <div id="history-list" class="history-list"></div>
-    <button id="history-done" class="ghost-btn">Done</button>
-  </div>
+  <!-- v106: the dice history overlay is gone with its only entry point, Tomas ruled it
+       deleted outright rather than left unreachable. -->
+  
 
   <!-- ============ AMMUNITION OVERLAY (v75) ============ -->
   <div id="overlay-ammo" class="overlay hidden">
@@ -678,6 +680,14 @@
     <p class="overlay-skill" id="spell-name-display">Soul Spark</p>
     <p id="spell-desc-display" class="spell-desc"></p>
     <p class="cast-warning hidden" id="spell-cast-warning"></p>
+    <!-- v106: casting steps its die like any other roll. The Sorcery die is printed here so
+         the stepper has a number to change; the cast-into-death Death Roll is never stepped. -->
+    <p class="overlay-skill spell-die-line">Sorcery <span id="spell-die-label">d6</span></p>
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <button id="spell-cast-btn" class="primary-btn slim">Cast</button>
     <button id="spell-cancel-btn" class="ghost-btn">Cancel</button>
   </div>

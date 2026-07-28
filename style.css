@@ -93,12 +93,27 @@ body::before {
 /* The logo sits above the fields, not centred with them, so the form starts near the thumb. */
 .gate-screen .intro-logo-wrap { margin-bottom: 4px; }
 
+/* v106, second half of the intro lift. Closing the gaps alone made the block SHORTER, and
+   `justify-content: center` then pushed the logo 40px DOWN, the opposite of what was asked.
+   Anchoring the intro to the top is what actually raises everything. The version note keeps
+   its place at the foot, per Tomas: `margin-top: auto` holds it there while the rest rises.
+   Scoped to #screen-intro so the gate, which shares the rule above, stays centred. */
+#screen-intro { justify-content: flex-start; }
+#screen-intro .intro-layout { flex: 1 1 auto; width: 100%; }
+#intro-version-note { margin-top: auto; }
+
+/* v106: Tomas asked for the logo 12mm higher and everything below it 15mm higher. Measured at
+   375x812 there were only 35px of headroom above the logo against the 45px and 57px asked for,
+   so a translate would have cropped the logo, worse on a 667px screen. He ruled the space comes
+   out of the GAPS instead: the block ends up as high and as tight as intended, and nothing is
+   pushed off the top. padding-top 30 to 4 and gap 8 to 2 lift the logo ~32px; .intro-layout's
+   gap 28 to 4 lifts Companion and the buttons a further ~24px. */
 .intro-logo-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding-top: 30px;
+  gap: 2px;
+  padding-top: 4px;
 }
 
 .intro-logo {
@@ -111,7 +126,7 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 4px;
 }
 
 .intro-buttons {
@@ -652,14 +667,14 @@ button.hp-max:active { color: var(--blood-bright); }
   cursor: pointer;
 }
 .save-btn:active { background: var(--panel-hi); border-color: var(--blood); }
+/* v106: the skill name came off the chip, so the save name takes the room it left. */
 .save-name {
   color: var(--bone);
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.save-skill { color: var(--ash); font-size: 0.75rem; }
 
 .version-note { text-align: center; font-size: 0.75rem; color: var(--ash); letter-spacing: 0.18em; text-transform: uppercase; pointer-events: none; }
 #version-note { position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 0; right: 0; }
@@ -918,6 +933,24 @@ button.hp-max:active { color: var(--blood-bright); }
   padding: 24px;
   z-index: 10;
 }
+
+/* v106: picking Ranged in Attack or Defend reveals the range and cover block and pushes the
+   content past the viewport. The overlay is `position: fixed` with `justify-content: center`
+   and NO overflow, and centred overflow is unreachable at BOTH ends, so the threat buttons
+   below and the mode buttons above were simply gone. Auto margins centre it while it fits and
+   yield to scrolling when it does not, which `justify-content: center` cannot do.
+   Scoped to these two overlays deliberately: #overlay-result carries the death flood, and the
+   flood is the app's one sacred visual. */
+#overlay-attack,
+#overlay-defense {
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#overlay-attack > *:first-child,
+#overlay-defense > *:first-child { margin-top: auto; }
+#overlay-attack > *:last-child,
+#overlay-defense > *:last-child { margin-bottom: auto; }
 
 .overlay-skill {
   font-size: 1rem;
@@ -1576,6 +1609,26 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .action-card { width: 100%; margin-top: 10px; }
 
+/* v106: Attack and Defend are the two most-tapped buttons in play and each was taking a full
+   width for one word. Side by side, and larger, since the row buys the room. */
+.combat-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.combat-pair .combat-main { margin: 0; font-size: 1.15rem; }
+
+/* Two columns for the action list. The rows are a name and a short description, so they pack
+   without wrapping badly, and the tier headings stay full width above their own group. */
+/* Compounded with .rules-topic-body deliberately. That class sets display:flex and sits LATER
+   in this file, so at equal specificity it won and the grid was inert: every row rendered in
+   one column while getComputedStyle still reported "1fr 1fr". Found by measuring the left
+   edges rather than by reading the declaration. */
+.rules-topic-body.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 12px;
+}
+.action-grid .action-tier,
+.action-grid .action-rule,
+.action-grid .action-improvised { grid-column: 1 / -1; }
+
 .action-tier {
   font-family: var(--font-display);
   font-size: 1.5rem;
@@ -2132,19 +2185,23 @@ button.hp-max:active { color: var(--blood-bright); }
 @media (prefers-reduced-motion: reduce) { .rules-topic-caret { transition: none; } }
 
 .sheet-head-right { display: flex; align-items: center; gap: 8px; }
-.head-icon-btn {
+/* v106: "?" became "Handbook", so it needs width for a word rather than a glyph. Kept as its
+   own class rather than .ghost-btn, which is ash on a header that wants bone. */
+.head-btn {
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 6px;
   color: var(--bone);
-  font-size: 1rem;
-  font-weight: 800;
-  width: 40px;
-  height: 40px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  min-height: 44px;
+  padding: 0 14px;
   flex-shrink: 0;
   cursor: pointer;
 }
-.head-icon-btn:active { background: var(--panel-hi); border-color: var(--blood); }
+.head-btn:active { background: var(--panel-hi); border-color: var(--blood); }
 
 .edge-reveal-kicker {
   color: var(--ash);

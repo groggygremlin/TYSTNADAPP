@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v105";
+const VERSION = "v106";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -483,13 +483,6 @@ let hitState = null;
 /* v83: dice history. Session only and in memory, by Tomas's ruling, so it never enters
    the save or the export wire format. A log records what already happened and rules
    nothing, which is why it sits inside the doctrine. Newest first, capped. */
-const ROLL_LOG_MAX = 30;
-let rollLog = [];
-
-function logRoll(line, result, outcome) {
-  rollLog.unshift({ line: line, result: result, outcome: outcome });
-  if (rollLog.length > ROLL_LOG_MAX) rollLog.length = ROLL_LOG_MAX;
-}
 // v74: ranged combat selections. Transient, reset every time the overlay opens.
 let atkMode = "melee";
 let atkRangeSteps = 0;
@@ -698,6 +691,7 @@ function activeRollStepContext() {
   if (!character) return null;
   const open = (id) => { const el = $(id); return el && !el.classList.contains("hidden"); };
   if (open("overlay-difficulty") && pendingSkill) return { base: character.skills[pendingSkill] };
+  if (open("overlay-spell")) return { base: character.skills["Sorcery"] };   // v106
   if (open("overlay-travel")) return { base: character.skills["Lore"] };
   if (open("overlay-explore")) return { base: character.skills["Awareness"] };
   if (open("overlay-camp")) return { base: character.skills["Awareness"] };
@@ -741,6 +735,7 @@ function refreshRollStep() {
     if (el && base) el.textContent = steppedDie(base);
   };
   if (pendingSkill) set("diff-skill-die", character.skills[pendingSkill]);
+  set("spell-die-label", character.skills["Sorcery"]);   // v106
   set("travel-die-label", character.skills["Lore"]);
   set("explore-die-label", character.skills["Awareness"]);
   set("camp-die-label", character.skills["Awareness"]);
@@ -1814,28 +1809,7 @@ function importFromPaste() {
 
 // ---------- Dice history (v83) ----------
 
-function openHistory() {
-  renderHistory();
-  show($("overlay-history"));
-}
 
-function renderHistory() {
-  const list = $("history-list");
-  list.textContent = "";
-  if (rollLog.length === 0) {
-    list.appendChild(ce("p", "history-empty", "No rolls yet this session."));
-    return;
-  }
-  rollLog.forEach((r) => {
-    const row = ce("div", "history-row");
-    const left = ce("div", "history-left");
-    left.appendChild(ce("span", "history-line", r.line));
-    row.appendChild(left);
-    row.appendChild(ce("span", "history-result", String(r.result)));
-    row.appendChild(ce("span", "history-outcome", r.outcome));
-    list.appendChild(row);
-  });
-}
 
 // ---------- Ammunition (PB v2.5 p.14) ----------
 
@@ -2120,8 +2094,6 @@ function performRollAttack(combatDie, damageDie, target, momentum, wearyNote, in
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
 
-  logRoll("Attack " + combatDie + " vs " + target + "+" + (wearyNote || ""), result,
-    success ? "HIT" : "MISS");
 
   if (success) tickSkill("Combat");
 
@@ -2300,8 +2272,6 @@ function performRollExplore(die, target, wearyActive) {
 
   if (success) tickSkill("Awareness");
 
-  logRoll("Explore " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : ""), result,
-    success ? "SUCCESS" : "FAIL");
 
   $("result-context").textContent = "Explore " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : "");
 
@@ -2359,8 +2329,6 @@ function performRollForage(die) {
      into a counter the player cannot see would be the app keeping a secret from him. */
   if (gained > 0 && isQuartermaster()) { character.supply += gained; save(); renderInventory(); }
 
-  logRoll("Forage " + die + (forageRough ? " (Rough)" : ""), result,
-    gained > 0 ? "+" + gained + " SUPPLY" : "NOTHING");
 
   $("result-context").textContent = "Forage " + die + (forageRough ? " (Rough)" : "");
 
@@ -2410,8 +2378,6 @@ function performRollCamp(die, target, wearyActive) {
 
   if (success) tickSkill("Awareness");
 
-  logRoll("Camp " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : ""), result,
-    success ? (result - target >= 2 ? "DEFENSIBLE" : "STABLE") : "EXPOSED");
 
   $("result-context").textContent = "Camp " + die + " vs " + target + "+" + (wearyActive ? " (Weary)" : "");
 
@@ -2462,7 +2428,9 @@ function castTier(tier) {
     performRoll(die, 5, "Tier " + tier + " · Death Roll " + die + " vs 5+",
       { death: true, casting: true });
   } else {
-    const die = character.skills["Sorcery"];
+    /* v106: the Sorcery roll takes the step. The branch above, where the cost drops him to 0
+       and canon routes straight to a Death Roll, does NOT: the Death Roll has no stepper. */
+    const die = steppedDie(character.skills["Sorcery"]);
     const wearyNote = effectiveTarget !== t.target ? " (Weary)" : "";
     performRoll(die, effectiveTarget,
       "Tier " + tier + " · Sorcery " + die + " vs " + effectiveTarget + "+" + wearyNote,
@@ -2734,7 +2702,8 @@ function renderActionCard() {
   head.appendChild(ce("span", "rules-topic-title", "Actions"));
   head.appendChild(ce("span", "rules-topic-caret", "›"));
 
-  const body = ce("div", "rules-topic-body hidden");
+  // v106: two columns. Tier headings and the improvised note span both.
+  const body = ce("div", "rules-topic-body action-grid hidden");
   COMBAT_ACTIONS.forEach((group) => {
     body.appendChild(ce("h4", "action-tier", group.tier));
     body.appendChild(ce("p", "action-rule", group.rule));
@@ -2811,6 +2780,9 @@ function renderSorceryTab() {
 }
 
 function openSpell(spell) {
+  resetRollStep();   // v106: each casting starts unstepped
+  // ...and the die is written here, as every other overlay writes its own.
+  $("spell-die-label").textContent = character.skills["Sorcery"];
   $("spell-name-display").textContent = spell.name;
   $("spell-desc-display").textContent = spell.desc;
   const warn = $("spell-cast-warning");
@@ -2849,6 +2821,11 @@ function openDifficulty(skill) {
 function openSave(saveId) {
   const s = SAVES.find((x) => x.id === saveId);
   if (!s) return;
+  /* v106, fixing v103: a Save borrows #overlay-difficulty, so it always had the stepper, but
+     only openDifficulty reset it. A step left over from a cancelled skill roll therefore
+     leaked into the next Save, and because this function writes the BASE die into the label,
+     the screen said d8 while the roll used d10. Measured on the shipped build before fixing. */
+  resetRollStep();
   pendingSkill = s.skill;
   pendingSave = s.label;
   $("diff-skill-name").firstChild.textContent = s.label + " Save ";
@@ -3020,8 +2997,6 @@ function performRoll(die, target, context, opts) {
   const result = Math.floor(Math.random() * sides) + 1;
   const success = result >= target;
 
-  logRoll(context, result,
-    opts.death ? (success ? "SURVIVED" : "DEATH") : (success ? "SUCCESS" : "FAIL"));
 
   // Apply persistent effects immediately; animation is purely visual
   if (success && opts.tickSkill) tickSkill(opts.tickSkill);
@@ -3127,14 +3102,12 @@ function performRollDefense(target, rollDie, isReroll) {
     numEl.textContent = "";
     if (success) {
       overlay.classList.add("overlay--act3");
-      logRoll(logLine, result, "UNTOUCHED");
       verdictEl.innerHTML = '<span class="strike-hit">UNTOUCHED</span>';
       document.querySelector(".result-dismiss").classList.remove("hidden");
     } else {
       // Agile (Edge 18) removes the +2 unarmored penalty.
       const noArmor = (character.loadout.armor === "none" && !hasEdge(18)) ? 2 : 0;
       pendingDefenseDamage = Math.max(0, (target - result) + bonus + noArmor);
-      logRoll(logLine, result, "TAKE " + pendingDefenseDamage);
       overlay.classList.add("overlay--action");
       // The shield reroll is offered once per combat, and only on a first roll: canon
       // gives one reroll, not a chain, so a rerolled failure shows no button.
@@ -4233,8 +4206,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("wiz-next").addEventListener("click", wizardNext);
   $("wiz-back").addEventListener("click", wizardBack);
 
-  // Export
-  $("btn-export").addEventListener("click", exportCharacter);
+  // Export. v106: btn-export left the sheet header with Backup; the intro button and the
+  // save-failure banner are the two remaining ways to get a copy out.
   $("btn-backup-intro").addEventListener("click", exportCharacter);
 
   // Import: file picker
@@ -4601,10 +4574,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.stopPropagation();
     fn(btn);
   });
-
-  // Dice history (v83)
-  $("btn-history").addEventListener("click", openHistory);
-  $("history-done").addEventListener("click", () => hide($("overlay-history")));
 
   // Shields (v76)
   $("btn-new-combat").addEventListener("click", newCombat);
