@@ -2084,6 +2084,12 @@ button.hp-max:active { color: var(--blood-bright); }
 }
 .howto-p { color: var(--bone); font-size: 0.95rem; line-height: 1.55; margin: 0; }
 
+/* v104: the Hexploration accordion on the Expedition tab. It reuses the Rules Reference
+   accordion below wholesale; this only gives it room of its own on a tab that had none. */
+.expedition-guide-section { margin-top: 22px; }
+.expedition-guide-section .field-label { margin: 0 0 6px; }
+.expedition-guide-section .rules-topic:first-child { border-top: 1px solid var(--line); }
+
 /* Rules Reference accordion (v69) */
 .rules-topic { border-bottom: 1px solid var(--line); }
 .rules-topic-head {

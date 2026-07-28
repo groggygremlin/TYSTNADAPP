@@ -275,7 +275,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v103", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v104", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -1000,13 +1000,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v103"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v104"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v103"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v104"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1037,13 +1037,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v103"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v104"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v103"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v104"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1195,13 +1195,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v103"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v104"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v103"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v104"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1323,8 +1323,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "224. sw.js cache tystnad-v103");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "224. sw.js cache tystnad-v104");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1526,8 +1526,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1584,8 +1584,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1610,8 +1610,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1640,8 +1640,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1749,8 +1749,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1793,8 +1793,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1845,8 +1845,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1952,8 +1952,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2045,8 +2045,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2230,8 +2230,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2351,8 +2351,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "478. sw.js cache tystnad-v103");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "478. sw.js cache tystnad-v104");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2410,8 +2410,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v103"'), "493. sw.js cache tystnad-v103");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v104"'), "493. sw.js cache tystnad-v104");
 }
 
 // ============================================================
@@ -2839,7 +2839,10 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v71. Rules Reference (accordion) ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert((SRC.match(/\{ title: "/g) || []).length === 11, "721. Rules Reference has 11 topics (v81 adds Languages)");
+  /* v104: HEXPLORATION_SECTIONS introduced seven more `{ title: "` literals, so this counts
+     the RULES_TOPICS array itself rather than the whole file. */
+  const RT = SRC.slice(SRC.indexOf("const RULES_TOPICS = ["), SRC.indexOf("\n];", SRC.indexOf("const RULES_TOPICS = [")));
+  assert((RT.match(/\{ title: "/g) || []).length === 11, "721. Rules Reference has 11 topics (v81 adds Languages)");
   const { d } = makeDOM(null);
   click(d.getElementById("btn-how-to-play"));
   const navBtns = [...d.querySelectorAll("#handbook-nav .handbook-nav-btn")];
@@ -2847,16 +2850,18 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
     "722. Handbook nav includes Rules Reference");
   click(navBtns.find((b) => /Rules Reference/.test(b.textContent)));
   assert(d.querySelectorAll("#handbook-body .rules-topic").length === 11, "723. Rules Reference renders 11 collapsible topics");
-  assert([...d.querySelectorAll(".rules-topic-body")].every((b) => hidden(b)), "724. Topics collapsed by default");
-  const firstHead = d.querySelector(".rules-topic-head");
+  assert([...d.querySelectorAll("#handbook-body .rules-topic-body")].every((b) => hidden(b)), "724. Topics collapsed by default");
+  // v104: scoped, because the Expedition tab now renders the same accordion class.
+  const firstHead = d.querySelector("#handbook-body .rules-topic-head");
   assert(firstHead.querySelector(".rules-topic-title").textContent === "Making Rolls", "725. First topic is Making Rolls");
   click(firstHead);
-  assert(!hidden(d.querySelector(".rules-topic .rules-topic-body")), "726. Tapping a topic expands its body");
+  assert(!hidden(d.querySelector("#handbook-body .rules-topic .rules-topic-body")), "726. Tapping a topic expands its body");
   assert(firstHead.getAttribute("aria-expanded") === "true", "727. Expanded topic sets aria-expanded true");
   click(firstHead);
-  assert(hidden(d.querySelector(".rules-topic .rules-topic-body")), "728. Tapping again collapses the topic");
+  assert(hidden(d.querySelector("#handbook-body .rules-topic .rules-topic-body")), "728. Tapping again collapses the topic");
   click([...d.querySelectorAll("#handbook-nav .handbook-nav-btn")].find((b) => /How to Play/.test(b.textContent)));
-  assert(d.querySelectorAll("#handbook-body .howto-h").length === 11 && d.querySelectorAll(".rules-topic").length === 0,
+  assert(d.querySelectorAll("#handbook-body .howto-h").length === 11 &&
+         d.querySelectorAll("#handbook-body .rules-topic").length === 0,
     "729. Switching sections swaps the content");
 }
 
@@ -2872,7 +2877,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(heads[0].textContent === "The Silence", "732. First World section is The Silence");
   assert(/Dessa/.test(d.getElementById("handbook-body").textContent), "733. World includes setting detail (Dessa the archivist)");
   click([...d.querySelectorAll(".handbook-nav-btn")].find((b) => /Rules Reference/.test(b.textContent)));
-  assert(d.querySelectorAll(".rules-topic").length === 11 && d.querySelectorAll("#handbook-body .howto-h").length === 0,
+  assert(d.querySelectorAll("#handbook-body .rules-topic").length === 11 &&
+         d.querySelectorAll("#handbook-body .howto-h").length === 0,
     "734. Switching from World to Rules swaps the content");
 }
 
@@ -3134,8 +3140,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v103"'),          "529. sw.js cache tystnad-v103");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v104"'),          "529. sw.js cache tystnad-v104");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3220,8 +3226,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v103"'), "543b. sw.js cache tystnad-v103");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v104"'), "543b. sw.js cache tystnad-v104");
 }
 
 // ============================================================
@@ -3353,8 +3359,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "563. sw.js cache tystnad-v103");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "563. sw.js cache tystnad-v104");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -5047,6 +5053,82 @@ function fireEvent(handler) {
   return held;
 }
 
+/* ---- v104: Hexploration on the Expedition tab, from ONE source ---- */
+{
+  const APP104 = fs.readFileSync("app.js", "utf8");
+
+  // The tab was three role chips and four effort buttons. Now it teaches the thing it drives.
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="expedition"]'));
+    const topics = [...d.querySelectorAll("#expedition-guide .rules-topic")];
+    assert(topics.length === 7, "1438. Seven expandable Hexploration sections on the Expedition tab");
+    assert(topics.every((t) => hidden(t.querySelector(".rules-topic-body"))),
+      "1439. All collapsed by default, so the tab does not become a wall of text");
+    const heads = [...d.querySelectorAll("#expedition-guide .rules-topic-title")].map((h) => h.textContent);
+    assert(heads[0] === "The Hexes" && heads[heads.length - 1] === "Returning to Haven",
+      "1440. Opening with the hexes and closing on the return, which is the shape of an expedition");
+  }
+
+  // It behaves like the Rules Reference accordion because it IS that accordion.
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="expedition"]'));
+    const head = d.querySelector("#expedition-guide .rules-topic-head");
+    const body = d.querySelector("#expedition-guide .rules-topic-body");
+    assert(head.getAttribute("aria-expanded") === "false", "1441. Announced as collapsed");
+    click(head);
+    assert(!hidden(body) && head.getAttribute("aria-expanded") === "true",
+      "1442. Tapping opens it and says so");
+    click(head);
+    assert(hidden(body) && head.getAttribute("aria-expanded") === "false", "1443. And closes it again");
+    assert(head.hasAttribute("aria-label"), "1444. Law 4: the head is a button and carries a label");
+  }
+
+  /* THE POINT OF THE WHOLE PATCH. The Handbook and the Expedition tab must be incapable of
+     disagreeing, because two copies of a rule is how the app came to say things that were not
+     true. Same prose, one constant, folded back into the Handbook's flat topic. */
+  {
+    assert(/paras: HEXPLORATION_SECTIONS\.reduce/.test(APP104),
+      "1445. The Handbook DERIVES its Hexploration paragraphs from the same constant");
+    assert((APP104.match(/The frontier is a grid of hexes/g) || []).length === 1,
+      "1446. The prose exists exactly ONCE in the source");
+    assert((APP104.match(/Camp safety: the Scout rolls Awareness/g) || []).length === 1,
+      "1447. And so does every other paragraph of it");
+
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="expedition"]'));
+    const tabText = d.getElementById("expedition-guide").textContent;
+    click(d.getElementById("btn-handbook"));
+    click([...d.querySelectorAll("#handbook-nav .handbook-nav-btn")].find((b) => /Rules Reference/.test(b.textContent)));
+    const hexTopic = [...d.querySelectorAll("#handbook-body .rules-topic")]
+      .find((t) => t.querySelector(".rules-topic-title").textContent === "Hexploration");
+    assert(hexTopic, "1448. The Handbook still carries Hexploration as one topic");
+    const handbookParas = [...hexTopic.querySelectorAll(".rules-p")].map((p) => p.textContent);
+    assert(handbookParas.length === 7, "1449. With all seven paragraphs, exactly as before");
+    assert(handbookParas.every((p) => tabText.indexOf(p) !== -1),
+      "1450. AND EVERY ONE OF THEM APPEARS VERBATIM ON THE EXPEDITION TAB: the two cannot drift");
+  }
+
+  // Built once. Rebuilding on a role tap would slam shut whatever the player had opened.
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="expedition"]'));
+    const head = d.querySelector("#expedition-guide .rules-topic-head");
+    click(head);
+    assert(!hidden(d.querySelector("#expedition-guide .rules-topic-body")), "1451. A section is open");
+    click(d.querySelector('.role-chip[data-role="Scout"]'));
+    assert(!hidden(d.querySelector("#expedition-guide .rules-topic-body")),
+      "1452. Taking a role does not slam it shut under him");
+    assert(d.querySelectorAll("#expedition-guide .rules-topic").length === 7,
+      "1453. And does not build a second copy of the accordion");
+  }
+}
+
 /* ---- v103: die stepping (PB v2.5 p.3) ----
 
    TYSTNAD has no numeric modifiers. Rules "increase or decrease a die by one step" along
@@ -5411,7 +5493,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v103";
+  const CURRENT = "tystnad-v104";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {

@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v103";
+const VERSION = "v104";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -160,6 +160,43 @@ const WORLD_SECTIONS = [
   { h: "The Present", p: "Along the edges of settled land, the wild has grown bolder. Wolves and giant spiders in ruins sealed generations ago, goblin bands taking chickens in the night. Each event alone is containable; together they trace a clear pattern of exposure. Something may be pushing them Haven's way, too deliberate for hunger and too patient for coincidence. Whatever is behind it has not shown itself. The perimeter tightens." }
 ];
 
+/* v104: Hexploration, as named sections. ONE SOURCE, TWO PLACES.
+
+   Tomas asked for this text on the Expedition tab, which was three role chips and four effort
+   buttons and nothing else. The text already existed, as a single seven-paragraph topic in the
+   Handbook's Rules Reference, and copying it would have left two versions of the same rules to
+   keep true, which is the exact failure Phase 2 exists to undo.
+
+   So the prose lives here once. The Expedition tab renders these as expandable sections, and
+   RULES_TOPICS below folds them back into the flat seven-paragraph topic the Handbook has
+   always shown. Edit a rule here and both surfaces change together.
+
+   TOMAS: the section TITLES are new and are yours to overwrite. The paragraphs are the
+   existing Handbook text, unaltered. */
+const HEXPLORATION_SECTIONS = [
+  { title: "The Hexes", paras: [
+    "The frontier is a grid of hexes, each 24 miles of wilderness. You cross them, explore them, map them, and mark them. The farther from Haven, the greater the danger and the greater the reward."
+  ] },
+  { title: "The Field Day", paras: [
+    "A field day is 24 hours and holds up to three efforts of about 8 hours each: Travel, Explore, Forage, and Camp. One must be Camp or the party gains Weariness. At day's end, deduct 1 Supply."
+  ] },
+  { title: "Who Leads What", paras: [
+    "Efforts are led by roles: the Pathfinder leads Travel (Lore), the Scout leads Explore and judges Camp safety (Awareness), and the Quartermaster leads Forage (Athletics)."
+  ] },
+  { title: "Terrain and Mapping", paras: [
+    "Terrain sets the effort difficulty and how far a Travel effort carries you (Easy 4+, Standard 5+, Rough 6+). A hex is Mapped after three successful Explores, after which Travel in it is Easy."
+  ] },
+  { title: "Supply and Forage", paras: [
+    "Supply: deduct 1 per day, or 2 under strain (two Travels, severe weather, two combats, hauling a companion). With no Supply, Starvation sets in. Forage results: 1 to 3 nothing, 4 to 5 gain 1 Supply, 6 or more gain 2."
+  ] },
+  { title: "Camp Safety", paras: [
+    "Camp safety: the Scout rolls Awareness against the terrain's difficulty. Exposed (a failed roll) offers no safety and Weariness cannot clear. Stable (meets it) rests normally. Defensible (beats it by 2 or more) rests normally and cannot be surprised in the night."
+  ] },
+  { title: "Returning to Haven", paras: [
+    "Returning to Haven: report your findings to claim Discovery Points, then resupply and rest before the next expedition."
+  ] }
+];
+
 // Rules Reference (v69): the booklet's mechanics, tightened for the app, as collapsible topics.
 const RULES_TOPICS = [
   { title: "Making Rolls", paras: [
@@ -199,15 +236,10 @@ const RULES_TOPICS = [
     "Defending at range: the target number is still the monster's threat, and range and cover step your Defense die up by the same amounts, stacking to d12. Past d12, or behind full cover, the shot cannot reach you.",
     "Bows and crossbows need ammunition, tracked in bundles."
   ] },
-  { title: "Hexploration", paras: [
-    "The frontier is a grid of hexes, each 24 miles of wilderness. You cross them, explore them, map them, and mark them. The farther from Haven, the greater the danger and the greater the reward.",
-    "A field day is 24 hours and holds up to three efforts of about 8 hours each: Travel, Explore, Forage, and Camp. One must be Camp or the party gains Weariness. At day's end, deduct 1 Supply.",
-    "Efforts are led by roles: the Pathfinder leads Travel (Lore), the Scout leads Explore and judges Camp safety (Awareness), and the Quartermaster leads Forage (Athletics).",
-    "Terrain sets the effort difficulty and how far a Travel effort carries you (Easy 4+, Standard 5+, Rough 6+). A hex is Mapped after three successful Explores, after which Travel in it is Easy.",
-    "Supply: deduct 1 per day, or 2 under strain (two Travels, severe weather, two combats, hauling a companion). With no Supply, Starvation sets in. Forage results: 1 to 3 nothing, 4 to 5 gain 1 Supply, 6 or more gain 2.",
-    "Camp safety: the Scout rolls Awareness against the terrain's difficulty. Exposed (a failed roll) offers no safety and Weariness cannot clear. Stable (meets it) rests normally. Defensible (beats it by 2 or more) rests normally and cannot be surprised in the night.",
-    "Returning to Haven: report your findings to claim Discovery Points, then resupply and rest before the next expedition."
-  ] },
+  /* v104: folded back from HEXPLORATION_SECTIONS above, so the Handbook and the Expedition
+     tab cannot drift apart. concat rather than flatMap, to keep the floor low. */
+  { title: "Hexploration",
+    paras: HEXPLORATION_SECTIONS.reduce((all, s) => all.concat(s.paras), []) },
   { title: "Conditions", paras: [
     "Conditions are applied by the GM and tracked on your sheet. Weary is the one the app enforces: it shifts every roll target up one step (Easy becomes Normal, Normal becomes Hard, Hard stays Hard), and it does not touch the Death Roll.",
     "The ten conditions: Weary, Poisoned, Lethal Poison, Diseased, Frightened, Prone, Shocked, Burning, Immolation, and Blinded. Toggle one on your sheet to read its full effect."
@@ -2654,24 +2686,40 @@ function renderHandbook(section) {
       body.appendChild(ce("p", "howto-p", sec.p));
     });
   } else if (section === "rules") {
-    RULES_TOPICS.forEach((t) => {
-      const topic = ce("div", "rules-topic");
-      const head = ce("button", "rules-topic-head");
-      head.setAttribute("aria-expanded", "false");
-      head.appendChild(ce("span", "rules-topic-title", t.title));
-      head.appendChild(ce("span", "rules-topic-caret", "›"));
-      const bodyEl = ce("div", "rules-topic-body hidden");
-      t.paras.forEach((p) => bodyEl.appendChild(ce("p", "rules-p", p)));
-      head.addEventListener("click", () => {
-        const nowOpen = bodyEl.classList.toggle("hidden") === false;
-        head.classList.toggle("open", nowOpen);
-        head.setAttribute("aria-expanded", nowOpen ? "true" : "false");
-      });
-      topic.appendChild(head);
-      topic.appendChild(bodyEl);
-      body.appendChild(topic);
-    });
+    buildTopicAccordion(body, RULES_TOPICS);
   }
+}
+
+/* v104: lifted out of renderHandbook so the Expedition tab can use the SAME accordion rather
+   than a second one that looks like it. Nothing about the behaviour changed: same markup,
+   same classes, same aria-expanded handling, same one-at-a-time-is-not-enforced toggling. */
+function buildTopicAccordion(container, topics) {
+  topics.forEach((t) => {
+    const topic = ce("div", "rules-topic");
+    const head = ce("button", "rules-topic-head");
+    head.setAttribute("aria-expanded", "false");
+    head.setAttribute("aria-label", t.title);
+    head.appendChild(ce("span", "rules-topic-title", t.title));
+    head.appendChild(ce("span", "rules-topic-caret", "›"));
+    const bodyEl = ce("div", "rules-topic-body hidden");
+    t.paras.forEach((p) => bodyEl.appendChild(ce("p", "rules-p", p)));
+    head.addEventListener("click", () => {
+      const nowOpen = bodyEl.classList.toggle("hidden") === false;
+      head.classList.toggle("open", nowOpen);
+      head.setAttribute("aria-expanded", nowOpen ? "true" : "false");
+    });
+    topic.appendChild(head);
+    topic.appendChild(bodyEl);
+    container.appendChild(topic);
+  });
+}
+
+/* Built ONCE at boot, not from renderExpedition: the content is static, and rebuilding it
+   whenever a role chip is tapped would slam shut every section the player had opened. */
+function renderExpeditionGuide() {
+  const el = $("expedition-guide");
+  if (!el || el.childElementCount) return;
+  buildTopicAccordion(el, HEXPLORATION_SECTIONS);
 }
 
 // Action economy reference on the COMBAT tab (v78). One collapsed accordion, reusing the
@@ -4605,6 +4653,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Boot
   character = load();
   tlDevice = tlLoad();
+  renderExpeditionGuide();   // v104: static content, built once
 
   /* v99: the gate. Note the order. The character is loaded FIRST and is never consulted here:
      the gate only decides which screen is shown, so an unregistered player with an Explorer
