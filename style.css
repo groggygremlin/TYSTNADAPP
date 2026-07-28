@@ -1912,6 +1912,29 @@ button.hp-max:active { color: var(--blood-bright); }
 .haven-dp .field-label { margin: 0; }
 /* v102: the readout and its correction sit on one line, the correction pushed to the far end
    so it is nowhere near the award buttons and cannot be tapped for one. */
+/* v103: the roll step. Sits in seven overlays, so it reuses .step-btn rather than growing a
+   second stepper look. The die it changes is the one already printed above it. */
+.roll-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto;
+}
+
+.roll-step-label {
+  color: var(--ash);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* The shared .step-btn measures 42px, two under the 44px tap rule. Corrected HERE ONLY, for
+   the fourteen buttons v103 adds, rather than by changing .step-btn and moving the level,
+   max-HP and Defense steppers that have shipped at 42px for many versions. Those are flagged
+   for Tomas, not altered in a patch about die stepping. */
+.roll-step .step-btn { min-width: 44px; min-height: 44px; }
+
 .dp-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
 .dp-correct-btn {

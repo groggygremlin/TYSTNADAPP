@@ -470,6 +470,13 @@
   <!-- ============ DIFFICULTY OVERLAY (skills) ============ -->
   <div id="overlay-difficulty" class="overlay hidden">
     <p class="overlay-skill" id="diff-skill-name">Athletics <span id="diff-skill-die">d6</span></p>
+    <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <div class="diff-buttons">
       <button class="diff-btn" data-target="4">Easy<span>4+</span></button>
       <button class="diff-btn" data-target="5">Normal<span>5+</span></button>
@@ -508,6 +515,13 @@
         <button class="def-cover-btn class-btn" data-steps="99">Full</button>
       </div>
       <p class="ranged-line" id="def-ranged-line"></p>
+    </div>
+        <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
     </div>
     <p class="atk-section-label">Enemy Damage Bonus</p>
     <div class="bonus-grid" id="def-bonus-grid">
@@ -628,6 +642,13 @@
     </div>
     <button class="melee-toggle class-btn" id="atk-double">Double Attack</button>
     <p class="ranged-line" id="atk-double-line"></p>
+        <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <p class="atk-section-label">Momentum</p>
     <div class="momentum-grid">
       <button class="momentum-btn class-btn selected" data-momentum="0">None</button>
@@ -708,6 +729,13 @@
   <!-- ============ TRAVEL OVERLAY ============ -->
   <div id="overlay-travel" class="overlay hidden">
     <p class="overlay-skill">Travel <span id="travel-die-label">d6</span></p>
+    <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <p class="field-hint overlay-hint">Pathfinder rolls Lore. The GM sets the terrain.</p>
     <div class="diff-buttons">
       <button class="travel-diff-btn diff-btn" data-target="4">Easy<span>4+</span></button>
@@ -721,6 +749,13 @@
   <!-- ============ EXPLORE OVERLAY ============ -->
   <div id="overlay-explore" class="overlay hidden">
     <p class="overlay-skill">Explore <span id="explore-die-label">d6</span></p>
+    <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <p class="field-hint overlay-hint">Scout rolls Awareness. The GM sets the terrain.</p>
     <div class="diff-buttons">
       <button class="explore-diff-btn diff-btn" data-target="4">Easy<span>4+</span></button>
@@ -734,6 +769,13 @@
   <!-- ============ FORAGE OVERLAY ============ -->
   <div id="overlay-forage" class="overlay hidden">
     <p class="overlay-skill">Forage <span id="forage-die-label">d6</span></p>
+    <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <p class="field-hint overlay-hint">Quartermaster rolls Athletics. Rough terrain steps the die down.</p>
     <button class="class-btn" id="forage-rough-btn">Rough Terrain</button>
     <button id="forage-roll-btn" class="primary-btn slim">Forage</button>
@@ -743,6 +785,13 @@
   <!-- ============ CAMP OVERLAY ============ -->
   <div id="overlay-camp" class="overlay hidden">
     <p class="overlay-skill">Camp <span id="camp-die-label">d6</span></p>
+    <!-- v103: the roll step. Canon steps DICE (PB p.3), never adds numbers, so this moves the
+         die shown above by one step for THIS roll only. Reset every time the overlay opens. -->
+    <div class="roll-step">
+      <span class="roll-step-label">Die step</span>
+      <button class="step-btn" data-step-dir="-1" aria-label="Step this roll's die down">&minus;</button>
+      <button class="step-btn" data-step-dir="1" aria-label="Step this roll's die up">+</button>
+    </div>
     <p class="field-hint overlay-hint">Scout rolls Awareness. The GM sets the terrain.</p>
     <div class="diff-buttons">
       <button class="camp-diff-btn diff-btn" data-target="4">Easy<span>4+</span></button>

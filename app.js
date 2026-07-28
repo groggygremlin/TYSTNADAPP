@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v102";
+const VERSION = "v103";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -14,8 +14,11 @@ const SKILLS = [
 
 const DICE = ["d6", "d8", "d10", "d12", "d20"];
 
-// Extended ladder for Forage Rough die step-down; d4 is the floor (PB v2.5 Hexploration)
-const FORAGE_DICE = ["d4", "d6", "d8", "d10", "d12", "d20"];
+/* The canon step order, PB v2.5 p.3: "increase or decrease a die by one step" along d4, d6,
+   d8, d10, d12, d20. DICE above starts at d6 because no skill is ever RATED d4; stepping down
+   can still reach it, which is why this ladder exists and why the two are not the same list.
+   Used by the Forage Rough step-down and, since v103, by the general roll step. */
+const STEP_LADDER = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
 // Per class (PB v2.5 p.12): core skill (d20-capable), starting HP, Defense die, the three
 // d8 skills (all others d6), starting loadout tier, whether a shield is granted, and which
@@ -620,10 +623,105 @@ function rangedDefenseDie(base, rangeSteps, coverSteps) {
   return i > DICE.indexOf("d12") ? null : DICE[i];
 }
 
+/* ---- v103: the roll step (PB v2.5 p.3) ----
+
+   TYSTNAD has no numeric modifiers. Rules "increase or decrease a die by one step", and the
+   only other lever is a TARGET shift, which is Weary's job. So this is a die stepper, not a
+   plus-or-minus counter: it is how a player obeys a class ability, an Edge, or a GM ruling
+   that steps a die, for the one roll he is about to make.
+
+   Tomas ruled it per-roll and RESETTING on 2026-07-28. A step that outlived its roll would be
+   mechanical state nobody at the table can see, and a forgotten one would silently change
+   later rolls. Reset happens in the open* functions, which is equivalent: every roll is
+   reached by opening an overlay. The single exception is the shield reroll, which deliberately
+   reuses the die already decided for that Defense, step included.
+
+   Range and cover are NOT this. They were already implemented in v74 (rangedAttackDie and
+   rangedDefenseDie above) and keep their own canon bounds; the roll step is applied on top of
+   whatever they produce.
+
+   THE DEATH ROLL HAS NO STEP AT ALL. Canon fixes its die by HP and its target at 5, and the
+   app's standing rule is that it never alters it. */
+
+let rollStep = 0;
+
+function resetRollStep() { rollStep = 0; }
+
+/* Applies the current step to a die, bounded by the canon ladder and by an optional cap.
+   `cap` exists for Defense, which is capped at d12 globally and has no exceptions. */
+function steppedDie(base, cap) {
+  if (!base) return base;
+  const i = STEP_LADDER.indexOf(base);
+  if (i === -1) return base;
+  let j = Math.min(Math.max(i + rollStep, 0), STEP_LADDER.length - 1);
+  if (cap) j = Math.min(j, STEP_LADDER.indexOf(cap));
+  return STEP_LADDER[j];
+}
+
+/* Which roll the stepper is currently steering, with the bounds canon puts on it. Read off
+   the visible overlay rather than a mode flag, so the control cannot steer a roll the player
+   is not looking at. A null return means there is nothing to step (no overlay, or a ranged
+   shot canon already forbids). Bases here are UNSTEPPED: the step is added by the caller. */
+function activeRollStepContext() {
+  if (!character) return null;
+  const open = (id) => { const el = $(id); return el && !el.classList.contains("hidden"); };
+  if (open("overlay-difficulty") && pendingSkill) return { base: character.skills[pendingSkill] };
+  if (open("overlay-travel")) return { base: character.skills["Lore"] };
+  if (open("overlay-explore")) return { base: character.skills["Awareness"] };
+  if (open("overlay-camp")) return { base: character.skills["Awareness"] };
+  if (open("overlay-forage")) {
+    const b = character.skills["Athletics"];
+    return { base: forageRough ? forageStepDown(b) : b };
+  }
+  if (open("overlay-attack")) {
+    if (atkMode !== "ranged") return { base: character.skills["Combat"] };
+    const b = rangedAttackDie(character.skills["Combat"], atkRangeSteps, atkCoverSteps);
+    // Canon: a Combat die that falls below d6 cannot take the shot, so the step stops there.
+    return b ? { base: b, floor: "d6" } : null;
+  }
+  if (open("overlay-defense")) {
+    const b = defMode === "ranged"
+      ? rangedDefenseDie(effectiveDefense(), defRangeSteps, defCoverSteps)
+      : effectiveDefense();
+    return b ? { base: b, cap: "d12" } : null;   // the global Defense cap, no exceptions
+  }
+  return null;
+}
+
+function nudgeRollStep(dir) {
+  const ctx = activeRollStepContext();
+  if (!ctx) return;
+  const floorI = STEP_LADDER.indexOf(ctx.floor || STEP_LADDER[0]);
+  const ceilI = STEP_LADDER.indexOf(ctx.cap || STEP_LADDER[STEP_LADDER.length - 1]);
+  const next = STEP_LADDER.indexOf(ctx.base) + rollStep + dir;
+  if (next < floorI || next > ceilI) return;    // at the end of what canon allows
+  rollStep += dir;
+  refreshRollStep();
+}
+
+/* Every overlay shows the die it will actually roll, so there is never a base on screen and a
+   different number in the roll. The attack and defense lines are reused rather than duplicated:
+   they already exist to explain range and cover. */
+function refreshRollStep() {
+  if (!character) return;
+  const set = (id, base) => {
+    const el = $(id);
+    if (el && base) el.textContent = steppedDie(base);
+  };
+  if (pendingSkill) set("diff-skill-die", character.skills[pendingSkill]);
+  set("travel-die-label", character.skills["Lore"]);
+  set("explore-die-label", character.skills["Awareness"]);
+  set("camp-die-label", character.skills["Awareness"]);
+  const forageBase = character.skills["Athletics"];
+  set("forage-die-label", forageRough ? forageStepDown(forageBase) : forageBase);
+  renderAttackRanged();
+  renderDefenseRanged();
+}
+
 function forageStepDown(die) {
-  const i = FORAGE_DICE.indexOf(die);
-  if (i <= 0) return FORAGE_DICE[0]; // floor at d4
-  return FORAGE_DICE[i - 1];
+  const i = STEP_LADDER.indexOf(die);
+  if (i <= 0) return STEP_LADDER[0]; // floor at d4
+  return STEP_LADDER[i - 1];
 }
 
 function show(el) { el.classList.remove("hidden"); }
@@ -1806,6 +1904,7 @@ function pickAmmoBundle(name) {
 // ---------- Attack ----------
 
 function openAttack() {
+  resetRollStep();   // v103: each visit starts unstepped
   attackMomentum = 0;
   document.querySelectorAll(".momentum-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.momentum, 10) === 0);
@@ -1834,8 +1933,9 @@ function selectByData(selector, key, value) {
 // The Combat die you actually roll this attack, or null when canon forbids the shot.
 function attackRollDie() {
   const base = character.skills["Combat"];
-  if (atkMode !== "ranged") return base;
-  return rangedAttackDie(base, atkRangeSteps, atkCoverSteps);
+  if (atkMode !== "ranged") return steppedDie(base);
+  const die = rangedAttackDie(base, atkRangeSteps, atkCoverSteps);
+  return die ? steppedDie(die) : die;   // v103: the step rides on top of range and cover
 }
 
 // The second attack's die: one step lower than the first, or the same die with Weapon
@@ -1880,8 +1980,8 @@ function renderAttackRanged() {
   $("atk-into-melee").classList.toggle("selected", atkIntoMelee);
 
   const line = $("atk-die-line");
+  const base = character.skills["Combat"];   // v103: needed by both branches now
   if (ranged) {
-    const base = character.skills["Combat"];
     const die = attackRollDie();
     if (!die) {
       line.textContent = atkCoverSteps === RANGED_BLOCKED
@@ -1891,7 +1991,10 @@ function renderAttackRanged() {
       line.textContent = die === base ? "Combat " + base : "Combat " + base + " to " + die;
     }
   } else {
-    line.textContent = "";
+    /* v103: a stepped MELEE attack had nowhere to show itself, since this line only ever
+       explained range and cover. Reused rather than duplicated. */
+    const die = attackRollDie();
+    line.textContent = (die && die !== base) ? "Combat " + base + " to " + die : "";
   }
 
   // Out of Bundles the app warns and stays out of the way. Inventory goes stale at the
@@ -2126,6 +2229,7 @@ function finalizeExplosionChain(verdictEl) {
 // ---------- Expedition effort rolls ----------
 
 function openTravel() {
+  resetRollStep();   // v103: each visit starts unstepped
   $("travel-die-label").textContent = character.skills["Lore"];
   refreshWearyOverlay("overlay-travel");
   show($("overlay-travel"));
@@ -2134,13 +2238,14 @@ function openTravel() {
 function rollTravel(target) {
   const effective = wearyShift(target);
   hide($("overlay-travel"));
-  const die = character.skills["Lore"];
+  const die = steppedDie(character.skills["Lore"]);   // v103
   performRoll(die, effective,
     "Travel " + die + " vs " + effective + "+" + (effective !== target ? " (Weary)" : ""),
     { tickSkill: "Lore" });
 }
 
 function openExplore() {
+  resetRollStep();   // v103: each visit starts unstepped
   $("explore-die-label").textContent = character.skills["Awareness"];
   refreshWearyOverlay("overlay-explore");
   show($("overlay-explore"));
@@ -2149,7 +2254,7 @@ function openExplore() {
 function rollExplore(target) {
   const effective = wearyShift(target);
   hide($("overlay-explore"));
-  const die = character.skills["Awareness"];
+  const die = steppedDie(character.skills["Awareness"]);   // v103
   performRollExplore(die, effective, effective !== target);
 }
 
@@ -2191,6 +2296,7 @@ function performRollExplore(die, target, wearyActive) {
 }
 
 function openForage() {
+  resetRollStep();   // v103: each visit starts unstepped
   forageRough = false;
   $("forage-rough-btn").classList.remove("selected");
   $("forage-die-label").textContent = character.skills["Athletics"];
@@ -2201,6 +2307,7 @@ function rollForage() {
   hide($("overlay-forage"));
   let die = character.skills["Athletics"];
   if (forageRough) die = forageStepDown(die);
+  die = steppedDie(die);   // v103: the general step applies after Rough terrain
   performRollForage(die);
 }
 
@@ -2248,6 +2355,7 @@ function performRollForage(die) {
 }
 
 function openCamp() {
+  resetRollStep();   // v103: each visit starts unstepped
   $("camp-die-label").textContent = character.skills["Awareness"];
   refreshWearyOverlay("overlay-camp");
   show($("overlay-camp"));
@@ -2256,7 +2364,7 @@ function openCamp() {
 function rollCamp(target) {
   const effective = wearyShift(target);
   hide($("overlay-camp"));
-  const die = character.skills["Awareness"];
+  const die = steppedDie(character.skills["Awareness"]);   // v103
   performRollCamp(die, effective, effective !== target);
 }
 
@@ -2680,6 +2788,7 @@ function castSpell() {
 // ---------- Rolling ----------
 
 function openDifficulty(skill) {
+  resetRollStep();   // v103: each visit starts unstepped
   pendingSkill = skill;
   pendingSave = null;
   $("diff-skill-name").firstChild.textContent = skill + " ";
@@ -2774,6 +2883,7 @@ function renderDefenseNote() {
 }
 
 function openDefense() {
+  resetRollStep();   // v103: each visit starts unstepped
   defenseBonus = 0;
   document.querySelectorAll(".bonus-btn").forEach((b) => {
     b.classList.toggle("selected", parseInt(b.dataset.bonus, 10) === 0);
@@ -2794,8 +2904,9 @@ function openDefense() {
 // The Defense die you actually roll, or null when the shot cannot reach you at all.
 function defenseRollDie() {
   const base = effectiveDefense();
-  if (defMode !== "ranged") return base;
-  return rangedDefenseDie(base, defRangeSteps, defCoverSteps);
+  if (defMode !== "ranged") return steppedDie(base, "d12");
+  const die = rangedDefenseDie(base, defRangeSteps, defCoverSteps);
+  return die ? steppedDie(die, "d12") : die;   // v103: still capped at d12, no exceptions
 }
 
 function renderDefenseRanged() {
@@ -2804,8 +2915,8 @@ function renderDefenseRanged() {
   ranged ? show(block) : hide(block);
 
   const line = $("def-ranged-line");
+  const base = effectiveDefense();   // v103: needed by both branches now
   if (ranged) {
-    const base = effectiveDefense();
     const die = defenseRollDie();
     if (!die) {
       line.textContent = defCoverSteps === RANGED_BLOCKED
@@ -2815,7 +2926,8 @@ function renderDefenseRanged() {
       line.textContent = die === base ? "Defense " + base : "Defense " + base + " to " + die;
     }
   } else {
-    line.textContent = "";
+    const die = defenseRollDie();   // v103: same for a stepped melee Defense
+    line.textContent = (die && die !== base) ? "Defense " + base + " to " + die : "";
   }
 
   const noRoll = ranged && !defenseRollDie();
@@ -2921,7 +3033,7 @@ function performRoll(die, target, context, opts) {
 
 function rollSkill(target) {
   const skill = pendingSkill;
-  const die = character.skills[skill];
+  const die = steppedDie(character.skills[skill]);   // v103
   const effective = wearyShift(target);
   const weary = effective !== target ? " (Weary)" : "";
   const label = pendingSave ? pendingSave + " Save · " + skill : skill;
@@ -4462,6 +4574,14 @@ document.addEventListener("DOMContentLoaded", () => {
   $("level-plus").addEventListener("click", () => adjustLevel(1));
   $("btn-roll-edge").addEventListener("click", rollEdge);
   $("edge-reveal-done").addEventListener("click", () => hide($("overlay-edge")));
+  /* v103: one delegated listener for all seven steppers. Which roll it steers is read off the
+     visible overlay, so a stray tap cannot step a roll the player is not looking at. */
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".roll-step .step-btn");
+    if (!btn) return;
+    nudgeRollStep(parseInt(btn.dataset.stepDir, 10));
+  });
+
   $("dp-minus").addEventListener("click", correctDP);
   $("btn-level-up").addEventListener("click", levelUp);
   $("levelup-done").addEventListener("click", () => hide($("overlay-levelup")));

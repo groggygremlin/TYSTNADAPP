@@ -275,7 +275,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v102", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v103", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -1000,13 +1000,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v102"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v103"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v102"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v103"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1037,13 +1037,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v102"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v103"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v102"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v103"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1195,13 +1195,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v102"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v103"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v102"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v103"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1323,8 +1323,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "224. sw.js cache tystnad-v102");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "224. sw.js cache tystnad-v103");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1526,8 +1526,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1584,8 +1584,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1610,8 +1610,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1640,8 +1640,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1749,8 +1749,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1793,8 +1793,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1845,8 +1845,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1952,8 +1952,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2045,8 +2045,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2230,8 +2230,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2351,8 +2351,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "478. sw.js cache tystnad-v102");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "478. sw.js cache tystnad-v103");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2410,8 +2410,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v102"'), "493. sw.js cache tystnad-v102");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v103"'), "493. sw.js cache tystnad-v103");
 }
 
 // ============================================================
@@ -3134,8 +3134,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v102"'),          "529. sw.js cache tystnad-v102");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v103"'),          "529. sw.js cache tystnad-v103");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3220,8 +3220,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v102"'), "543b. sw.js cache tystnad-v102");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v103"'), "543b. sw.js cache tystnad-v103");
 }
 
 // ============================================================
@@ -3353,8 +3353,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v102"), "563. sw.js cache tystnad-v102");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v102"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v103"), "563. sw.js cache tystnad-v103");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v103"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -5047,6 +5047,162 @@ function fireEvent(handler) {
   return held;
 }
 
+/* ---- v103: die stepping (PB v2.5 p.3) ----
+
+   TYSTNAD has no numeric modifiers. Rules "increase or decrease a die by one step" along
+   d4, d6, d8, d10, d12, d20, and the only other lever is a TARGET shift, which is Weary's.
+   Tomas ruled the stepper per-roll and resetting, on skill rolls, Attack, Defense and the
+   expedition efforts, with the Death Roll excluded outright. */
+{
+  const APP103 = fs.readFileSync("app.js", "utf8");
+  const step = (d, n) => { for (let i = 0; i < Math.abs(n); i++) d = d; return d; };
+  void step;
+
+  // The ladder is canon's, and it is NOT the skill-rating ladder.
+  assert(/const STEP_LADDER = \["d4", "d6", "d8", "d10", "d12", "d20"\]/.test(APP103),
+    "1412. The step ladder is canon's d4 to d20");
+  assert(/const DICE = \["d6", "d8", "d10", "d12", "d20"\]/.test(APP103),
+    "1413. And it is a different list from DICE, because no skill is ever RATED d4");
+  assert(!/rollModifier|rollBonus|\+\s*modifier/i.test(APP103),
+    "1414. Nothing numeric was introduced: the game has no +/- modifiers");
+
+  // A stepper in every overlay that rolls, and none in the one that must not.
+  {
+    const { d } = makeDOM(WARRIOR);
+    assert(d.querySelectorAll(".roll-step").length === 7,
+      "1415. Seven steppers: skill, attack, defense, travel, explore, forage, camp");
+    assert(d.querySelectorAll("#overlay-death .roll-step").length === 0,
+      "1416. THE DEATH ROLL HAS NONE. Canon fixes its die by HP and its target at 5");
+    [...d.querySelectorAll(".roll-step .step-btn")].forEach((b, i) => {
+      if (i === 0) assert(b.hasAttribute("aria-label"), "1417. The step buttons are labelled");
+    });
+  }
+
+  // A skill roll steps, and the die that reaches performRoll is the stepped one.
+  {
+    const { d, w } = makeDOM(WARRIOR);           // Combat d10, Athletics d8
+    click(d.getElementById("btn-continue"));
+    const logged = () => (JSON.parse(w.localStorage.getItem("tystnad-character")) && 0, w.__ctx);
+    void logged;
+    w.eval('openDifficulty("Athletics")');
+    assert(d.getElementById("diff-skill-die").textContent === "d8", "1418. The overlay opens unstepped");
+    const down = d.querySelector("#overlay-difficulty .roll-step .step-btn[data-step-dir='-1']");
+    const up = d.querySelector("#overlay-difficulty .roll-step .step-btn[data-step-dir='1']");
+    click(down);
+    assert(d.getElementById("diff-skill-die").textContent === "d6",
+      "1419. Stepping down shows the die that will actually be rolled");
+    click(up); click(up);
+    assert(d.getElementById("diff-skill-die").textContent === "d10", "1420. And up again, one step at a time");
+    // The roll itself must use it, not the base.
+    w.eval("Math.random = () => 0.999;");
+    click(d.querySelector("#overlay-difficulty .diff-btn[data-target='5']"));
+    assert(/Athletics d10 vs 5\+/.test(d.getElementById("result-context").textContent),
+      "1421. The stepped die is the one rolled and the one named in the context line");
+  }
+
+  // Reset: a new visit never inherits the last visit's step.
+  {
+    const { d, w } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    w.eval('openDifficulty("Athletics")');
+    click(d.querySelector("#overlay-difficulty .roll-step .step-btn[data-step-dir='1']"));
+    assert(d.getElementById("diff-skill-die").textContent === "d10", "1422. Stepped up this visit");
+    w.eval('openDifficulty("Athletics")');
+    assert(d.getElementById("diff-skill-die").textContent === "d8",
+      "1423. THE STEP DOES NOT SURVIVE THE OVERLAY: the display is back to the base die");
+    /* And the ROLL agrees with the display. This half matters more than it looks: openDifficulty
+       writes the base die into the label directly, so a leaked step would leave the label saying
+       d8 while the roll used d10, and an assertion on the label alone would pass through it. */
+    w.eval("Math.random = () => 0.999;");
+    click(d.querySelector("#overlay-difficulty .diff-btn[data-target='5']"));
+    assert(/Athletics d8 vs 5\+/.test(d.getElementById("result-context").textContent),
+      "1423a. And the ROLL uses the base too, not a step left over from last time");
+  }
+
+  // The ladder ends hold. d20 is the top, d4 the bottom, and taps past them do nothing.
+  {
+    const { d, w } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    w.eval('openDifficulty("Athletics")');       // d8
+    const up = d.querySelector("#overlay-difficulty .roll-step .step-btn[data-step-dir='1']");
+    const down = d.querySelector("#overlay-difficulty .roll-step .step-btn[data-step-dir='-1']");
+    for (let i = 0; i < 6; i++) click(up);
+    assert(d.getElementById("diff-skill-die").textContent === "d20", "1424. The top of the ladder is d20");
+    for (let i = 0; i < 12; i++) click(down);
+    assert(d.getElementById("diff-skill-die").textContent === "d4", "1425. The bottom is d4, which DICE does not contain");
+    click(up);
+    assert(d.getElementById("diff-skill-die").textContent === "d6",
+      "1426. And the count did not run past the end while the display stood still");
+  }
+
+  // Defense is capped at d12 globally, and the step is no exception to that.
+  {
+    const { d, w } = makeDOM(Object.assign({}, WARRIOR, { defense: "d10", loadout: { armor: "medium", weapon: "standard" } }));
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="combat"]'));
+    w.eval("openDefense()");
+    assert(w.eval("defenseRollDie()") === "d12", "1427. Medium armour steps d10 to d12");
+    const up = d.querySelector("#overlay-defense .roll-step .step-btn[data-step-dir='1']");
+    click(up); click(up);
+    assert(w.eval("defenseRollDie()") === "d12",
+      "1428. THE d12 DEFENSE CAP HOLDS AGAINST THE STEPPER. No exceptions, global rule");
+  }
+
+  // Attack: the step rides on top of range and cover, and cannot cross canon's d6 shot floor.
+  {
+    const { d, w } = makeDOM(WARRIOR);          // Combat d8
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="combat"]'));
+    w.eval("openAttack()");
+    assert(w.eval("attackRollDie()") === "d8", "1429. Melee opens on the Combat die");
+    click(d.querySelector("#overlay-attack .roll-step .step-btn[data-step-dir='-1']"));
+    assert(w.eval("attackRollDie()") === "d6", "1430. A stepped melee attack rolls the stepped die");
+    assert(/Combat d8 to d6/.test(d.getElementById("atk-die-line").textContent),
+      "1431. And says so, on the line that used to speak only about range and cover");
+    // Ranged: medium range already steps d8 down to d6; the stepper must not take it below.
+    w.eval("openAttack()");
+    click(d.querySelector('#atk-mode-grid .mode-btn[data-mode="ranged"]'));
+    click(d.querySelector('#atk-range-grid .range-btn[data-steps="1"]'));
+    assert(w.eval("attackRollDie()") === "d6", "1432. Medium range steps the shot down to d6");
+    click(d.querySelector("#overlay-attack .roll-step .step-btn[data-step-dir='-1']"));
+    assert(w.eval("attackRollDie()") === "d6",
+      "1433. And the stepper stops there, because below d6 canon forbids the shot outright");
+  }
+
+  // The efforts step too, Forage stacking the general step on top of Rough terrain.
+  {
+    const { d, w } = makeDOM(WARRIOR);          // Athletics d8
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="expedition"]'));
+    click(d.getElementById("btn-forage"));
+    assert(d.getElementById("forage-die-label").textContent === "d8", "1434. Forage opens on Athletics");
+    click(d.getElementById("forage-rough-btn"));
+    assert(d.getElementById("forage-die-label").textContent === "d6", "1435. Rough terrain steps it down");
+    click(d.querySelector("#overlay-forage .roll-step .step-btn[data-step-dir='-1']"));
+    assert(d.getElementById("forage-die-label").textContent === "d4",
+      "1436. And the general step stacks on top of Rough, down to the ladder floor");
+    void w;
+  }
+
+  // Travel, Explore and Camp all carry it.
+  {
+    const { d, w } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    click(d.querySelector('.tab-btn[data-tab="expedition"]'));
+    [["btn-travel", "travel-die-label", "overlay-travel"],
+     ["btn-explore", "explore-die-label", "overlay-explore"],
+     ["btn-camp", "camp-die-label", "overlay-camp"]].forEach(([btn, label, ov], i) => {
+      click(d.getElementById(btn));
+      const before = d.getElementById(label).textContent;
+      click(d.querySelector("#" + ov + " .roll-step .step-btn[data-step-dir='1']"));
+      assert(d.getElementById(label).textContent !== before,
+        "1437" + "abc"[i] + ". " + ov.replace("overlay-", "") + " steps its die");
+      // `$` is a top-level const and is unreachable through w.eval; close it the DOM way.
+      d.getElementById(ov).classList.add("hidden");
+    });
+  }
+}
+
 /* ---- v102: Supply belongs to the Quartermaster, and DP can be corrected ---- */
 {
   const qm = (extra) => Object.assign({}, WARRIOR, { roles: ["Quartermaster"] }, extra || {});
@@ -5255,7 +5411,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v102";
+  const CURRENT = "tystnad-v103";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {
