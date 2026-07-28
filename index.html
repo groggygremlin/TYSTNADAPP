@@ -252,7 +252,13 @@
         </div>
         <div class="haven-dp" id="haven-dp">
           <p class="field-label">Discovery Points</p>
-          <p class="dp-readout"><span id="dp-current">0</span><span id="dp-target"> / 20 DP</span></p>
+          <!-- v102: DP can go down. Canon has no DP loss rule, so this is not a mechanic, it
+               is the recorder being able to correct its own entry. Kept apart from the award
+               buttons below so a correction can never read as an award. -->
+          <div class="dp-strip">
+            <p class="dp-readout"><span id="dp-current">0</span><span id="dp-target"> / 20 DP</span></p>
+            <button id="dp-minus" class="dp-correct-btn" type="button" aria-label="Correct Discovery Points down by one">&minus;1</button>
+          </div>
           <div class="dp-bar"><div class="dp-bar-fill" id="dp-bar-fill"></div></div>
           <p class="dp-note" id="dp-note">Toward Haven Level 2. The GM awards DP when the party reports back.</p>
           <div id="dp-awards" class="dp-awards"></div>
@@ -307,7 +313,9 @@
 
     <!-- GEAR TAB -->
     <div id="tab-gear" class="tab-panel hidden">
-      <div class="supply-card">
+      <!-- v102: the Quartermaster's card. Hidden for anyone else, because the party's Supply
+           is his to carry and to track (PB p.19). TOMAS: wording yours to overwrite. -->
+      <div class="supply-card hidden" id="supply-card">
         <div class="supply-strip">
           <span class="field-label">Supply</span>
           <div class="hp-controls">
@@ -316,8 +324,9 @@
             <button id="supply-plus" class="hp-btn" aria-label="Add supply">+</button>
           </div>
         </div>
-        <p class="supply-hint">1 LP each if carried.</p>
+        <p class="supply-hint">You are the Quartermaster, so the party's Supply is yours to carry. Each one is 1 Load Point and counts toward your load.</p>
       </div>
+      <p class="supply-hint" id="supply-absent">Your Quartermaster carries the party's Supply. Take that role on the Expedition tab to track it here.</p>
       <div class="inv-section">
         <div class="inv-head">
           <span class="field-label">Inventory</span>

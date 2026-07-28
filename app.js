@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v101";
+const VERSION = "v102";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1300,9 +1300,22 @@ function coinLP() {
   return character.coins > 0 ? Math.ceil(character.coins / 100) : 0;
 }
 
+/* v102: Supply is the PARTY's, and canon gives it to the Quartermaster to track (PB p.19).
+   Tomas ruled it visible and weighed only for the Explorer holding that role. Anyone else is
+   not carrying the party's stores, so it is neither shown to him nor counted against him. The
+   number is kept in storage either way, so putting the role back restores the count. */
+function isQuartermaster() {
+  return !!character && !!character.roles && character.roles.indexOf("Quartermaster") !== -1;
+}
+
 function totalLP() {
   let sum = coinLP();
   character.items.forEach((it) => { sum += it.lp; });
+  /* Supply at 1 LP each (PB p.14). Before v102 this was omitted entirely while the Gear tab
+     said "1 LP each if carried", so the app stated a rule it gave no way to obey and no way
+     to see. One Supply feeds the WHOLE party for one day, so a ten-day expedition is 10 LP
+     against a 30 LP cap: felt, and not crushing. */
+  if (isQuartermaster()) sum += character.supply || 0;
   return sum;
 }
 
@@ -1314,6 +1327,10 @@ function lpState(total) {
 
 function renderInventory() {
   $("supply-count").textContent = character.supply;
+  // v102: the card and its stand-in swap on the role, never both, never neither.
+  const qm = isQuartermaster();
+  (qm ? show : hide)($("supply-card"));
+  (qm ? hide : show)($("supply-absent"));
   const list = $("inv-list");
   list.innerHTML = "";
   character.items.forEach((it, i) => {
@@ -2197,7 +2214,11 @@ function performRollForage(die) {
   if (result >= 4) tickSkill("Athletics");
 
   const gained = result >= 6 ? 2 : result >= 4 ? 1 : 0;
-  if (gained > 0) { character.supply += gained; save(); renderInventory(); }
+  /* v102: the roll and its result belong to whoever taps it, because the app is a die and
+     Forage is a legitimate thing to roll. The COUNTER is the Quartermaster's, so only his
+     copy moves; anyone else reads his result aloud and the Quartermaster records it. Writing
+     into a counter the player cannot see would be the app keeping a secret from him. */
+  if (gained > 0 && isQuartermaster()) { character.supply += gained; save(); renderInventory(); }
 
   logRoll("Forage " + die + (forageRough ? " (Rough)" : ""), result,
     gained > 0 ? "+" + gained + " SUPPLY" : "NOTHING");
@@ -2399,6 +2420,7 @@ function renderHavenDP() {
     note.textContent = "Haven has fully emerged. The Explorer Initiative's mandate is fulfilled.";
     awards.innerHTML = "";
     hide(awards);
+    hide($("dp-minus"));   // v102: nothing left to record, so nothing to correct
     return;
   }
   target.textContent = " / " + threshold + " DP";
@@ -2418,10 +2440,27 @@ function renderHavenDP() {
     awards.appendChild(b);
   });
   show(awards);
+  /* v102: shown always so the control does not appear and vanish under the thumb, but inert
+     at zero, since there is nothing below zero to correct to. */
+  const minus = $("dp-minus");
+  show(minus);
+  minus.disabled = dp <= 0;
 }
 
 function awardDP(n) {
   character.dp = (character.dp || 0) + n;
+  save();
+  renderHavenDP();
+}
+
+/* v102, Tomas ruled it in on 2026-07-28. Canon (PB p.9) has no DP loss rule: DP are awarded
+   when the party reports back, and that is the whole mechanic. So this is not the app adding
+   a rule, it is the app letting a miskeyed entry be taken back. One at a time and floored at
+   zero, deliberately: a correction is a small careful act, not a second award button. */
+function correctDP() {
+  const dp = character.dp || 0;
+  if (dp <= 0) return;
+  character.dp = dp - 1;
   save();
   renderHavenDP();
 }
@@ -4262,6 +4301,10 @@ document.addEventListener("DOMContentLoaded", () => {
         character.roles.splice(idx, 1);
       }
       renderExpedition();
+      /* v102: taking or dropping Quartermaster changes both what the Gear tab SHOWS and what
+         the load BADGE says, so the inventory has to be repainted from here. Without this the
+         burden state stays on the old figure until something else happens to redraw it. */
+      renderInventory();
       save();
     });
   });
@@ -4419,6 +4462,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("level-plus").addEventListener("click", () => adjustLevel(1));
   $("btn-roll-edge").addEventListener("click", rollEdge);
   $("edge-reveal-done").addEventListener("click", () => hide($("overlay-edge")));
+  $("dp-minus").addEventListener("click", correctDP);
   $("btn-level-up").addEventListener("click", levelUp);
   $("levelup-done").addEventListener("click", () => hide($("overlay-levelup")));
   $("spell-list-sorcery").addEventListener("click", (e) => {

@@ -1910,6 +1910,26 @@ button.hp-max:active { color: var(--blood-bright); }
 /* Discovery Points / Haven Level tracker */
 .haven-dp { display: flex; flex-direction: column; gap: 8px; }
 .haven-dp .field-label { margin: 0; }
+/* v102: the readout and its correction sit on one line, the correction pushed to the far end
+   so it is nowhere near the award buttons and cannot be tapped for one. */
+.dp-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.dp-correct-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ash);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+}
+
+.dp-correct-btn:disabled { color: var(--panel-hi); cursor: default; }
+
 .dp-readout { margin: 0; color: var(--bone); font-size: 1.4rem; line-height: 1; }
 .dp-readout #dp-target { color: var(--ash); font-size: 0.9rem; }
 .dp-bar {
