@@ -275,7 +275,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v104", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v105", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -1000,13 +1000,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v104"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v105"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v104"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v105"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1037,13 +1037,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v104"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v105"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v104"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v105"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1195,13 +1195,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v104"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v105"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v104"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v105"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1323,8 +1323,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "224. sw.js cache tystnad-v104");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "224. sw.js cache tystnad-v105");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1526,8 +1526,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1584,8 +1584,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1610,8 +1610,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1640,8 +1640,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1749,8 +1749,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1793,8 +1793,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1845,8 +1845,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1952,8 +1952,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2045,8 +2045,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2230,8 +2230,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2351,8 +2351,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "478. sw.js cache tystnad-v104");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "478. sw.js cache tystnad-v105");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2410,8 +2410,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v104"'), "493. sw.js cache tystnad-v104");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v105"'), "493. sw.js cache tystnad-v105");
 }
 
 // ============================================================
@@ -3140,8 +3140,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v104"'),          "529. sw.js cache tystnad-v104");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v105"'),          "529. sw.js cache tystnad-v105");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3226,8 +3226,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v104"'), "543b. sw.js cache tystnad-v104");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v105"'), "543b. sw.js cache tystnad-v105");
 }
 
 // ============================================================
@@ -3312,7 +3312,10 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   const m = CSS.match(/\.hp-controls\s*\{([^}]*)\}/);
   assert(m && !m[1].includes("flex: 1"), "550a. .hp-controls has no flex:1 (v49 tight cluster)");
   assert(m && !m[1].includes("space-between"), "550b. .hp-controls has no justify-content:space-between");
-  assert(m && m[1].includes("gap: 12px"), "550c. .hp-controls gap is 12px");
+  /* v105: was 12px. The gap gave up 6px so the 44px buttons would not have to, once the strip
+     was measured overflowing the 375px reference. What v49 was protecting is the TIGHT CLUSTER
+     (no flex:1, no space-between), asserted above; the exact figure was never the point. */
+  assert(m && m[1].includes("gap: 6px"), "550c. .hp-controls stays a tight cluster, now at 6px");
 }
 
 // ---- v49-B. .hp-compact-strip has justify-content: space-between ----
@@ -3359,8 +3362,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v104"), "563. sw.js cache tystnad-v104");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v104"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v105"), "563. sw.js cache tystnad-v105");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v105"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -5053,6 +5056,68 @@ function fireEvent(handler) {
   return held;
 }
 
+/* ---- v105: the three sizing flags, ruled fixed as one version ----
+
+   All three had been flagged and left across v101 to v104: ghost buttons at 36px, the shared
+   stepper at 42px, and an HP strip that overflowed the 375px reference. jsdom cannot measure
+   geometry, so these read the RULES rather than the pixels; the pixels were measured in the
+   browser at 375px, which is where the overflow was found in the first place. */
+{
+  const CSS105 = fs.readFileSync("style.css", "utf8");
+  /* Anchored to the start of a line, because an unanchored ".step-btn {" also matches inside
+     ".stepper-large .step-btn {" and quietly reads the wrong rule's body. That is exactly how
+     1457 first failed against correct CSS. */
+  const rule = (sel) => {
+    const m = CSS105.match(new RegExp("(?:^|\\n)" + sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\{([^}]*)\\}"));
+    return m ? m[1] : "";
+  };
+
+  // 1. Ghost buttons. The class is worn by 32 controls across every screen.
+  {
+    const g = rule(".ghost-btn");
+    assert(/min-height:\s*44px/.test(g), "1454. .ghost-btn declares the 44px floor");
+    assert(/padding:\s*14px 16px/.test(g),
+      "1455. And its padding carries the height, so an anchor wearing the class is not reflowed");
+    assert(!/display:\s*(inline-)?flex/.test(g),
+      "1456. The display is left alone, because the Table Link link-outs are anchors, not buttons");
+  }
+
+  // 2. The shared stepper, and v103's scoped patch retired as redundant.
+  {
+    const s = rule(".step-btn");
+    assert(/width:\s*44px/.test(s) && /height:\s*44px/.test(s),
+      "1457. .step-btn is 44px, so the level, max-HP and Defense steppers meet the rule too");
+    assert(!/\.roll-step \.step-btn/.test(CSS105),
+      "1458. And v103's scoped override is gone rather than left to rot as a duplicate");
+  }
+
+  /* 3. The HP strip. The buttons are load-bearing and must NOT be what gives way, so the
+     assertion is that they kept 44px while the padding and gaps paid for the fit. */
+  {
+    const strip = rule(".hp-compact-strip");
+    const hpBtn = rule(".hp-btn");
+    assert(/width:\s*44px/.test(hpBtn), "1459. THE HP BUTTONS DID NOT SHRINK. They are the most-used control in play");
+    assert(/padding:\s*8px;/.test(strip), "1460. The strip's padding gave up the space instead");
+    assert(/gap:\s*8px 6px/.test(strip), "1461. As did its gaps");
+    assert(/flex-wrap:\s*wrap/.test(strip),
+      "1462. And wrap is the safety valve: below the reference width it becomes two rows, never a control out of reach");
+    assert(/gap:\s*6px/.test(rule(".hp-left")) && /gap:\s*6px/.test(rule(".hp-controls")),
+      "1463. Both inner clusters tightened by the same amount");
+  }
+
+  /* The arithmetic that decides whether it fits, kept here so a future change to any one of
+     these numbers has to face it. Hard content is six controls plus the readout; five gaps and
+     two paddings must fit what is left of 375px after the screen's own 18px margins. */
+  {
+    const HARD = 42 + 44 + 44 + 44 + 72 + 44;   // HP label, 2 left buttons, -, readout, +
+    const gaps = 6 * 5;
+    const pad = 8 * 2;
+    const available = 375 - (18 * 2);
+    assert(HARD + gaps + pad <= available,
+      "1464. THE STRIP FITS 375px BY ARITHMETIC: " + (HARD + gaps + pad) + " into " + available);
+  }
+}
+
 /* ---- v104: Hexploration on the Expedition tab, from ONE source ---- */
 {
   const APP104 = fs.readFileSync("app.js", "utf8");
@@ -5493,7 +5558,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v104";
+  const CURRENT = "tystnad-v105";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {

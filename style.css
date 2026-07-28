@@ -371,14 +371,17 @@ input::placeholder { color: var(--ash); opacity: 1; }
 
 .stepper-large .step-value { min-width: 80px; font-size: 2rem; }
 
+/* v105: was 42px, two under the rule, on the level, max-HP and Defense steppers. v103 had
+   corrected only its own new .roll-step copies; this settles the shared class and that
+   scoped override is gone as redundant. */
 .step-btn {
   background: transparent;
   border: 1px solid var(--ash);
   border-radius: 6px;
   color: var(--bone);
   font-size: 1.15rem;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   line-height: 1;
 }
@@ -414,6 +417,10 @@ input::placeholder { color: var(--ash); opacity: 1; }
 
 .primary-btn:disabled { background: var(--panel-hi); color: var(--ash); }
 
+/* v105: 36px against a 44px rule, on every screen in the app, since long before v101 made it
+   visible by adding a sixth control to the intro. The vertical padding carries it rather than
+   a display change, because .ghost-btn is worn by anchors as well as buttons (the Table Link
+   link-outs) and switching those to a flex box would move their widths. */
 .ghost-btn {
   background: transparent;
   border: 1px solid var(--line);
@@ -423,7 +430,8 @@ input::placeholder { color: var(--ash); opacity: 1; }
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 10px 16px;
+  padding: 14px 16px;
+  min-height: 44px;
   cursor: pointer;
 }
 
@@ -546,7 +554,7 @@ input::placeholder { color: var(--ash); opacity: 1; }
   color: var(--blood-bright);
 }
 
-.hp-controls { display: flex; align-items: center; gap: 12px; }
+.hp-controls { display: flex; align-items: center; gap: 6px; }   /* v105, see .hp-compact-strip */
 
 .hp-btn {
   background: var(--panel-hi);
@@ -1146,12 +1154,18 @@ button.hp-max:active { color: var(--blood-bright); }
   background: var(--panel);
   border: 1px solid var(--line);
   clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
-  padding: 8px 14px;
+  /* v105: the strip asked for 350px of content inside 311px at 375px, so the HP + button hung
+     about 8px off the right edge of the screen and the whole document scrolled sideways. The
+     buttons are load-bearing and stay at 44px; the padding and the gaps give up the space
+     instead. wrap is the safety valve: at 375px it never engages, and on anything narrower the
+     strip becomes two rows rather than putting a control out of reach. */
+  padding: 8px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px 6px;
 }
 
 .hp-label-large {
@@ -1167,7 +1181,7 @@ button.hp-max:active { color: var(--blood-bright); }
   font-size: 2.6rem;
 }
 
-.hp-left { display: flex; align-items: center; gap: 12px; }
+.hp-left { display: flex; align-items: center; gap: 6px; }   /* v105, see .hp-compact-strip */
 
 .hp-recover-btn {
   min-width: 44px;
@@ -1929,11 +1943,6 @@ button.hp-max:active { color: var(--blood-bright); }
   text-transform: uppercase;
 }
 
-/* The shared .step-btn measures 42px, two under the 44px tap rule. Corrected HERE ONLY, for
-   the fourteen buttons v103 adds, rather than by changing .step-btn and moving the level,
-   max-HP and Defense steppers that have shipped at 42px for many versions. Those are flagged
-   for Tomas, not altered in a patch about die stepping. */
-.roll-step .step-btn { min-width: 44px; min-height: 44px; }
 
 .dp-strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
