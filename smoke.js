@@ -279,7 +279,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v111", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v112", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -1004,13 +1004,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v111"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v112"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v111"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v112"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1041,13 +1041,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v111"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v112"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v111"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v112"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1199,13 +1199,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v111"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v112"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v111"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v112"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1327,8 +1327,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "224. sw.js cache tystnad-v111");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "224. sw.js cache tystnad-v112");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1530,8 +1530,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1588,8 +1588,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1614,8 +1614,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1644,8 +1644,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1753,8 +1753,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1797,8 +1797,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1849,8 +1849,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1956,8 +1956,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2049,8 +2049,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2237,8 +2237,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2358,8 +2358,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "478. sw.js cache tystnad-v111");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "478. sw.js cache tystnad-v112");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2417,8 +2417,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v111"'), "493. sw.js cache tystnad-v111");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v112"'), "493. sw.js cache tystnad-v112");
 }
 
 // ============================================================
@@ -3147,8 +3147,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v111"'),          "529. sw.js cache tystnad-v111");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v112"'),          "529. sw.js cache tystnad-v112");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3233,8 +3233,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v111"'), "543b. sw.js cache tystnad-v111");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v112"'), "543b. sw.js cache tystnad-v112");
 }
 
 // ============================================================
@@ -3369,8 +3369,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v111"), "563. sw.js cache tystnad-v111");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v111"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v112"), "563. sw.js cache tystnad-v112");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v112"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -4700,8 +4700,14 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   // Read before the decision, not after it.
   const lobby = d.getElementById("tl-state-lobby");
   const kids = Array.from(lobby.children);
+  /* v112: the notice merged INTO the instruction, because the two said the same thing twice.
+     It keeps its id, so the tripwire below still guards it. It is now at the very top rather
+     than immediately above the button; the "consent at the moment of decision" argument that
+     put it there expired when the page shrank to one viewport and both became visible at once. */
   assert(kids.indexOf(notice) < kids.indexOf(d.getElementById("tl-join-btn")),
-    "1165. It appears above the join button");
+    "1165. It still appears above the connect button");
+  assert(/Ask your GM for the join code/.test(text),
+    "1165a. And carries the instruction with it, rather than repeating what it already said");
 
   /* THE TRIPWIRE. The notice must describe what tlBuildSnapshot actually sends. Adding a
      field to the snapshot without updating this text would quietly broaden what a player
@@ -5658,7 +5664,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v111";
+  const CURRENT = "tystnad-v112";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {
@@ -5859,14 +5865,16 @@ const unlinkBehaviour = (async () => {
     assert(visible(d.getElementById("screen-gate")), "1111. And returns to the gate (v99)");
   }
 
-  // Re-entering the screen must not show a stale failure from last time.
+  /* Re-entering must not show a stale failure from last time. v112: the sign-out block moved
+     to the INTRO, so renderIntro is what clears it now, not openTableLink. The guarantee is
+     unchanged; only the screen that owns it moved. */
   {
     const { d, w } = linkedDOM(offline);
     await w.eval("tlDoUnlink()");
     assert(visible(d.getElementById("tl-forget-btn")), "1112. Hatch visible after the failure");
-    w.eval("openTableLink();");
-    assert(hidden(d.getElementById("tl-unlink-error")), "1113. Re-entering clears the stale error");
-    assert(hidden(d.getElementById("tl-forget-btn")), "1114. Re-entering hides the stale hatch");
+    w.eval("renderIntro();");
+    assert(hidden(d.getElementById("tl-unlink-error")), "1113. Returning to the front door clears the stale error");
+    assert(hidden(d.getElementById("tl-forget-btn")), "1114. And hides the stale hatch");
   }
 })();
 
@@ -5886,6 +5894,65 @@ const unlinkBehaviour = (async () => {
     "1225. No copy claims Table Link lets the player host anything");
   assert(!/Table Link[^.]{0,80}\bhost/i.test(SRC) && !/Table Link[^.]{0,80}\bhost/i.test(DOC),
     "1226. Table Link is never described in the same breath as hosting");
+
+/* ---- v112: the account moves to the front door ---- */
+{
+  const APP = fs.readFileSync("app.js", "utf8");
+  /* Read through the RENDER, not through `tlDevice`: top-level `let` bindings are unreachable
+     via w.eval, and what the player actually sees is the honest witness anyway. */
+  const shown = (blob) =>
+    makeDOM(WARRIOR, { "tystnad-tablelink": JSON.stringify(blob) })
+      .d.getElementById("intro-account-email").textContent;
+
+  assert(shown({ token: "T", ownsTableLink: true, email: "player@example.com" }) === "player@example.com",
+    "1497. The signed-in address is stored, loaded and shown");
+  assert(shown({ token: "T", ownsTableLink: true, email: "x".repeat(9000) }) !== "x".repeat(9000),
+    "1498. An absurd address is refused rather than rendered");
+  assert(shown({ token: "T", ownsTableLink: true, email: { not: "a string" } }).length > 0,
+    "1499. A hand-edited one of the wrong type degrades to a phrase, never to a bad render");
+
+  assert(/function gateAcceptToken\(r, email\)/.test(APP),
+    "1500. ONE choke point, so no path can mint a token without recording an owner");
+  /* Lookbehind, because "gateAcceptToken(r, email)" also matches the FUNCTION DEFINITION.
+     Without it this passed while the sign-in path had stopped passing the address at all,
+     which is the false-pass half of the substring trap and the dangerous half. */
+  assert(/(?<!function )gateAcceptToken\(r, email\)/.test(APP),
+    "1501. The SIGN-IN CALL records the address it signed in with");
+  assert(/gateAcceptToken\(r, gatePendingEmail\)/.test(APP),
+    "1502. And the emailed-code path does too, covering registration and reset");
+
+  {
+    const { d } = makeDOM(WARRIOR, { "tystnad-tablelink": JSON.stringify({
+      token: "T", ownsTableLink: true, email: "tomas@example.com" }) });
+    assert(visible(d.getElementById("intro-account")), "1503. The account block is on the front door");
+    assert(d.getElementById("intro-account").contains(d.getElementById("tl-unlink-btn")),
+      "1504. With the way out beside it, where an account action belongs");
+    const kids = [...d.querySelector(".intro-layout").children];
+    assert(kids.indexOf(d.getElementById("intro-account")) < kids.indexOf(d.getElementById("intro-version-note")),
+      "1505. Above the version number, which is where Tomas asked for it");
+  }
+
+  {
+    const { d } = makeDOM(WARRIOR, { "tystnad-tablelink": JSON.stringify({ token: "T", ownsTableLink: true }) });
+    assert(visible(d.getElementById("intro-account")), "1506. A player upgrading into v112 still gets the block");
+    assert(d.getElementById("intro-account-email").textContent.length > 0,
+      "1507. And a phrase rather than a gap, since no address was stored before v112");
+  }
+
+  {
+    const { d } = makeDOM(WARRIOR);
+    click(d.getElementById("btn-continue"));
+    assert(!d.getElementById("tl-state-lobby").contains(d.getElementById("tl-unlink-btn")),
+      "1508. Sign-out is gone from Table Link, where it had been stranded since v99");
+    assert(/id="tl-open-site"[^>]*>View My Account</.test(HTML), "1509. The account link is renamed");
+    const lobby = [...d.getElementById("tl-state-lobby").children];
+    assert(lobby.indexOf(d.getElementById("tl-open-site")) === lobby.length - 1,
+      "1510. And sits at the foot of the screen");
+    const row = d.querySelector(".tl-field-row");
+    assert(row && row.contains(d.getElementById("tl-join-code")) && row.contains(d.getElementById("tl-display-name")),
+      "1511. Join code and display name share a row");
+  }
+}
 
   /* v111: Tomas reduced this screen to an instruction, two fields and a button. The v110
      ownership explainer is gone: the app already knows what he owns and has no business

@@ -155,6 +155,25 @@
         <button id="btn-join-table" class="ghost-btn" aria-label="Join a table">Join a table</button>
         <button id="btn-how-to-play" class="ghost-btn" aria-label="How to play">How to Play</button>
       </div>
+      <!-- v112: the account block. Signing out is an ACCOUNT action, and from v51 to v111 it
+           sat on the Table Link screen only because that screen used to be where devices were
+           linked. v99 moved identity to the gate and sign-out never moved with it. It lives at
+           the front door now, beside Import and Backup, which is already the account and
+           character surface. The address answers "which account am I in", which the app could
+           not tell anyone before v112. -->
+      <div id="intro-account" class="intro-account hidden">
+        <p class="intro-account-line">Signed in as <span id="intro-account-email"></span></p>
+        <button id="tl-unlink-btn" class="ghost-btn" aria-label="Sign this device out">Sign out</button>
+        <!-- v112: one line, not three. This paragraph came across from the Table Link screen
+             where the page was long and could carry it; at the front door it was three lines
+             of ash under every launch. The risk that matters is that getting back in needs
+             signal. TOMAS: yours to overwrite. -->
+        <p class="tl-forget-note" id="tl-unlink-warn">Signing back in needs a connection. Your Explorer stays on this device.</p>
+        <p class="tl-error hidden" id="tl-unlink-error"></p>
+        <button id="tl-forget-btn" class="ghost-btn hidden" aria-label="Sign out on this device only">Sign out on this device only</button>
+        <p class="tl-forget-note hidden" id="tl-forget-note">This signs you out here. The device may stay authorised on your account until you remove it there.</p>
+      </div>
+
       <p class="version-note" id="intro-version-note"></p>
     </div>
 
@@ -435,37 +454,42 @@
            keyed to the OUTCOME rather than to a guess. He cannot know what his GM bought, so
            asking him to buy "before connecting" would sell him something he may not need. He
            tries, which is free, and the app answers. -->
-      <p class="tl-lead">Ask your GM for the join code, type it below, and connect. He can send you art, secret notes and rules while you play, and follow your Explorer's vitals.</p>
-      <p class="tl-lead hidden" id="tl-need-link">If his table turns you away, your GM does not have Full House GM Access, and you need Table Link of your own. Get it on your account page.</p>
+      <!-- v112: TOMAS'S COPY. The instruction and the privacy notice are one paragraph now.
+           They said the same thing twice: the instruction promised the GM would "follow your
+           Explorer's vitals" and the notice was the exact list of what that means.
+
+           The notice used to sit directly above the button, because that is where consent is
+           given and it could otherwise be scrolled past. That argument expired when the page
+           shrank to one viewport: he now sees the disclosure and the button together wherever
+           it sits. All seven disclosed items and both promises are still here, and the suite
+           pins each one to a key in the snapshot the app actually sends. -->
+      <p class="tl-lead" id="tl-privacy">Ask your GM for the join code, type it below, and connect. He can then send you art, secret notes and rules while you play, and he sees your Explorer's name, class, HP, conditions, expedition role, Initiative contribution, and how much you are carrying. He never sees your rolls, and he cannot change your sheet.</p>
+      <p class="tl-lead hidden" id="tl-need-link">If his table turns you away, your GM does not have Full House GM Access, and you need Table Link of your own. Order it from View My Account, at the foot of this screen.</p>
 
       <div id="tl-buy-prompt" class="tl-buy hidden">
         <p class="tl-buy-text">This GM does not have Full House GM Access, so connecting to his table needs Table Link of your own.</p>
         <a class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Get Table Link</a>
       </div>
-      <!-- v100: restored. This link-out shipped on the retired link state, and went with it,
-           leaving the lobby saying a non-Full-House table "needs Table Link of your own" with
-           no way to act on it until a join had been tried and refused. It also gives the
-           sign-out note's "remove it there" something to tap. Standing, not conditional: the
-           buy prompt above is the reaction to a 403, this is the way to the account page. -->
-      <a id="tl-open-site" class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Open my account on the site</a>
-      <label class="field">
-        <span class="field-label">Join code</span>
-        <input id="tl-join-code" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6JC5Q035">
-      </label>
-      <label class="field">
-        <span class="field-label">Display name</span>
-        <input id="tl-display-name" type="text" maxlength="50" autocomplete="off" placeholder="Ari">
-      </label>
-      <p class="tl-privacy" id="tl-privacy">While you are at the table, your GM sees your Explorer's name, class, HP, conditions, expedition role, Initiative contribution, and how much you are carrying. He never sees your rolls, and he cannot change your sheet.</p>
+
+      <!-- v112: both fields share a row. Measured at 375px: half width is 183px and the wider
+           label, "Display name", needs 127px, so neither wraps and neither field shrank. -->
+      <div class="tl-field-row">
+        <label class="field">
+          <span class="field-label">Join code</span>
+          <input id="tl-join-code" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6JC5Q035">
+        </label>
+        <label class="field">
+          <span class="field-label">Display name</span>
+          <input id="tl-display-name" type="text" maxlength="50" autocomplete="off" placeholder="Ari">
+        </label>
+      </div>
+
       <button id="tl-join-btn" class="primary-btn slim">Connect to the table</button>
       <p class="tl-error hidden" id="tl-join-error"></p>
-      <!-- TOMAS: v99 wording, yours to overwrite. Unlinking now signs the device out of the
-           app itself, not just out of Table Link, so the button has to say so. -->
-      <button id="tl-unlink-btn" class="ghost-btn tl-unlink" aria-label="Sign this device out">Sign this device out</button>
-      <p class="tl-forget-note" id="tl-unlink-warn">Signing out returns you to the front door, and signing back in needs a connection. Your Explorer stays on this device.</p>
-      <p class="tl-error hidden" id="tl-unlink-error"></p>
-      <button id="tl-forget-btn" class="ghost-btn tl-unlink hidden" aria-label="Sign out on this device only">Sign out on this device only</button>
-      <p class="tl-forget-note hidden" id="tl-forget-note">This signs you out here. The device may stay authorised on your account until you remove it there.</p>
+
+      <!-- The way to the account page, now at the foot where Tomas wanted it. Signing out is
+           no longer here at all: it is an ACCOUNT action and it moved to the front door. -->
+      <a id="tl-open-site" class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">View My Account</a>
     </div>
 
     <!-- STATE: in session -->

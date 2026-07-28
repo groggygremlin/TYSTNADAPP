@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v111";
+const VERSION = "v112";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1113,6 +1113,23 @@ function renderIntro() {
     hide($("btn-backup-intro"));
   }
   hide($("intro-import-section"));
+
+  /* v112: who he is signed in as, and the way out. Both moved here from the Table Link screen,
+     where sign-out had been stranded since v99 gave identity to the gate.
+     An address stored before v112 does not exist, so an upgrading player sees the account
+     block without one until his next sign-in. That is why this falls back to a phrase rather
+     than rendering "Signed in as " and a gap. */
+  const acct = $("intro-account");
+  if (tlDevice) {
+    $("intro-account-email").textContent = tlDevice.email || "this device";
+    show(acct);
+  } else {
+    hide(acct);
+  }
+  // A failed sign-out must not leave its error or its escape hatch on screen next visit.
+  tlHideError("tl-unlink-error");
+  hide($("tl-forget-btn"));
+  hide($("tl-forget-note"));
 }
 
 // ---------- HP ----------
@@ -3222,7 +3239,13 @@ function tlLoad() {
     if (!raw) return null;
     const d = JSON.parse(raw);
     if (!d || typeof d.token !== "string" || !d.token) return null;
-    return { token: d.token, ownsTableLink: !!d.ownsTableLink };
+    /* v112: the signed-in address, so the app can answer "which account am I in". Tomas ruled
+       the stored field in on 2026-07-28. It rides in this blob because the lifecycle is
+       identical to the token's: written by the same four success paths, cleared by the same
+       sign-out and the same 401. Bounded on read like everything else here, because a corrupt
+       or hand-edited blob must degrade to "unknown", never into a bad render. */
+    const email = (typeof d.email === "string" && d.email.length <= GATE_EMAIL_MAX) ? d.email : "";
+    return { token: d.token, ownsTableLink: !!d.ownsTableLink, email: email };
   } catch (e) {
     return null;
   }
@@ -3253,7 +3276,8 @@ function tlSave() {
     if (tlDevice && tlDevice.token) {
       const blob = {
         token: tlDevice.token,
-        ownsTableLink: !!tlDevice.ownsTableLink
+        ownsTableLink: !!tlDevice.ownsTableLink,
+        email: tlDevice.email || ""      // v112
       };
       /* A session is worth resuming only while it is LIVE. That single condition is what
          clears the stored seat everywhere a session ends: tlLeaveSession, tlEndSession,
@@ -3470,8 +3494,12 @@ function gateEnterApp() {
 
 /* The success shape is identical to /api/v1/devices/link, deliberately, so holding a token
    needs no new branch and no new stored field. */
-function gateAcceptToken(r) {
-  tlDevice = { token: r.data.deviceToken, ownsTableLink: !!r.data.ownsTableLink };
+function gateAcceptToken(r, email) {
+  tlDevice = {
+    token: r.data.deviceToken,
+    ownsTableLink: !!r.data.ownsTableLink,
+    email: (email || "").slice(0, GATE_EMAIL_MAX)   // v112: whichever path got him here
+  };
   tlSave();
   gateEnterApp();
 }
@@ -3579,7 +3607,7 @@ async function gateDoCode() {
       path = "/api/v1/app/reset";
     }
     const r = await tlApi(path, { method: "POST", body: body, auth: false, timeout: TL_TIMEOUT.link });
-    if (r.ok && r.data && r.data.deviceToken) gateAcceptToken(r);
+    if (r.ok && r.data && r.data.deviceToken) gateAcceptToken(r, gatePendingEmail);
     else tlShowError("gate-code-error", gateErrorText(r));
   });
 }
@@ -3600,7 +3628,7 @@ async function gateDoSignin() {
       timeout: TL_TIMEOUT.link
     });
     // login never evicts another device: a phone and a tablet both stay linked.
-    if (r.ok && r.data && r.data.deviceToken) { gateAcceptToken(r); return; }
+    if (r.ok && r.data && r.data.deviceToken) { gateAcceptToken(r, email); return; }
     if (r.data && r.data.error === "email_unverified") {
       // He registered but never typed his code. Put him where the code goes.
       gatePendingEmail = email;
@@ -3641,10 +3669,7 @@ function openTableLink() {
   show($("screen-table"));
   tlClearBanner();
   tlHideError("tl-join-error");
-  // v85: a failed revoke must not leave its error and escape hatch on screen next visit.
-  tlHideError("tl-unlink-error");
-  hide($("tl-forget-btn"));
-  hide($("tl-forget-note"));
+  // v112: the sign-out block lives on the intro now, so renderIntro clears it, not this.
   hide($("tl-buy-prompt"));
   if (tlSession && tlPolling) {
     // APP-001: the session survived navigation. Show it as it stands; polling and the

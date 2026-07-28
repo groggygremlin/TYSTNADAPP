@@ -2523,6 +2523,8 @@ button.hp-max:active { color: var(--blood-bright); }
 /* v108, Tomas's register. */
 
 /* 1. The version note lifts off the very bottom. */
+/* v112: the account block now carries the auto margin that pushes this pair to the foot, so
+   the version note only keeps its 10mm lift. */
 #intro-version-note { margin-bottom: 38px; }   /* 10mm */
 
 /* 3. With the skill line gone in v106, .save-btn had a single child and no justification, so
@@ -2562,3 +2564,27 @@ button.hp-max:active { color: var(--blood-bright); }
   letter-spacing: 0.01em;
   min-height: 44px;
 }
+
+/* v112: the Table Link fields share a row. Measured at 375px: half width 183px against a
+   127px widest label, so nothing wrapped and neither field had to shrink. */
+.tl-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* The account block at the front door. Pushed to the foot alongside the version note, which
+   is where Tomas asked for it: above the version number, below everything else. */
+.intro-account {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  width: 100%;
+}
+.intro-account-line {
+  color: var(--ash);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.intro-account-line #intro-account-email { color: var(--bone); }
