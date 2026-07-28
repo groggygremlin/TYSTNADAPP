@@ -2576,7 +2576,12 @@ button.hp-max:active { color: var(--blood-bright); }
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  /* v113: `margin-top: auto` alone resolves to zero once the intro fills the viewport, which
+     is what put this hard against How to Play on a shorter Android screen. The padding is the
+     floor: the block is pushed to the foot when there is room, and never closer than 26px to
+     the buttons when there is not. */
   margin-top: auto;
+  padding-top: 26px;
   width: 100%;
 }
 .intro-account-line {
@@ -2587,4 +2592,8 @@ button.hp-max:active { color: var(--blood-bright); }
   text-align: center;
   overflow-wrap: anywhere;
 }
-.intro-account-line #intro-account-email { color: var(--bone); }
+.intro-account-line .intro-account-email { color: var(--bone); }
+
+/* v113: it inherited .tl-forget-note from the Table Link screen, where it sat in a
+   left-aligned column. Everything else in this block is centred. */
+.intro-account .tl-forget-note { text-align: center; }

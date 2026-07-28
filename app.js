@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v112";
+const VERSION = "v113";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -1121,7 +1121,18 @@ function renderIntro() {
      than rendering "Signed in as " and a gap. */
   const acct = $("intro-account");
   if (tlDevice) {
-    $("intro-account-email").textContent = tlDevice.email || "this device";
+    /* v113: the WHOLE sentence changes, not just the tail. An address stored before v112 does
+       not exist, and "Signed in as this device" read as though the device were the account.
+       A player who registered before v112 gets the honest sentence until his next sign-in
+       supplies an address, which costs him nothing and needs no migration. */
+    const line = $("intro-account-line");
+    line.textContent = "";
+    if (tlDevice.email) {
+      line.appendChild(document.createTextNode("Signed in as "));
+      line.appendChild(ce("span", "intro-account-email", tlDevice.email));
+    } else {
+      line.appendChild(document.createTextNode("Signed in on this device"));
+    }
     show(acct);
   } else {
     hide(acct);
