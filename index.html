@@ -426,20 +426,17 @@
 
     <!-- STATE: linked, choosing a table (lobby) -->
     <div id="tl-state-lobby" class="tl-state hidden">
-      <!-- v110: TOMAS'S COPY, drafted with him and his to overwrite.
-           The greeting stays visible and the money collapses, which is his ruling: a player
-           at the table wants to type eight characters and tap Join, while a first-timer wants
-           the story. The old opening line, which reported that the device was linked, is gone: v99
-           made registration mandatory and every player who reaches this screen came through it.
-           The correction that shaped all of this is Tomas's: Table Link is the CONNECTION
-           between this app and the GM's screen, not permission to play. A player can sit at
-           any table without owning a thing. The Entitlement Registry agrees, calling it
-           "Player connection to any GM campaign". -->
-      <p class="tl-lead">So you are joining your GM's table. Good.</p>
-      <p class="tl-lead">Joining connects this app to his screen. He can send you art, secret notes and rules while you play, and he can follow your Explorer's vitals as they change. What that shares is spelled out below.</p>
+      <!-- v111: TOMAS'S COPY, and the shape is his. For a player who owns Table Link this
+           screen is now four things: an instruction, two fields and a button. The ownership
+           explainer that v110 added is gone, because the app already knows what he owns and
+           had no business explaining a licence to someone who holds it.
 
-      <!-- Built by tlRenderEntitlement, because the body depends on what he already owns. -->
-      <div id="tl-ownership"></div>
+           The one extra line renders only for a player who does NOT own Table Link, and it is
+           keyed to the OUTCOME rather than to a guess. He cannot know what his GM bought, so
+           asking him to buy "before connecting" would sell him something he may not need. He
+           tries, which is free, and the app answers. -->
+      <p class="tl-lead">Ask your GM for the join code, type it below, and connect. He can send you art, secret notes and rules while you play, and follow your Explorer's vitals.</p>
+      <p class="tl-lead hidden" id="tl-need-link">If his table turns you away, your GM does not have Full House GM Access, and you need Table Link of your own. Get it on your account page.</p>
 
       <div id="tl-buy-prompt" class="tl-buy hidden">
         <p class="tl-buy-text">This GM does not have Full House GM Access, so connecting to his table needs Table Link of your own.</p>
@@ -460,7 +457,7 @@
         <input id="tl-display-name" type="text" maxlength="50" autocomplete="off" placeholder="Ari">
       </label>
       <p class="tl-privacy" id="tl-privacy">While you are at the table, your GM sees your Explorer's name, class, HP, conditions, expedition role, Initiative contribution, and how much you are carrying. He never sees your rolls, and he cannot change your sheet.</p>
-      <button id="tl-join-btn" class="primary-btn slim">Join the table</button>
+      <button id="tl-join-btn" class="primary-btn slim">Connect to the table</button>
       <p class="tl-error hidden" id="tl-join-error"></p>
       <!-- TOMAS: v99 wording, yours to overwrite. Unlinking now signs the device out of the
            app itself, not just out of Table Link, so the button has to say so. -->

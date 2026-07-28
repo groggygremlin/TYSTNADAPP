@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v110";
+const VERSION = "v111";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3723,47 +3723,20 @@ async function tlRefreshStatus() {
   }
 }
 
-/* v110: what the player owns, in his own case rather than as a menu. TOMAS'S COPY.
+/* v111: the screen no longer explains a licence to a player who already holds one.
 
-   The framing is his correction, and it reverses what the app said from v51 to v109: Table
-   Link is the CONNECTION between this app and the GM's screen, NOT permission to play. Any
-   player can sit at any GM's table owning nothing at all. The Entitlement Registry says the
-   same, describing CORE_TABLE_LINK as "Player connection to any GM campaign".
+   Tomas's shape: for an owner this page is an instruction, two fields and a button, and
+   nothing else. The only conditional text is the single line a NON-owner needs, and it is
+   keyed to the OUTCOME rather than to a guess, because he cannot know what his GM bought.
+   Asking him to buy before trying would sell him something Full House may already cover, and
+   trying costs him nothing.
 
-   Deliberately no prices. The service worker caches hard, so a price change would sit stale
-   on installed phones until they took an update; the account link on this screen carries him
-   to where prices actually live. The six-seat cap is left out by Tomas's ruling.
-
-   The app cannot know whether a given GM has Full House until a join is attempted, so the
-   last paragraph promises nothing and hands the moment to the 403. */
-
-const TL_OWNS_TABLE_LINK = [
-  "You own Table Link, so you can connect at any GM's table. It covers every campaign you play, and it does not expire.",
-  "None of this is needed to play. The app is free and your Explorer is yours whether you ever connect or not. Table Link is only about the connection."
-];
-
-const TL_NEEDS_TABLE_LINK = [
-  "You can play at any GM's table without owning a thing. Table Link is about the connection, not about permission to play.",
-  "Two things can open that connection, and either one is enough.",
-  "Your GM has Full House GM Access. It covers his whole party, and connecting costs you nothing.",
-  "Or you own Table Link. That one is yours rather than his: it connects you at any GM's table, on every campaign you play, and it does not expire.",
-  "You find out which applies when you try to join. If the connection needs Table Link and you do not have it, the app says so and points you at your account on the site."
-];
-
+   The app knows his side of it from the token and never has to ask. It cannot know the GM's
+   side until a join is attempted, which is what the 403 prompt below is for. */
 function tlRenderEntitlement() {
-  const el = $("tl-ownership");
+  const el = $("tl-need-link");
   if (!el) return;
-  const owns = !!(tlDevice && tlDevice.ownsTableLink);
-  /* Rebuilt only when the ownership actually changes. tlRefreshStatus calls this on every
-     visit, and rebuilding unconditionally would slam the section shut under a player who had
-     opened it to read, which is the same trap v104's Expedition accordion had to avoid. */
-  if (el.dataset.owns === String(owns)) return;
-  el.dataset.owns = String(owns);
-  el.textContent = "";
-  buildTopicAccordion(el, [{
-    title: "Who needs to own what",
-    paras: owns ? TL_OWNS_TABLE_LINK : TL_NEEDS_TABLE_LINK
-  }]);
+  ((tlDevice && tlDevice.ownsTableLink) ? hide : show)(el);
 }
 
 /* v99: tlDoLink and tlLinkErrorText are gone with the link-code state. /api/v1/devices/link is
