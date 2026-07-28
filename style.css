@@ -1637,12 +1637,22 @@ button.hp-max:active { color: var(--blood-bright); }
   column-gap: 14px;
 }
 .action-grid .action-row { break-inside: avoid; }
-/* Each group starts fresh across the full width, so a heading can never sit beside another
-   group's items. column-span restarts the column set, which is what keeps the reading order
-   honest: Quick, then Main, then Full, each balanced within its own band. */
+/* v109: the headings do NOT span. Tomas chose the continuous two-column flow over the banded
+   one: the list runs down column one and continues at the top of column two, which packs far
+   tighter than restarting the columns at every heading.
+
+   `break-after: avoid` is what makes that safe. Without it a heading can be left stranded at
+   the foot of a column with its first action at the top of the next one, which is the failure
+   mode that spanning was protecting against. This keeps a heading welded to what follows it.
+
+   The first heading loses its top margin so column one starts level with column two, whose
+   first item is an ordinary row with no margin. That 12px was the whole misalignment. */
 .action-grid .action-tier,
-.action-grid .action-rule,
-.action-grid .action-improvised { column-span: all; }
+.action-grid .action-rule {
+  break-after: avoid;
+  break-inside: avoid;
+}
+.action-grid > .action-tier:first-child { margin-top: 0; }
 
 .action-tier {
   font-family: var(--font-display);

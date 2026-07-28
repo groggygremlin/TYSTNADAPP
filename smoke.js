@@ -279,7 +279,7 @@ function wizardCreate(w, d, cls, name) {
 {
   const { d } = makeDOM(null);
   const vn = d.getElementById("intro-version-note");
-  assert(vn && vn.textContent === "v108", "41. Intro version footer shows the current release");
+  assert(vn && vn.textContent === "v109", "41. Intro version footer shows the current release");
 }
 
 // ---- 17. Back chevron exists on shell ----
@@ -1004,13 +1004,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v22-A. VERSION constant reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v108"'), "166. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v109"'), "166. app.js VERSION pin matches the current release");
 }
 
 // ---- v22-B. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v108"'), "167. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v109"'), "167. sw.js cache name is tystnad-v33");
 }
 
 // ---- v22-C. Intro ghost buttons have bone color override in CSS ----
@@ -1035,19 +1035,19 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 {
   const CSS = fs.readFileSync("style.css", "utf8");
   assert(CSS.includes('body::before') && CSS.includes('bg-pages.webp'), "171. body::before fixed layer has bg-pages.webp");
-  assert(!CSS.includes('.shell-screen') || !CSS.match(/\.shell-screen\s*\{[^}]*app-bg\.webp/), "171b. .shell-screen no longer carries app-bg background");
+  assert(!CSS.includes('.shell-screen') || !CSS.match(/(?:^|\n)\s*\.shell-screen\s*\{[^}]*app-bg\.webp/), "171b. .shell-screen no longer carries app-bg background");
 }
 
 // ---- v23-C. VERSION reads v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v108"'), "172. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v109"'), "172. app.js VERSION pin matches the current release");
 }
 
 // ---- v23-D. SW cache name is tystnad-v33 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v108"'), "173. sw.js cache name is tystnad-v33");
+  assert(SW.includes('"tystnad-v109"'), "173. sw.js cache name is tystnad-v33");
 }
 
 // ---- v25. body::before approach: body transparent, html provides fallback, no fallback in pseudo ----
@@ -1099,7 +1099,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // outcome, not the mechanism.
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const h2Block = CSS.match(/\.sheet-head h2\s*\{([^}]*)\}/);
+  const h2Block = CSS.match(/(?:^|\n)\s*\.sheet-head h2\s*\{([^}]*)\}/);
   const h2UsesFontVar = h2Block && h2Block[1].includes("var(--font-display)");
   const varMapsToFont = CSS.includes('--font-display: "Cormorant Garamond"');
   assert(h2UsesFontVar && varMapsToFont, "184. .sheet-head h2 uses var(--font-display) which maps to Cormorant Garamond");
@@ -1173,7 +1173,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v26-D. Section labels: vital-label uses blood color in CSS ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  assert(CSS.match(/\.vital-label\s*\{[^}]*color:\s*var\(--blood-bright\)/), "185. .vital-label color is var(--blood-bright)");
+  assert(CSS.match(/(?:^|\n)\s*\.vital-label\s*\{[^}]*color:\s*var\(--blood-bright\)/), "185. .vital-label color is var(--blood-bright)");
   assert(CSS.includes(".shell-screen .field-label") && CSS.includes("color: var(--blood-bright)"), "186. .shell-screen .field-label color is var(--blood-bright)");
 }
 
@@ -1188,8 +1188,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v26-F. Stepper buttons outlined, transparent fill ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  assert(CSS.match(/\.step-btn\s*\{[^}]*background:\s*transparent/), "188. .step-btn background is transparent");
-  assert(CSS.match(/\.step-btn\s*\{[^}]*border:\s*1px solid var\(--ash\)/), "189. .step-btn border uses ash color");
+  assert(CSS.match(/(?:^|\n)\s*\.step-btn\s*\{[^}]*background:\s*transparent/), "188. .step-btn background is transparent");
+  assert(CSS.match(/(?:^|\n)\s*\.step-btn\s*\{[^}]*border:\s*1px solid var\(--ash\)/), "189. .step-btn border uses ash color");
 }
 
 // ============================================================
@@ -1199,13 +1199,13 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-A. SW cache v27 ----
 {
   const SW = fs.readFileSync("sw.js", "utf8");
-  assert(SW.includes('"tystnad-v108"'), "190. sw.js cache tystnad-v33");
+  assert(SW.includes('"tystnad-v109"'), "190. sw.js cache tystnad-v33");
 }
 
 // ---- v27-B. VERSION v27 ----
 {
   const SRC = fs.readFileSync("app.js", "utf8");
-  assert(SRC.includes('const VERSION = "v108"'), "191. app.js VERSION pin matches the current release");
+  assert(SRC.includes('const VERSION = "v109"'), "191. app.js VERSION pin matches the current release");
 }
 
 // ---- v27-C. SPELLS constant in source: 30 entries, tier markers, canonical content ----
@@ -1314,7 +1314,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v27-O. CSS: tab-bar--five and spell-row rules present ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  assert(!CSS.match(/\.tab-bar--five \.tab-btn\s*\{[^}]*(font-size|letter-spacing)/), "219. No .tab-bar--five .tab-btn font-size/letter-spacing override (v46: unified nav size)");
+  assert(!CSS.match(/(?:^|\n)\s*\.tab-bar--five \.tab-btn\s*\{[^}]*(font-size|letter-spacing)/), "219. No .tab-bar--five .tab-btn font-size/letter-spacing override (v46: unified nav size)");
   assert(CSS.includes(".spell-row"), "220. .spell-row rule exists");
   assert(CSS.includes(".spell-tier-header"), "221. .spell-tier-header rule exists");
   assert(CSS.includes(".spell-desc"), "222. .spell-desc rule exists");
@@ -1327,8 +1327,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v28-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "224. sw.js cache tystnad-v108");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "225. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "224. sw.js cache tystnad-v109");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "225. app.js VERSION pin matches the current release");
 }
 
 // ---- v28-B. migrate() adds conditions:{} ----
@@ -1502,7 +1502,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(CSS.includes(".cond-chip--active"), "258. .cond-chip--active CSS rule exists");
   // v71: condition chips match the Skills text treatment (bone / 0.82rem / 0.08em), not dim ash.
   {
-    const cond = (CSS.match(/\.cond-chip\s*\{([^}]*)\}/) || [])[1] || "";
+    const cond = (CSS.match(/(?:^|\n)\s*\.cond-chip\s*\{([^}]*)\}/) || [])[1] || "";
     assert(/color:\s*var\(--bone\)/.test(cond), "258a. cond-chip text is bone (matches skill name), not ash");
     assert(/font-size:\s*0\.82rem/.test(cond), "258b. cond-chip font-size 0.82rem (matches skill name)");
     assert(/letter-spacing:\s*0\.08em/.test(cond), "258c. cond-chip letter-spacing 0.08em (matches skill name)");
@@ -1530,8 +1530,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v30-B. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "264. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "265. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "264. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "265. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1588,8 +1588,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v31-G. sw.js + VERSION (v31 check) ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "278. sw.js cache tystnad-v33 (v31 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "279. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "278. sw.js cache tystnad-v33 (v31 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "279. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1614,8 +1614,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v32-C. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "284. sw.js cache tystnad-v33");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "285. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "284. sw.js cache tystnad-v33");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "285. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1644,8 +1644,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v33-D. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "290. sw.js cache tystnad-v33 (v33 check)");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "291. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "290. sw.js cache tystnad-v33 (v33 check)");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "291. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1753,8 +1753,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v34-I. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "314. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "315. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "314. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "315. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1790,15 +1790,15 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v35-D. .fail-by CSS uses bone not blood-bright ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const failByMatch = CSS.match(/\.fail-by\s*\{([^}]*)\}/);
+  const failByMatch = CSS.match(/(?:^|\n)\s*\.fail-by\s*\{([^}]*)\}/);
   assert(failByMatch && failByMatch[1].includes("var(--bone)"), "324. .fail-by uses var(--bone)");
   assert(failByMatch && !failByMatch[1].includes("var(--blood-bright)"), "325. .fail-by does not use var(--blood-bright)");
 }
 
 // ---- v35-E. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "326. sw.js cache tystnad-v36");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "327. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "326. sw.js cache tystnad-v36");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "327. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1843,14 +1843,14 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   const CSS = fs.readFileSync("style.css", "utf8");
   assert(CSS.includes(".damage-explodes"), "338. .damage-explodes CSS rule present");
   assert(CSS.includes(".roll-again-btn"), "339. .roll-again-btn CSS rule present");
-  const btnMatch = CSS.match(/\.roll-again-btn\s*\{([^}]*)\}/);
+  const btnMatch = CSS.match(/(?:^|\n)\s*\.roll-again-btn\s*\{([^}]*)\}/);
   assert(btnMatch && btnMatch[1].includes("var(--blood)"), "340. .roll-again-btn uses blood background");
 }
 
 // ---- v36-F. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "341. sw.js cache tystnad-v37");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "342. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "341. sw.js cache tystnad-v37");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "342. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1913,7 +1913,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v37-F. damage-explodes significantly larger than v36 ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const exMatch = CSS.match(/\.damage-explodes\s*\{([^}]*)\}/);
+  const exMatch = CSS.match(/(?:^|\n)\s*\.damage-explodes\s*\{([^}]*)\}/);
   assert(exMatch && !exMatch[1].includes("0.8rem"), "362. .damage-explodes no longer uses 0.8rem");
   assert(exMatch && exMatch[1].includes("2rem"), "363. .damage-explodes uses 2rem");
 }
@@ -1956,8 +1956,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v37-K. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "376. sw.js cache tystnad-v39");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "377. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "376. sw.js cache tystnad-v39");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "377. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -1967,7 +1967,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v39-A. atk-section-label doubled to 1.4rem ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const labelMatch = CSS.match(/\.atk-section-label\s*\{([^}]*)\}/);
+  const labelMatch = CSS.match(/(?:^|\n)\s*\.atk-section-label\s*\{([^}]*)\}/);
   assert(labelMatch && labelMatch[1].includes("1.4rem"), "378. .atk-section-label font-size is 1.4rem");
   assert(labelMatch && !labelMatch[1].includes("0.7rem"), "379. .atk-section-label no longer uses 0.7rem");
 }
@@ -1981,7 +1981,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v39-C. Momentum grid aligned to threat buttons ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const gridMatch = CSS.match(/\.momentum-grid\s*\{([^}]*)\}/);
+  const gridMatch = CSS.match(/(?:^|\n)\s*\.momentum-grid\s*\{([^}]*)\}/);
   assert(gridMatch && gridMatch[1].includes("320px"), "381. .momentum-grid has max-width 320px");
   assert(gridMatch && gridMatch[1].includes("12px"), "382. .momentum-grid gap is 12px");
 }
@@ -1989,7 +1989,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v39-D. Prompt success text enlarged ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const pstMatch = CSS.match(/\.prompt-success-text\s*\{([^}]*)\}/);
+  const pstMatch = CSS.match(/(?:^|\n)\s*\.prompt-success-text\s*\{([^}]*)\}/);
   assert(pstMatch && pstMatch[1].includes("1.6rem"), "383. .prompt-success-text uses 1.6rem");
   assert(pstMatch && !pstMatch[1].includes("1rem;"), "384. .prompt-success-text no longer uses 1rem");
 }
@@ -2049,8 +2049,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v40-A. sw.js + VERSION ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "398. sw.js cache tystnad-v41");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "399. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "398. sw.js cache tystnad-v41");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "399. app.js VERSION pin matches the current release");
 }
 
 // ---- v39-K. Thumb-zone buttons clear tab nav (bottom: 88px) ----
@@ -2091,7 +2091,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v40-D. Bonus grid CSS alignment (max-width 320px, 4 columns) ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const gridMatch = CSS.match(/\.bonus-grid\s*\{([^}]*)\}/);
+  const gridMatch = CSS.match(/(?:^|\n)\s*\.bonus-grid\s*\{([^}]*)\}/);
   assert(gridMatch && gridMatch[1].includes("320px"), "407. .bonus-grid max-width 320px (alignment law)");
   assert(gridMatch && gridMatch[1].includes("repeat(4, 1fr)"), "408. .bonus-grid is 4-column grid");
 }
@@ -2153,7 +2153,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v41-A. UNTOUCHED sizing: clamp reduced, max-width added ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const hitMatch = CSS.match(/\.strike-hit\s*\{([^}]*)\}/);
+  const hitMatch = CSS.match(/(?:^|\n)\s*\.strike-hit\s*\{([^}]*)\}/);
   assert(hitMatch && hitMatch[1].includes("clamp(2rem"), "425. .strike-hit uses clamp(2rem lower bound (UNTOUCHED fits on 375px)");
   assert(hitMatch && !hitMatch[1].includes("clamp(3rem"), "426. .strike-hit no longer uses clamp(3rem (old cropping value)");
   assert(hitMatch && hitMatch[1].includes("90vw"), "427. .strike-hit has max-width 90vw (overflow guard)");
@@ -2163,7 +2163,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 {
   const CSS = fs.readFileSync("style.css", "utf8");
   assert(CSS.includes(".def-damage"), "428. .def-damage class exists in style.css");
-  const dmgMatch = CSS.match(/\.def-damage\s*\{([^}]*)\}/);
+  const dmgMatch = CSS.match(/(?:^|\n)\s*\.def-damage\s*\{([^}]*)\}/);
   assert(dmgMatch && dmgMatch[1].includes("1.7rem"), "429. .def-damage font-size is 1.7rem (double .fail-by 0.85rem)");
   assert(dmgMatch && dmgMatch[1].includes("var(--bone)"), "430. .def-damage color is bone");
 }
@@ -2237,8 +2237,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v41-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "452. sw.js cache tystnad-v45");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "453. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "452. sw.js cache tystnad-v45");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "453. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2346,7 +2346,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   const CSS = fs.readFileSync("style.css", "utf8");
   assert(CSS.includes(".def-dismiss-btn"),
     "474. .def-dismiss-btn class exists in style.css");
-  const dismissMatch = CSS.match(/\.def-dismiss-btn\s*\{([^}]*)\}/);
+  const dismissMatch = CSS.match(/(?:^|\n)\s*\.def-dismiss-btn\s*\{([^}]*)\}/);
   assert(dismissMatch && dismissMatch[1].includes("var(--ash)"),
     "475. .def-dismiss-btn color is ash");
   assert(dismissMatch && dismissMatch[1].includes("none"),
@@ -2358,8 +2358,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v42-I. Cache version and app version ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "478. sw.js cache tystnad-v108");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "479. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "478. sw.js cache tystnad-v109");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "479. app.js VERSION pin matches the current release");
 }
 
 // ============================================================
@@ -2417,8 +2417,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v43-E. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "492. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v108"'), "493. sw.js cache tystnad-v108");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "492. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v109"'), "493. sw.js cache tystnad-v109");
 }
 
 // ============================================================
@@ -2799,7 +2799,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(/\.skill-row \.skill-die\.core\s*\{\s*color:\s*var\(--bone\)/.test(CSS), "704. Core skill die is bone, not blood-bright (Law 1)");
   assert(/\.diff-btn span\s*\{\s*color:\s*var\(--bone\)/.test(CSS), "705. Difficulty/threat targets are bone, not blood-bright (Law 1)");
   // #2: role chips brought up to the Skills text treatment (as cond-chips were in v56)
-  const role = (CSS.match(/\.role-chip\s*\{([^}]*)\}/) || [])[1] || "";
+  const role = (CSS.match(/(?:^|\n)\s*\.role-chip\s*\{([^}]*)\}/) || [])[1] || "";
   assert(/color:\s*var\(--bone\)/.test(role) && /font-size:\s*0\.82rem/.test(role) && /letter-spacing:\s*0\.08em/.test(role),
     "706. Role chips use the Skills text treatment (bone / 0.82rem / 0.08em)");
   assert(/\.role-chip\.active\s*\{[^}]*var\(--blood-bright\)/.test(CSS), "707. Active role chip is blood-bright");
@@ -3147,8 +3147,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v44-J. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "528. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v108"'),          "529. sw.js cache tystnad-v108");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "528. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v109"'),          "529. sw.js cache tystnad-v109");
 }
 
 // ---- v45-A. Legibility: zoom, opacity, text floor, html touch-action ----
@@ -3192,7 +3192,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v46-C. .spell-tier-header: 1.5rem, blood-bright, Cormorant ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const tierHdrMatch = CSS.match(/\.spell-tier-header\s*\{([^}]*)\}/);
+  const tierHdrMatch = CSS.match(/(?:^|\n)\s*\.spell-tier-header\s*\{([^}]*)\}/);
   assert(tierHdrMatch && tierHdrMatch[1].includes("1.5rem"), "539a. .spell-tier-header font-size is 1.5rem");
   assert(tierHdrMatch && tierHdrMatch[1].includes("var(--blood-bright)"), "539b. .spell-tier-header color is blood-bright");
   assert(tierHdrMatch && tierHdrMatch[1].includes("var(--font-display)"), "539c. .spell-tier-header uses Cormorant display font");
@@ -3209,32 +3209,32 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(headers[0].querySelector(".tier-name") !== null, "540b. First tier header contains .tier-name span");
   assert(headers[0].querySelector(".tier-mech") !== null, "540c. First tier header contains .tier-mech span");
   const CSS = fs.readFileSync("style.css", "utf8");
-  const mechMatch = CSS.match(/\.tier-mech\s*\{([^}]*)\}/);
+  const mechMatch = CSS.match(/(?:^|\n)\s*\.tier-mech\s*\{([^}]*)\}/);
   assert(mechMatch && mechMatch[1].includes("var(--bone)"), "540d. .tier-mech color is bone");
 }
 
 // ---- v47-E. Nav: .tab-label is 1rem; no .tab-bar--five override ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const labelMatch = CSS.match(/\.tab-label\s*\{([^}]*)\}/);
+  const labelMatch = CSS.match(/(?:^|\n)\s*\.tab-label\s*\{([^}]*)\}/);
   assert(labelMatch && labelMatch[1].includes("1rem"), "541a. .tab-label font-size is 1rem (v47 icon nav)");
-  assert(!CSS.match(/\.tab-bar--five \.tab-btn\s*\{[^}]*font-size/), "541b. No .tab-bar--five .tab-btn font-size override");
-  assert(!CSS.match(/\.tab-bar--five \.tab-btn\s*\{[^}]*letter-spacing/), "541c. No .tab-bar--five .tab-btn letter-spacing override");
+  assert(!CSS.match(/(?:^|\n)\s*\.tab-bar--five \.tab-btn\s*\{[^}]*font-size/), "541b. No .tab-bar--five .tab-btn font-size override");
+  assert(!CSS.match(/(?:^|\n)\s*\.tab-bar--five \.tab-btn\s*\{[^}]*letter-spacing/), "541c. No .tab-bar--five .tab-btn letter-spacing override");
 }
 
 // ---- v46-F. Section labels: .shell-screen .field-label and .vital-label are 1.5rem ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  assert(CSS.match(/\.shell-screen \.field-label\s*\{[^}]*1\.5rem/), "542a. .shell-screen .field-label font-size is 1.5rem");
-  const vitalMatch = CSS.match(/\.vital-label\s*\{([^}]*)\}/);
+  assert(CSS.match(/(?:^|\n)\s*\.shell-screen \.field-label\s*\{[^}]*1\.5rem/), "542a. .shell-screen .field-label font-size is 1.5rem");
+  const vitalMatch = CSS.match(/(?:^|\n)\s*\.vital-label\s*\{([^}]*)\}/);
   assert(vitalMatch && vitalMatch[1].includes("1.5rem"), "542b. .vital-label font-size is 1.5rem");
   assert(vitalMatch && vitalMatch[1].includes("var(--font-display)"), "542c. .vital-label uses Cormorant display font");
 }
 
 // ---- v47-G. VERSION and cache ----
 {
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "543a. app.js VERSION pin matches the current release");
-  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v108"'), "543b. sw.js cache tystnad-v108");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "543a. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes('"tystnad-v109"'), "543b. sw.js cache tystnad-v109");
 }
 
 // ============================================================
@@ -3316,7 +3316,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v49-A. .hp-controls is a tight cluster: no flex:1, no space-between, gap 12px ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const m = CSS.match(/\.hp-controls\s*\{([^}]*)\}/);
+  const m = CSS.match(/(?:^|\n)\s*\.hp-controls\s*\{([^}]*)\}/);
   assert(m && !m[1].includes("flex: 1"), "550a. .hp-controls has no flex:1 (v49 tight cluster)");
   assert(m && !m[1].includes("space-between"), "550b. .hp-controls has no justify-content:space-between");
   /* v105: was 12px. The gap gave up 6px so the 44px buttons would not have to, once the strip
@@ -3328,7 +3328,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 // ---- v49-B. .hp-compact-strip has justify-content: space-between ----
 {
   const CSS = fs.readFileSync("style.css", "utf8");
-  const m = CSS.match(/\.hp-compact-strip\s*\{([^}]*)\}/);
+  const m = CSS.match(/(?:^|\n)\s*\.hp-compact-strip\s*\{([^}]*)\}/);
   assert(m && m[1].includes("space-between"), "551. .hp-compact-strip has justify-content:space-between");
 }
 
@@ -3350,12 +3350,12 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   assert(HTML.includes("tab-bar-wrapper"), "554. tab-bar-wrapper div present in index.html");
   assert(CSS.includes(".tab-bar-wrapper"), "555. .tab-bar-wrapper rule present in style.css");
   // Outer wrapper owns fixed positioning
-  const wrapperBlock = CSS.match(/\.tab-bar-wrapper\s*\{([^}]*)\}/);
+  const wrapperBlock = CSS.match(/(?:^|\n)\s*\.tab-bar-wrapper\s*\{([^}]*)\}/);
   assert(wrapperBlock && wrapperBlock[1].includes("position: fixed"), "556. .tab-bar-wrapper has position:fixed");
   assert(wrapperBlock && wrapperBlock[1].includes("var(--blood)"), "557. .tab-bar-wrapper uses blood background");
   assert(wrapperBlock && wrapperBlock[1].includes("padding: 1px"), "558. .tab-bar-wrapper has 1px padding");
   // Inner .tab-bar has no position:fixed, uses 7px clip-path
-  const barBlock = CSS.match(/\.tab-bar\s*\{([^}]*)\}/);
+  const barBlock = CSS.match(/(?:^|\n)\s*\.tab-bar\s*\{([^}]*)\}/);
   assert(barBlock && !barBlock[1].includes("position: fixed"), "559. .tab-bar has no position:fixed");
   assert(barBlock && barBlock[1].includes("7px"), "560. .tab-bar clip-path uses 7px inner chamfer");
 }
@@ -3369,8 +3369,8 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
 
 // ---- v51-D. VERSION and cache ----
 {
-  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v108"), "563. sw.js cache tystnad-v108");
-  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v108"'), "564. app.js VERSION pin matches the current release");
+  assert(fs.readFileSync("sw.js","utf8").includes("tystnad-v109"), "563. sw.js cache tystnad-v109");
+  assert(fs.readFileSync("app.js","utf8").includes('const VERSION = "v109"'), "564. app.js VERSION pin matches the current release");
 }
 
 // ---- v51-TL. Table Link surface (CAP-07) ----
@@ -4153,7 +4153,7 @@ function driveFlicker(w) { w.eval("for(var i=0;i<8;i++) window._ff();"); }
   // Visual identity: the per-turn budget is primary mechanical text, so bone not ash (Law 3),
   // and nothing in the card sits under the 0.75rem floor (Law 2).
   const CSS = fs.readFileSync("style.css", "utf8");
-  const ruleCSS = CSS.match(/\.action-rule\s*\{([^}]*)\}/);
+  const ruleCSS = CSS.match(/(?:^|\n)\s*\.action-rule\s*\{([^}]*)\}/);
   assert(ruleCSS && ruleCSS[1].includes("var(--bone)"), "947. .action-rule uses bone (Law 3, primary mechanics)");
   assert(ruleCSS && !ruleCSS[1].includes("var(--ash)"), "948. .action-rule is not ash");
   ["action-tier", "action-rule", "action-name", "action-desc", "action-improvised"].forEach((cls, i) => {
@@ -5092,8 +5092,15 @@ function fireEvent(handler) {
       "1481. Two columns that FLOW, so a short entry cannot leave a hole beside a long one");
     assert(/\.action-grid \.action-row \{[^}]*break-inside:\s*avoid/.test(CSS),
       "1481a. And no action is split across the column break");
-    assert(/\.action-grid \.action-tier[\s\S]{0,140}column-span: all/.test(CSS),
-      "1482. With the tier headings spanning both, so a heading cannot sit beside another group");
+    /* v109: Tomas chose the CONTINUOUS flow over banded columns, so the headings no longer
+       span. break-after is what keeps that safe: without it a heading can be stranded at the
+       foot of a column with its first action at the top of the next. */
+    assert(!/column-span: all/.test(CSS),
+      "1482. The headings do not span: the list flows continuously down one column and on into the next");
+    assert(/\.action-grid \.action-tier,[\s\S]{0,60}break-after:\s*avoid/.test(CSS),
+      "1482a. And no heading can be orphaned at the foot of a column, away from its own actions");
+    assert(/\.action-grid > \.action-tier:first-child \{ margin-top: 0; \}/.test(CSS),
+      "1482b. The first heading loses its top margin, so the two columns start level");
   }
 
   // Saves lose the skill name and grow.
@@ -5599,7 +5606,7 @@ function fireEvent(handler) {
     assert(d.getElementById("spell-name-display").textContent === first.textContent,
       "1370. And opens the one that was tapped");
     // Law 2: the floor is 0.75rem and this row was reduced to fit two across.
-    const size = (CSS101.match(/\.spell-row\s*\{[^}]*font-size:\s*([\d.]+)rem/) || [])[1];
+    const size = (CSS101.match(/(?:^|\n)\s*\.spell-row\s*\{[^}]*font-size:\s*([\d.]+)rem/) || [])[1];
     assert(size && parseFloat(size) >= 0.75, "1371. The spell row stays above the 0.75rem text floor");
   }
 
@@ -5651,7 +5658,7 @@ function fireEvent(handler) {
 }
 
 const swBehaviour = (async () => {
-  const CURRENT = "tystnad-v108";
+  const CURRENT = "tystnad-v109";
 
   // 1. Healthy deploy: everything caches, old cache is replaced, window is told.
   {
