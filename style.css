@@ -1632,13 +1632,17 @@ button.hp-max:active { color: var(--blood-bright); }
    one column while getComputedStyle still reported "1fr 1fr". Found by measuring the left
    edges rather than by reading the declaration. */
 .rules-topic-body.action-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 12px;
+  display: block;
+  column-count: 2;
+  column-gap: 14px;
 }
+.action-grid .action-row { break-inside: avoid; }
+/* Each group starts fresh across the full width, so a heading can never sit beside another
+   group's items. column-span restarts the column set, which is what keeps the reading order
+   honest: Quick, then Main, then Full, each balanced within its own band. */
 .action-grid .action-tier,
 .action-grid .action-rule,
-.action-grid .action-improvised { grid-column: 1 / -1; }
+.action-grid .action-improvised { column-span: all; }
 
 .action-tier {
   font-family: var(--font-display);
@@ -2503,3 +2507,46 @@ button.hp-max:active { color: var(--blood-bright); }
 
 .tl-card-img { width: 100%; height: auto; border-radius: 4px; display: block; }
 .tl-card-caption { color: var(--ash); font-size: 0.85rem; line-height: 1.4; margin: 0; }
+
+/* v108, Tomas's register. */
+
+/* 1. The version note lifts off the very bottom. */
+#intro-version-note { margin-bottom: 38px; }   /* 10mm */
+
+/* 3. With the skill line gone in v106, .save-btn had a single child and no justification, so
+   the word sat at the top of a 56px box. It was centred only by accident before. */
+.save-btn { justify-content: center; }
+
+/* 4. "Actions" now reads at the size of "Quick Actions" beneath it. Scoped to #action-card:
+   .rules-topic-title is shared with the Handbook and the Expedition accordions. */
+#action-card .rules-topic-title { font-size: 1.5rem; }
+
+/* 5. Initiative reads across, not down: label left, value and hint right. */
+.init-block-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 16px;
+  text-align: left;
+}
+.init-block-row .vital-label { flex: 1 1 auto; }
+.init-block-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+/* 6. Spell names in caps. The rows were already tuned to fit two across at 375px, and caps
+   are wider, so the tracking gives back what the capitals take. */
+/* Caps are wider, so the size comes down to keep two across at 375px without wrapping the
+   long names. min-height holds the 44px tap rule that the smaller text would otherwise break,
+   which is exactly the regression v105 was cleaning up. */
+.spell-row {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  min-height: 44px;
+}

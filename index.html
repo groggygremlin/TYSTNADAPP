@@ -307,10 +307,14 @@
 
     <!-- COMBAT TAB -->
     <div id="tab-combat" class="tab-panel hidden">
-      <button class="def-block" id="init-block" aria-label="Edit loadout">
+      <!-- v108: label left, value and hint right, so the block reads across instead of down
+           and takes roughly half the height it did. -->
+      <button class="def-block init-block-row" id="init-block" aria-label="Edit loadout">
         <span class="vital-label">Initiative Roll Contribution</span>
-        <span class="def-die" id="sheet-init">+0</span>
-        <span class="chip-hint">Tap to edit</span>
+        <span class="init-block-right">
+          <span class="def-die" id="sheet-init">+0</span>
+          <span class="chip-hint">Tap to edit</span>
+        </span>
       </button>
       <!-- v106: Attack and Defend share a row. They are the two most-tapped buttons in play
            and each was eating a full width for one word. -->
