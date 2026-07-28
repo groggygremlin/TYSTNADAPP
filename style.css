@@ -2409,7 +2409,9 @@ button.hp-max:active { color: var(--blood-bright); }
   margin: 0;
 }
 
-.tl-entitlement { color: var(--ash); line-height: 1.5; margin: 0; }
+/* v110: .tl-entitlement is retired. It held the old status line in ash, and the paragraph
+   that replaced it explains what joining DOES, which is primary information and therefore
+   bone under Law 3. Both greeting paragraphs are .tl-lead now. */
 
 .tl-buy {
   border: 1px solid var(--blood);

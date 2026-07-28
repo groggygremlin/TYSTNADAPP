@@ -426,9 +426,23 @@
 
     <!-- STATE: linked, choosing a table (lobby) -->
     <div id="tl-state-lobby" class="tl-state hidden">
-      <p class="tl-entitlement" id="tl-entitlement"></p>
+      <!-- v110: TOMAS'S COPY, drafted with him and his to overwrite.
+           The greeting stays visible and the money collapses, which is his ruling: a player
+           at the table wants to type eight characters and tap Join, while a first-timer wants
+           the story. The old opening line, which reported that the device was linked, is gone: v99
+           made registration mandatory and every player who reaches this screen came through it.
+           The correction that shaped all of this is Tomas's: Table Link is the CONNECTION
+           between this app and the GM's screen, not permission to play. A player can sit at
+           any table without owning a thing. The Entitlement Registry agrees, calling it
+           "Player connection to any GM campaign". -->
+      <p class="tl-lead">So you are joining your GM's table. Good.</p>
+      <p class="tl-lead">Joining connects this app to his screen. He can send you art, secret notes and rules while you play, and he can follow your Explorer's vitals as they change. What that shares is spelled out below.</p>
+
+      <!-- Built by tlRenderEntitlement, because the body depends on what he already owns. -->
+      <div id="tl-ownership"></div>
+
       <div id="tl-buy-prompt" class="tl-buy hidden">
-        <p class="tl-buy-text">This GM does not have Full House, so joining his table needs Table Link of your own.</p>
+        <p class="tl-buy-text">This GM does not have Full House GM Access, so connecting to his table needs Table Link of your own.</p>
         <a class="ghost-btn tl-linkout" href="https://playtystnad.com/account" target="_blank" rel="noopener">Get Table Link</a>
       </div>
       <!-- v100: restored. This link-out shipped on the retired link state, and went with it,
