@@ -99,6 +99,17 @@ body::before {
    its place at the foot, per Tomas: `margin-top: auto` holds it there while the rest rises.
    Scoped to #screen-intro so the gate, which shares the rule above, stays centred. */
 #screen-intro { justify-content: flex-start; }
+
+/* v107: Tomas asked for the logo 5mm lower and COMPANION 5mm higher. Only 2px separated the
+   image BOX from the text, but the logo PNG carries 51px of transparent padding below its
+   artwork and 65px above (measured off a canvas alpha scan, not guessed). So the move is paid
+   for out of that dead space rather than by shrinking the logo: 19px of padding pushes the
+   artwork down, and a negative top margin pulls COMPANION up into the transparent strip,
+   leaving about 15px of real clearance under the sword. The compensating bottom margin keeps
+   the buttons exactly where they were, since Tomas said the rest is fine.
+   Scoped to #screen-intro: the gate shares .intro-logo-wrap and .brand-sub and must not move. */
+#screen-intro .intro-logo-wrap { padding-top: 23px; gap: 0; }
+#screen-intro .brand-sub { margin-top: -36px; margin-bottom: 19px; }
 #screen-intro .intro-layout { flex: 1 1 auto; width: 100%; }
 #intro-version-note { margin-top: auto; }
 
