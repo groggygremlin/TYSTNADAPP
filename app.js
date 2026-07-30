@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v117";
+const VERSION = "v118";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3207,10 +3207,21 @@ function closeDefenseFailure() {
 
 // ---------- Navigation helpers ----------
 
-function requireAbandon(action) {
-  if (!character) { action(); return; }
+/* v118: the confirm overlay takes its wording from the caller. The MECHANISM was always
+   generic, holding whatever action it was handed; only the three strings were welded to
+   abandoning an Explorer, which is why sign-out could not borrow it until now. */
+function askConfirm(text, yesLabel, noLabel, action) {
+  $("confirm-text").textContent = text;
+  $("confirm-yes").textContent = yesLabel;
+  $("confirm-no").textContent = noLabel;
   pendingConfirmAction = action;
   show($("overlay-confirm"));
+}
+
+function requireAbandon(action) {
+  if (!character) { action(); return; }
+  // Unchanged wording and unchanged behaviour: this is the same prompt it always was.
+  askConfirm("Abandon this Explorer? He will not return.", "Abandon", "Keep Him", action);
 }
 
 /* ============================================================
@@ -4363,7 +4374,14 @@ document.addEventListener("DOMContentLoaded", () => {
   $("btn-join-table").addEventListener("click", openTableLink);
   $("tl-back").addEventListener("click", closeTableLink);
   $("tl-join-btn").addEventListener("click", tlDoJoin);
-  $("tl-unlink-btn").addEventListener("click", tlDoUnlink);
+  /* v118, ruled by Tomas 2026-07-29. v112 moved sign-out to the front door, which put a
+     one-tap, connection-requiring action on the launch screen with nothing between a stray
+     thumb and being signed out. The cost is not data (the Explorer stays) but reach: getting
+     back in needs signal, which a player at a table may not have. */
+  $("tl-unlink-btn").addEventListener("click", () => {
+    askConfirm("Sign out on this device? Signing back in needs a connection. Your Explorer stays here.",
+               "Sign out", "Stay signed in", tlDoUnlink);
+  });
   $("tl-forget-btn").addEventListener("click", tlForgetLocally);
   $("tl-leave-btn").addEventListener("click", tlLeaveSession);
   // APP-004: acknowledging the notice. The table is already gone; this clears the notice and

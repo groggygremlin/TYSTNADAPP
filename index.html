@@ -785,7 +785,10 @@
 
   <!-- ============ CONFIRM OVERLAY ============ -->
   <div id="overlay-confirm" class="overlay hidden">
-    <p class="confirm-text">Abandon this Explorer? He will not return.</p>
+    <!-- v118: the wording is set per use. The mechanism was already generic, carrying whatever
+         action the caller handed it; only these three strings were hard-wired to abandoning an
+         Explorer, which is why sign-out could not borrow it until now. -->
+    <p class="confirm-text" id="confirm-text">Abandon this Explorer? He will not return.</p>
     <div class="confirm-buttons">
       <button id="confirm-yes" class="danger-btn">Abandon</button>
       <button id="confirm-no" class="ghost-btn">Keep Him</button>
