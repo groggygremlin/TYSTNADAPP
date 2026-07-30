@@ -123,6 +123,15 @@
         <span class="field-label">Password</span>
         <input id="gate-si-password" type="password" maxlength="200" autocomplete="current-password">
       </label>
+      <!-- v115, APP-009: sign-in sent no device label, so every device arrived in the GM site's
+           Office as a blank row. The emailed-code screen had this field from v99; sign-in never
+           did. Prefilled rather than left empty, because an OPTIONAL field left blank produces
+           exactly the blank row the finding is about. Editable, and what you see is what is
+           sent. -->
+      <label class="field">
+        <span class="field-label">Device name (optional)</span>
+        <input id="gate-si-label" type="text" maxlength="100" autocomplete="off" placeholder="My phone">
+      </label>
       <button id="gate-si-btn" class="primary-btn slim" aria-label="Sign in">Sign in</button>
       <p class="tl-error hidden" id="gate-si-error"></p>
       <button id="gate-forgot-btn" class="ghost-btn" aria-label="Send a code to reset your password">I forgot my password</button>

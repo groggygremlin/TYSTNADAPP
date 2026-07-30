@@ -3,7 +3,7 @@
    Canon: Players Booklet v2.5
    ============================================================ */
 
-const VERSION = "v114";
+const VERSION = "v115";
 
 // ---------- Canon data (Players Booklet v2.5) ----------
 
@@ -3467,6 +3467,30 @@ function gateEmailLooksValid(v) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
+/* v115, APP-009. A coarse device name, so an account's device list is readable at a glance.
+   Not fingerprinting: five buckets and a fallback, from the user agent the browser already
+   sends on every request. iPadOS reports itself as a Mac, so the touch count is what tells the
+   two apart, which matters here because the iPad is the device that exposed the finding. */
+function gateDeviceName() {
+  const ua = navigator.userAgent || "";
+  const touch = navigator.maxTouchPoints || 0;
+  if (/iPad/i.test(ua) || (/Macintosh/i.test(ua) && touch > 1)) return "iPad";
+  if (/iPhone/i.test(ua)) return "iPhone";
+  if (/Android/i.test(ua)) return /Mobile/i.test(ua) ? "Android phone" : "Android tablet";
+  if (/Macintosh/i.test(ua)) return "Mac";
+  if (/Windows/i.test(ua)) return "Windows PC";
+  return "This device";
+}
+
+/* Only ever fills a field he has left empty, so a name he typed survives switching states
+   and coming back. */
+function gateSuggestDeviceName() {
+  ["gate-si-label", "gate-code-label"].forEach((id) => {
+    const el = $(id);
+    if (el && !el.value) el.value = gateDeviceName();
+  });
+}
+
 function gateShowState(name) {
   ["register", "code", "signin"].forEach((s) => {
     const el = $("gate-state-" + s);
@@ -3475,6 +3499,7 @@ function gateShowState(name) {
   tlHideError("gate-reg-error");
   tlHideError("gate-code-error");
   tlHideError("gate-si-error");
+  gateSuggestDeviceName();   // v115
 }
 
 /* The gate takes the whole window. Every other screen goes down, including #screen-table,
@@ -3490,7 +3515,7 @@ function gateOpen(state) {
    needed. They were never stored; this keeps them from lingering in a live field either. */
 function gateClearFields() {
   ["gate-reg-email", "gate-reg-password", "gate-code-input", "gate-code-password",
-   "gate-code-label", "gate-si-email", "gate-si-password"]
+   "gate-code-label", "gate-si-email", "gate-si-password", "gate-si-label"]
     .forEach((id) => { const el = $(id); if (el) el.value = ""; });
 }
 
@@ -3632,11 +3657,11 @@ async function gateDoSignin() {
       return;
     }
     if (!pw) { tlShowError("gate-si-error", "Enter your password."); return; }
+    const body = { email: email, password: pw.slice(0, GATE_PASSWORD_MAX) };
+    const label = $("gate-si-label").value.trim();
+    if (label) body.deviceLabel = label.slice(0, 100);   // v115, APP-009
     const r = await tlApi("/api/v1/app/login", {
-      method: "POST",
-      body: { email: email, password: pw.slice(0, GATE_PASSWORD_MAX) },
-      auth: false,
-      timeout: TL_TIMEOUT.link
+      method: "POST", body: body, auth: false, timeout: TL_TIMEOUT.link
     });
     // login never evicts another device: a phone and a tablet both stay linked.
     if (r.ok && r.data && r.data.deviceToken) { gateAcceptToken(r, email); return; }
