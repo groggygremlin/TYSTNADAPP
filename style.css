@@ -2563,7 +2563,22 @@ button.hp-max:active { color: var(--blood-bright); }
   padding: 8px 16px;
   text-align: left;
 }
-.init-block-row .vital-label { flex: 1 1 auto; }
+/* v117: the Initiative block, halved. RULED BY TOMAS 2026-07-29 ("shrink the label to fit").
+
+   A DELIBERATE, SCOPED DEVIATION FROM LAW 2, which names `.vital-label` as a display element
+   at 1.5rem. It applies to this block and nothing else, because since v106 this label is not a
+   section header: it sits inline beside its own value, which is a different job from heading a
+   panel. At 1.5rem its caps broke to three lines and held the block at 105px against the 73px
+   asked for; at 1.1rem it is two lines and the block is 68px, down from 146px before v106.
+
+   Recorded in CLAUDE.md under Law 2, so a later pass reads this as a ruling and not as drift.
+   ONE rule for this selector, deliberately: there were briefly two, and an assertion matching
+   by selector read the first and missed the font entirely. */
+.init-block-row .vital-label {
+  flex: 1 1 auto;
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
 .init-block-right {
   display: flex;
   flex-direction: column;
@@ -2638,3 +2653,4 @@ button.hp-max:active { color: var(--blood-bright); }
    Scoped to #handbook-body, so the Combat action card and the Expedition accordion keep their
    own treatments, and .howto-h stays blood-bright: Tomas asked for Rules Reference only. */
 #handbook-body .rules-topic-title { color: var(--bone); }
+
