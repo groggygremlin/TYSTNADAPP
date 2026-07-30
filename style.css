@@ -608,6 +608,24 @@ input::placeholder { color: var(--ash); opacity: 1; }
   justify-content: center;
 }
 
+/* v116: the last of the 44px tap-target flags. This one could not be solved the way the others
+   were, because the HP strip has 2px of spare width at 375px and this button needed 13 more:
+   widening it in the flow would have put the strip back over the screen, which is the defect
+   v105 fixed.
+
+   So the HIT AREA grows and the LAYOUT does not. Padding enlarges the box from 31x34 to 44x44
+   and equal negative margins cancel it out, so every neighbour stays exactly where it was.
+   The padding is asymmetric on purpose: the extra width goes LEFT, over the current-HP number,
+   which is text and not a control. Only 3px go right, which lands inside the 6px gap and never
+   reaches the HP + button, the most-tapped control on the screen.
+
+   The arithmetic took two corrections, both caught by measuring rather than by reading the
+   rule. First: the glyph box is 23px, not the 31px it measured, because 31 already included
+   its own 4px each side. Second, and the one that matters: **each margin must cancel only what
+   its own padding ADDED, not the whole padding.** Over-cancelling pulled the readout from 72px
+   to 64px and moved the HP + button with it, which is exactly the layout shift this technique
+   exists to avoid. Left padding 4 to 17 adds 13, so margin-left is -13; right padding is left
+   at 4 and its margin at 0; vertical 6 to 12 adds 6 each side, so margins are -6. */
 button.hp-max {
   background: none;
   border: none;
@@ -616,7 +634,8 @@ button.hp-max {
   font-weight: 600;
   color: var(--ash);
   cursor: pointer;
-  padding: 6px 4px;
+  padding: 12px 4px 12px 17px;
+  margin: -6px 0 -6px -13px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -2614,3 +2633,8 @@ button.hp-max:active { color: var(--blood-bright); }
   color: var(--bone);
   text-transform: uppercase;
 }
+
+/* v116: Rules Reference topic heads in bone, matching what v114 did for the Expedition guide.
+   Scoped to #handbook-body, so the Combat action card and the Expedition accordion keep their
+   own treatments, and .howto-h stays blood-bright: Tomas asked for Rules Reference only. */
+#handbook-body .rules-topic-title { color: var(--bone); }
