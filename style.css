@@ -2597,3 +2597,20 @@ button.hp-max:active { color: var(--blood-bright); }
 /* v113: it inherited .tl-forget-note from the Table Link screen, where it sat in a
    left-aligned column. Everything else in this block is centred. */
 .intro-account .tl-forget-note { text-align: center; }
+
+/* v114, Tomas's register.
+
+   Handbook headers in caps. `.howto-h` carries the scrolling sections (At the Table, What You
+   Need, and the rest) and the Rules Reference topics carry `.rules-topic-title`, so both are
+   named. Scoped to #handbook-body on purpose: `.rules-topic-title` is shared with the
+   Expedition guide below and with the Combat action card, and Tomas asked for neither of
+   those to change here. */
+#handbook-body .howto-h,
+#handbook-body .rules-topic-title { text-transform: uppercase; }
+
+/* Expedition section headers in bone and in caps. The block heading "HEXPLORATION" is a
+   .field-label and is deliberately left alone: Tomas ruled it stays as it is. */
+#expedition-guide .rules-topic-title {
+  color: var(--bone);
+  text-transform: uppercase;
+}
